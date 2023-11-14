@@ -1,5 +1,16 @@
 @import './base.css';
 
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: theme('colors.dark');
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  body {
+    background-color: theme('colors.slate.100');
+  }
+}
 body {
   font-family: 'Plus Jakarta Sans';
 }
