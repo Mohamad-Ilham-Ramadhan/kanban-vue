@@ -7,7 +7,7 @@ console.log('store', store)
 </script>
 
 <template>
-   <button @click="store.increment()">increment</button>
+   <button @click="store.increment()">Platform Launch</button>
    <div>Active board: {{ store.activeBoard }}</div>
 </template>
 
