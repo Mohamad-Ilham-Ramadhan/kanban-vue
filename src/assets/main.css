@@ -1,16 +1,34 @@
 @import './base.css';
 
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: theme('colors.dark');
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  body {
-    background-color: theme('colors.slate.100');
-  }
-}
 body {
   font-family: 'Plus Jakarta Sans';
+}
+/* dark theme */
+html.dark body {
+  background-color: theme('colors.dark');
+  color: #fff;
+}
+
+.beautify-scrollbar::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+  background-color: theme('colors.slate.300');
+}
+html.dark .beautify-scrollbar::-webkit-scrollbar {
+  background-color: theme('colors.zinc.900');
+}
+
+.beautify-scrollbar::-webkit-scrollbar-thumb {
+  width: 12px;
+  background-color: theme('colors.slate.400');
+  border-radius: 100px;
+}
+html.dark .beautify-scrollbar::-webkit-scrollbar-thumb {
+  background-color: theme('colors.zinc.700');
+}
+.beautify-scrollbar::-webkit-scrollbar-corner {
+  background-color: theme('colors.slate.300');
+}
+html.dark .beautify-scrollbar::-webkit-scrollbar-corner {
+  background-color: theme('colors.zinc.900');
 }
