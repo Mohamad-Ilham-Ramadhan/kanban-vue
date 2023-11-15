@@ -17,8 +17,8 @@ function toggleTheme() {
 </script>
 
 <template>
-  <header class="flex flex-row items-center w-full h-[96px] fixed left-0 top-0 z-50 bg-white dark:bg-dark-light border-b border-b-slate-700">
-    <div class="shrink-0 w-[300px] h-full flex items-center border-r border-r-slate-700 pl-8">
+  <header class="flex flex-row items-center w-full h-[96px] fixed left-0 top-0 z-50 bg-white dark:bg-dark-light border-b border-b-slate-200 dark:border-b-slate-700">
+    <div class="shrink-0 w-[300px] h-full flex items-center border-r border-r-slate-200 dark:border-r-slate-700 pl-8">
       <!-- <img src="@/assets/logo.svg" alt="logo"> -->
       <Logo />
     </div>
@@ -69,6 +69,16 @@ function toggleTheme() {
 
             </div>
           </div>
+
+          <div 
+            class="shrink-0 w-[286px] flex flex-col"
+          >
+            <div class="h-[44px]"></div>
+            <div class="h-full bg-gradient-to-b dark:from-[#383942] dark:to-dark from-gray-200 to-white text-slate-400 dark:text-slate-400 hover:text-primary hover:cursor-pointer rounded-lg transition-colors flex items-center justify-center font-bold text-2xl ">
+              + New Column
+            </div>
+          </div>
+          <div class="shrink-0 w-[100px]"></div>
         </div>
       </div>
     </main>
