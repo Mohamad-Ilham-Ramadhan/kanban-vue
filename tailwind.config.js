@@ -19,6 +19,7 @@ module.exports = {
         dot3: '#e5a449',
         dot4: '#2a3fdb',
         dot5: '#c36e6e',
+        'slate-400': '#828fa3',
       },
       borderRadius: {
         xl: '.75rem',

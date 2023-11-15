@@ -6,6 +6,7 @@ import IconEllipsis from '@/components/icons/IconEllipsis.vue'
 import IconBoard from '@/components/icons/IconBoard.vue'
 import IconMoonStar from '@/components/icons/IconMoonStar.vue'
 import IconSun from '@/components/icons/IconSun.vue'
+import IconHide from '@/components/icons/IconHide.vue'
 
 // store
 import { useBoardStore } from '@/stores/board.js'
@@ -41,40 +42,46 @@ function toggleTheme() {
 
   <div class="flex flex-row">
     <aside class="shrink-0 w-[300px] h-[100vh] fixed left-0 top-0 z-40 dark:bg-dark-light bg-white border-r border-r-slate-200 dark:border-r-slate-700 pt-[96px]">
-      <div class="h-full pt-4 beautify-scrollbar overflow-auto">
-        <div class="uppercase text-[.7rem] text-slate-500 dark:text-slate-400 font-bold tracking-[.175rem] pl-8 mb-4">
-          all boards ({{ boardStore.boards.length }})
-        </div>
-        <nav class="flex flex-col justify-between pr-6 mb-2">
-          <li 
-            v-for="(b, index) in boards" 
-            :class="['list-none font-bold flex items-center hover:bg-primary-light hover:text-white dark:hover:text-white hover:cursor-pointer pl-8 py-2.5 rounded-r-full mb-1', boardStore.activeIndex === index ? 'bg-primary text-white' : 'dark:text-slate-400 text-slate-500']"
-            @click="boardStore.setActiveIndex(index)"
-          >
-            <IconBoard class="mr-4" />
-            <div>{{ b.name }}</div>
-          </li>
-          <li class="flex items-center font-bold pl-8 py-2.5 list-none text-primary hover:opacity-60 hover:cursor-pointer transition-opacity">
-            <span class="mr-4"><IconBoard /></span>
-            <span>+ Create New Board</span>
-          </li>
-        </nav>
-
-        <div class="px-8">
-          <div class="flex items-center justify-center rounded-lg py-3.5 bg-indigo-50 dark:bg-dark text-slate-500 dark:text-slate-400">
-            <IconMoonStar />
-            <div 
-              class="p-[3px] rounded-full bg-primary w-[40px] h-[20px] flex hover:cursor-pointer mx-6"
-              @click="toggleTheme()"
+      <div class="flex flex-col justify-between h-full pt-4 beautify-scrollbar overflow-auto">
+        <div class="shrink-0">
+          <div class="uppercase text-[.7rem] text-slate-500 dark:text-slate-400 font-bold tracking-[.175rem] pl-8 mb-4">
+            all boards ({{ boardStore.boards.length }})
+          </div>
+          <nav class="flex flex-col justify-between pr-6 mb-2">
+            <li 
+              v-for="(b, index) in boards" 
+              :class="['list-none font-bold flex items-center hover:bg-primary-light hover:text-white dark:hover:text-white hover:cursor-pointer pl-8 py-2.5 rounded-r-full mb-1', boardStore.activeIndex === index ? 'bg-primary text-white' : 'dark:text-slate-400 text-slate-500']"
+              @click="boardStore.setActiveIndex(index)"
             >
-              <div class="rounded-full w-full h-full relative">
-                <div :class="['w-[14px] h-[14px] rounded-full bg-white transition-all relative', theme === 'dark' ? 'left-0' : 'left-[calc(100%-14px)]']"></div>
+              <IconBoard class="mr-4" />
+              <div>{{ b.name }}</div>
+            </li>
+            <li class="flex items-center font-bold pl-8 py-2.5 list-none text-primary hover:opacity-60 hover:cursor-pointer transition-opacity">
+              <span class="mr-4"><IconBoard /></span>
+              <span>+ Create New Board</span>
+            </li>
+          </nav>
+        </div>
+
+        <div class="shrink-0 pb-8">
+          <div class="px-6 mb-4">
+            <div class="flex items-center justify-center rounded-lg py-3.5 bg-indigo-50 dark:bg-dark text-slate-500 dark:text-slate-400">
+              <IconMoonStar />
+              <div 
+                class="p-[3px] rounded-full bg-primary w-[40px] h-[20px] flex hover:cursor-pointer mx-6"
+                @click="toggleTheme()"
+              >
+                <div class="rounded-full w-full h-full relative">
+                  <div :class="['w-[14px] h-[14px] rounded-full bg-white transition-all relative', theme === 'dark' ? 'left-0' : 'left-[calc(100%-14px)]']"></div>
+                </div>
               </div>
+              <IconSun />
             </div>
-            <IconSun />
+          </div>
+          <div class="flex items-center font-bold text-[15px] text-slate-400 hover:opacity-70 hover:cursor-pointer transition-colors pl-10">
+            <span><IconHide /></span><span>Hide Sidebar</span>
           </div>
         </div>
-  
       </div>
     </aside>
 
