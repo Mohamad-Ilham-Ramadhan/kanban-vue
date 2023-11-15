@@ -32,6 +32,7 @@ function toggleTheme() {
       </div>
     </div>
   </header>
+
   <div class="flex flex-row">
     <aside class="shrink-0 w-[300px] h-[100vh] fixed left-0 top-0 z-40 dark:bg-dark-light bg-white border-r border-r-slate-700 pt-[96px]">
       <div class="h-full pt-4 beautify-scrollbar overflow-auto">
@@ -39,7 +40,9 @@ function toggleTheme() {
           all boards ({{ boardStore.boards.length }})
         </div>
         <nav class="flex flex-col justify-between pr-6 mb-2">
-          <li v-for="(b, index) in boards" :class="['list-none font-bold flex items-center hover:bg-primary-light hover:text-white dark:hover:text-white hover:cursor-pointer pl-8 py-3 rounded-r-full mb-1', boardStore.activeIndex === index ? 'bg-primary text-white' : 'dark:text-slate-400 text-slate-500']"
+          <li 
+            v-for="(b, index) in boards" 
+            :class="['list-none font-bold flex items-center hover:bg-primary-light hover:text-white dark:hover:text-white hover:cursor-pointer pl-8 py-2.5 rounded-r-full mb-1', boardStore.activeIndex === index ? 'bg-primary text-white' : 'dark:text-slate-400 text-slate-500']"
             @click="boardStore.setActiveIndex(index)"
           >
             <IconBoard class="mr-4" />
@@ -55,14 +58,14 @@ function toggleTheme() {
         <div class="flex w-full h-full px-8 py-6">
           <div 
             v-for="(c, index) in boardStore.board.columns"
-            class="shrink-0 w-[280px] mr-6"
+            class="shrink-0 w-[286px] mr-7 flex flex-col"
           >
             <div class="flex items-center mb-6">
-              <div :class="['w-[14px] h-[14px] rounded-full mr-2', `bg-dot${index}`]"></div>
-              <div class="uppercase font-semibold tracking-[3px] text-xs text-slate-400">{{ c.name }} ({{ c.tasks.length }})</div>
+              <div :class="['w-[14px] h-[14px] rounded-full mr-3', `bg-dot${index}`]"></div>
+              <div class="uppercase font-semibold tracking-[3px] text-xs text-slate-400">{{ c.name }}({{ c.tasks.length }})</div>
             </div>
 
-            <div class="border-2 border-gray-600 border-dashed rounded-lg">
+            <div class="border-2 border-gray-600 border-dashed rounded-lg h-full">
 
             </div>
           </div>
