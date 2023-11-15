@@ -2,6 +2,7 @@
 import { ref, Teleport, Transition, watch } from 'vue'
 import { useBoardStore } from '@/stores/board';
 import Logo from '@/assets/logo.svg'
+import Button from './components/Button.vue';
 
 const store = useBoardStore()
 console.log('store', store)
@@ -9,6 +10,7 @@ console.log('store', store)
   function toggleTheme() {
     document.documentElement.classList.toggle('dark')
   }
+
 </script>
 
 <template>
@@ -16,8 +18,11 @@ console.log('store', store)
     <div class="shrink-0 w-[300px] h-full flex items-center border-r border-r-slate-700 pl-8">
       <img src="@/assets/logo.svg" alt="logo">
     </div>
-    <div class="flex items-center px-8">
+    <div class="flex flex-row w-full justify-between items-center px-8">
       <div class="font-bold text-2xl">Platform Launch</div>
+      <div class="flex">
+        <Button text="+ Add New Task" class="mr-4" />
+      </div>
     </div>
   </header>
   <div class="flex flex-row">
@@ -25,25 +30,15 @@ console.log('store', store)
       <div class="h-full pl-8 pr-6 beautify-scrollbar overflow-auto">
         <button @click="toggleTheme()">Toggle theme</button>
   
-        <div class="overflow-auto beautify-scrollbar">
-          <div class="bg-red-300 h-[1200px] flex flex-col justify-between ">
-            <div>item 1</div>
-            <div>item 2</div>
-            <div>item 3</div>
-          </div>
+        <div class="flex flex-col justify-between ">
+          <!--  -->
         </div>
       </div>
     </aside>
     <main class="pl-[300px] pt-[96px] pb-[40px] flex w-full h-[100vh] overflow-hidden">
       <div class="beautify-scrollbar w-[100vw] h-[calc(100vh-96px)] overflow-auto">
         <div class="flex w-full h-full">
-          <div class="shrink-0 w-[200px] bg-dark-light mr-4">item 1</div>
-          <div class="shrink-0 w-[200px] bg-dark-light mr-4">item 1</div>
-          <div class="shrink-0 w-[200px] bg-dark-light mr-4">item 1</div>
-          <div class="shrink-0 w-[200px] h-[1200px] bg-dark-light mr-4">item 1</div>
-          <div class="shrink-0 w-[200px] bg-dark-light mr-4">item 1</div>
-          <div class="shrink-0 w-[200px] bg-dark-light mr-4">item 1</div>
-          <div class="shrink-0 w-[200px] bg-dark-light mr-4">item 8</div>
+        <!-- ... -->
         </div>
       </div>
     </main>
