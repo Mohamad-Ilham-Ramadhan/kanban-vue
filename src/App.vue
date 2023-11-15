@@ -34,7 +34,7 @@ function toggleTheme() {
   </header>
 
   <div class="flex flex-row">
-    <aside class="shrink-0 w-[300px] h-[100vh] fixed left-0 top-0 z-40 dark:bg-dark-light bg-white border-r border-r-slate-700 pt-[96px]">
+    <aside class="shrink-0 w-[300px] h-[100vh] fixed left-0 top-0 z-40 dark:bg-dark-light bg-white border-r border-r-slate-200 dark:border-r-slate-700 pt-[96px]">
       <div class="h-full pt-4 beautify-scrollbar overflow-auto">
         <div class="uppercase text-[.7rem] text-slate-500 dark:text-slate-400 font-bold tracking-[.175rem] pl-8 mb-4">
           all boards ({{ boardStore.boards.length }})
@@ -65,16 +65,14 @@ function toggleTheme() {
               <div class="uppercase font-semibold tracking-[3px] text-xs text-slate-400">{{ c.name }}({{ c.tasks.length }})</div>
             </div>
 
-            <div class="border-2 border-gray-600 border-dashed rounded-lg h-full">
-
-            </div>
+            <div class="border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg h-full"></div>
           </div>
 
           <div 
             class="shrink-0 w-[286px] flex flex-col"
           >
             <div class="h-[44px]"></div>
-            <div class="h-full bg-gradient-to-b dark:from-[#383942] dark:to-dark from-gray-200 to-white text-slate-400 dark:text-slate-400 hover:text-primary hover:cursor-pointer rounded-lg transition-colors flex items-center justify-center font-bold text-2xl ">
+            <div class="h-full bg-gradient-to-b dark:from-[#383942] dark:to-dark from-slate-200 to-light-theme-bg text-slate-400 dark:text-slate-400 hover:text-primary hover:cursor-pointer rounded-lg transition-colors flex items-center justify-center font-bold text-2xl ">
               + New Column
             </div>
           </div>
