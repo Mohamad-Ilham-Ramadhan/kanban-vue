@@ -48,11 +48,16 @@ function toggleTheme() {
             <IconBoard class="mr-4" />
             <div>{{ b.name }}</div>
           </li>
+          <li class="flex items-center font-bold pl-8 py-2.5 list-none text-primary hover:opacity-60 hover:cursor-pointer transition-opacity">
+            <span class="mr-4"><IconBoard /></span>
+            <span>+ Create New Board</span>
+          </li>
         </nav>
         <Button @click="toggleTheme()" text="Toggle theme" />
   
       </div>
     </aside>
+
     <main class="pl-[300px] pt-[96px] pb-[40px] flex w-full h-[100vh] overflow-hidden">
       <div class="beautify-scrollbar w-[100vw] h-[calc(100vh-96px)] overflow-auto">
         <div class="flex w-full h-full px-8 py-6">
@@ -72,7 +77,7 @@ function toggleTheme() {
             class="shrink-0 w-[286px] flex flex-col"
           >
             <div class="h-[44px]"></div>
-            <div class="h-full bg-gradient-to-b dark:from-[#383942] dark:to-dark from-slate-200 to-light-theme-bg text-slate-400 dark:text-slate-400 hover:text-primary hover:cursor-pointer rounded-lg transition-colors flex items-center justify-center font-bold text-2xl ">
+            <div class="h-full bg-gradient-to-b dark:from-[#383942] dark:to-dark from-slate-200 to-light-theme-bg text-slate-400 dark:text-slate-400 hover:text-primary hover:cursor-pointer rounded-lg transition-colors flex items-center justify-center font-bold text-2xl">
               + New Column
             </div>
           </div>
