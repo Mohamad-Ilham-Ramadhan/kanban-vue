@@ -7,9 +7,10 @@ import IconBoard from '@/components/icons/IconBoard.vue'
 import IconMoonStar from '@/components/icons/IconMoonStar.vue'
 import IconSun from '@/components/icons/IconSun.vue'
 import IconHide from '@/components/icons/IconHide.vue'
+import IconClose from '@/components/icons/IconClose.vue'
 import Modal from '@/components/Modal.vue'
 import Input from '@/components/Input.vue'
-import { Form } from 'vee-validate'
+import { Form, FieldArray } from 'vee-validate'
 import * as yup from 'yup'
 // store
 import { useBoardStore } from '@/stores/board.js'
@@ -36,9 +37,6 @@ function onInvalidSubmit() {
   //   submitBtn.classList.remove('invalid');
   // }, 1000);
 }
-const schema = yup.object().shape({
-  'board-name': yup.string().required(),
-});
 </script>
 
 <template>
@@ -85,15 +83,35 @@ const schema = yup.object().shape({
             </li>
             <Modal :open="openCreateNewBoard" @close-modal="openCreateNewBoard = false" css-class="w-[480px]">
               <div class="font-bold text-lg mb-4">Add New Board</div>
-              <Form
-                @submit="onSubmit"
-                @invalid-submit="onInvalidSubmit"
-                :validation-schema="schema"
-              >
-                <div>
-                  <Input name="board-name" type="text" label="Name" />
+              <Form @submit="onSubmit" @invalid-submit="onInvalidSubmit" :validation-schema="yup.object().shape({
+                name: yup.string().required(),
+                columns: yup.array().of(yup.string().required()),
+              })" :initial-values="{ name: '', columns: [''] }">
+                <div class="mb-4">
+                  <label for="name" class="font-semibold text-xs text-slate-400 dark:text-white block mb-2">Name</label>
+                  <Input name="name" type="text" />
                 </div>
-                <button class="submit-btn" type="submit">Submit</button>
+                <div class="mb-4">
+                  <FieldArray name="columns" v-slot="{ fields, push, remove }">
+                    <div class="mb-4">
+                      <div class="mb-2">
+                        <label for="name"
+                          class="font-semibold text-xs text-slate-400 dark:text-white block mb-2">Columns</label>
+                      </div>
+                      <div v-for="(field, index) in fields" class="flex items-center mb-2">
+                        <Input :name="`columns[${index}]`" type="text" />
+                        <button v-show="fields.length > 1" @click="remove(index)" class="text-slate-400 p-2"
+                          type="button">
+                          <IconClose />
+                        </button>
+                      </div>
+                    </div>
+                    <Button v-show="fields.length < 6" @click="push('')" text="+ Add New Column" type="button"
+                      class="block w-full" size="small" background-color="bg-white hover:bg-indigo-50"
+                      color="text-primary" />
+                  </FieldArray>
+                </div>
+                <Button class="w-full" type="submit" text="Create New Board" size="small" />
               </Form>
             </Modal>
           </nav>
