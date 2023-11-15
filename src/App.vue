@@ -8,12 +8,11 @@ import IconBoard from '@/components/icons/IconBoard.vue'
 import { useBoardStore } from '@/stores/board.js'
 const boardStore = useBoardStore()
 const boards = boardStore.boards
-const board = boardStore.boards[boardStore.activeBoard]
-console.log('board', board)
 
-  function toggleTheme() {
-    document.documentElement.classList.toggle('dark')
-  }
+function toggleTheme() {
+  document.documentElement.classList.toggle('dark')
+}
+
 
 </script>
 
@@ -24,7 +23,7 @@ console.log('board', board)
       <Logo />
     </div>
     <div class="flex flex-row w-full justify-between items-center px-8">
-      <div class="font-bold text-2xl">{{ board.name }}</div>
+      <div class="font-bold text-2xl">{{ boardStore.board.name }}</div>
       <div class="flex items-center">
         <Button text="+ Add New Task" class="mr-4" />
         <button class="block p-2.5 rounded-xl text-slate-400 hover:bg-slate-200 dark:hover:bg-dark transition-colors">
@@ -40,7 +39,9 @@ console.log('board', board)
           all boards ({{ boardStore.boards.length }})
         </div>
         <nav class="flex flex-col justify-between pr-6 mb-2">
-          <li v-for="b in boards" class="list-none font-bold flex items-center dark:text-slate-400 text-slate-500 hover:bg-primary hover:text-white hover:cursor-pointer pl-8 py-3 rounded-r-full mb-1">
+          <li v-for="(b, index) in boards" :class="['list-none font-bold flex items-center hover:bg-primary-light hover:text-white dark:hover:text-white hover:cursor-pointer pl-8 py-3 rounded-r-full mb-1', boardStore.activeIndex === index ? 'bg-primary text-white' : 'dark:text-slate-400 text-slate-500']"
+            @click="boardStore.setActiveIndex(index)"
+          >
             <IconBoard class="mr-4" />
             <div>{{ b.name }}</div>
           </li>
@@ -53,6 +54,7 @@ console.log('board', board)
       <div class="beautify-scrollbar w-[100vw] h-[calc(100vh-96px)] overflow-auto">
         <div class="flex w-full h-full">
         <!-- ... -->
+        {{ boardStore.activeIndex }}
         </div>
       </div>
     </main>

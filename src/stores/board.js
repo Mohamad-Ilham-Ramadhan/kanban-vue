@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { v4 as uuid } from 'uuid'
 export const useBoardStore = defineStore('board', {
    state: () => ({
-      activeBoard: 0,
+      activeIndex: 0,
       boards: [
          {
             id: uuid(),
@@ -199,9 +199,12 @@ export const useBoardStore = defineStore('board', {
          },
       ]
    }),
+   getters: {
+      board: (state) => state.boards[state.activeIndex]
+   },
    actions: {
-      increment() {
-         this.activeBoard++
+      setActiveIndex(index) {
+         this.activeIndex = index
       },
    },
    persist: {
