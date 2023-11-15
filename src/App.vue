@@ -52,9 +52,20 @@ function toggleTheme() {
     </aside>
     <main class="pl-[300px] pt-[96px] pb-[40px] flex w-full h-[100vh] overflow-hidden">
       <div class="beautify-scrollbar w-[100vw] h-[calc(100vh-96px)] overflow-auto">
-        <div class="flex w-full h-full">
-        <!-- ... -->
-        {{ boardStore.activeIndex }}
+        <div class="flex w-full h-full px-8 py-6">
+          <div 
+            v-for="(c, index) in boardStore.board.columns"
+            class="shrink-0 w-[280px] mr-6"
+          >
+            <div class="flex items-center mb-6">
+              <div :class="['w-[14px] h-[14px] rounded-full mr-2', `bg-dot${index}`]"></div>
+              <div class="uppercase font-semibold tracking-[3px] text-xs text-slate-400">{{ c.name }} ({{ c.tasks.length }})</div>
+            </div>
+
+            <div class="border-2 border-gray-600 border-dashed rounded-lg">
+
+            </div>
+          </div>
         </div>
       </div>
     </main>
