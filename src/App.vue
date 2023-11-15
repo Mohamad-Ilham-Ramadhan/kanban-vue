@@ -4,13 +4,19 @@ import Logo from '@/components/Logo.vue'
 import Button from './components/Button.vue';
 import IconEllipsis from '@/components/icons/IconEllipsis.vue'
 import IconBoard from '@/components/icons/IconBoard.vue'
+import IconMoonStar from '@/components/icons/IconMoonStar.vue'
+import IconSun from '@/components/icons/IconSun.vue'
+
 // store
 import { useBoardStore } from '@/stores/board.js'
 const boardStore = useBoardStore()
 const boards = boardStore.boards
 
+const theme = ref('dark')
 function toggleTheme() {
   document.documentElement.classList.toggle('dark')
+  if (theme.value === 'dark') theme.value = 'light'
+  else theme.value = 'dark'
 }
 
 
@@ -53,7 +59,21 @@ function toggleTheme() {
             <span>+ Create New Board</span>
           </li>
         </nav>
-        <Button @click="toggleTheme()" text="Toggle theme" />
+
+        <div class="px-8">
+          <div class="flex items-center justify-center rounded-lg py-3.5 bg-indigo-50 dark:bg-dark text-slate-500 dark:text-slate-400">
+            <IconMoonStar />
+            <div 
+              class="p-[3px] rounded-full bg-primary w-[40px] h-[20px] flex hover:cursor-pointer mx-6"
+              @click="toggleTheme()"
+            >
+              <div class="rounded-full w-full h-full relative">
+                <div :class="['w-[14px] h-[14px] rounded-full bg-white transition-all relative', theme === 'dark' ? 'left-0' : 'left-[calc(100%-14px)]']"></div>
+              </div>
+            </div>
+            <IconSun />
+          </div>
+        </div>
   
       </div>
     </aside>
