@@ -106,6 +106,7 @@ function onInvalidSubmit() {
               <Form
                 @submit="(values) => {
                   boardStore.createNewBoard(values)
+                  openCreateNewBoard = false
                 }"
                 @invalid-submit="onInvalidSubmit"
                 :validation-schema="
