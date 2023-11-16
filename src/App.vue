@@ -94,7 +94,10 @@ function onInvalidSubmit() {
           </div>
           <div class="flex justify-between">
             <Button
-              @click="boardStore.deleteActiveBoard()"
+              @click="() => {
+                boardStore.deleteActiveBoard()
+                openModalDelete = false
+              }"
               size="small"
               text="Delete"
               class="w-full mr-2"

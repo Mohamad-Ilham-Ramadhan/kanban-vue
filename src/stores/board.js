@@ -215,7 +215,8 @@ export const useBoardStore = defineStore('board', {
          this.boards.push(newBoard)
       },
       deleteActiveBoard() {
-         alert('delete anjing')
+         this.boards.splice(this.activeIndex, 1)
+         this.activeIndex = 0
       },
    },
    persist: {
