@@ -206,6 +206,14 @@ export const useBoardStore = defineStore('board', {
       setActiveIndex(index) {
          this.activeIndex = index
       },
+      createNewBoard({name, columns}) {
+         const newBoard = {
+            id: uuid(),
+            name,
+            columns: columns.map( c => ({id: uuid(), name: c, tasks: []}))
+         }
+         this.boards.push(newBoard)
+      }
    },
    persist: {
       key: 'kanban'
