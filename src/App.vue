@@ -269,7 +269,15 @@ function onInvalidSubmit() {
               </div>
             </div>
 
+            <div v-show="c.tasks.length > 0" class="flex flex-col">
+              <div v-for="(t, index) in c.tasks" class="bg-dark-light rounded-lg border border-gray-750 hover:cursor-grab px-4 py-6 mb-4">
+                <div class="font-semibold text-[15px] mb-3">{{t.title}}</div>
+                <div class="text-xs text-slate-400 font-semibold">{{ t.subtasks.filter(st => st.isDone).length }} of {{ t.subtasks.length }} subtasks</div>
+              </div>
+            </div>
+
             <div
+              v-show="c.tasks.length === 0"
               class="border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg h-full"
             ></div>
           </div>

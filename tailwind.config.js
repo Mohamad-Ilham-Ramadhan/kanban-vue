@@ -21,6 +21,7 @@ module.exports = {
         dot5: '#c36e6e',
         'slate-400': '#828fa3',
         'red-450': '#ea5555',
+        'gray-750': '#313a48',
       },
       borderRadius: {
         xl: '.75rem',
