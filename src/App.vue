@@ -24,7 +24,8 @@ function toggleTheme() {
   else theme.value = 'dark'
 }
 
-const openCreateNewBoard = ref(true)
+const openCreateNewBoard = ref(false)
+const openOption = ref(false)
 
 function onSubmit(values) {
   alert(JSON.stringify(values, null, 2))
@@ -53,11 +54,19 @@ function onInvalidSubmit() {
       <div class="font-bold text-2xl">{{ boardStore.board.name }}</div>
       <div class="flex items-center">
         <Button text="+ Add New Task" class="mr-4" />
-        <button
-          class="block p-2.5 rounded-xl text-slate-400 hover:bg-slate-200 dark:hover:bg-dark transition-colors"
-        >
-          <IconEllipsis />
-        </button>
+        <div class="relative">
+          <button
+            @click="openOption = !openOption"
+            class="block p-2.5 rounded-xl text-slate-400 hover:bg-slate-200 dark:hover:bg-dark transition-colors"
+          >
+            <IconEllipsis />
+          </button>
+          <div v-show="openOption" class="absolute z-[1000] right-0 top-[130%] w-[196px] px-6 py-4 rounded-lg font-semibold bg-dark drop-shadow-md">
+            <div class="hover:cursor-pointer hover:opacity-60 text-slate-400 mb-3 transition-opacity">Edit Board</div>
+            <div class="hover:cursor-pointer hover:opacity-60 text-red-500 transition-opacity">Delete Board</div>
+          </div>
+          <div v-show="openOption" @click="openOption = false" class="fixed z-[100] inset-0"></div>
+        </div>
       </div>
     </div>
   </header>
