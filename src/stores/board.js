@@ -213,7 +213,10 @@ export const useBoardStore = defineStore('board', {
             columns: columns.map( c => ({id: uuid(), name: c, tasks: []}))
          }
          this.boards.push(newBoard)
-      }
+      },
+      deleteActiveBoard() {
+         alert('delete anjing')
+      },
    },
    persist: {
       key: 'kanban'

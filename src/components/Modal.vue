@@ -1,6 +1,6 @@
 <script setup >
 import { ref, Teleport, Transition, defineProps, onUpdated } from 'vue'
-const props = defineProps(['open', 'cssClass'])
+const props = defineProps(['open', 'class'])
 const modalRef = ref(null)
 onUpdated(() => {
   console.log(props.open, modalRef.value)
@@ -13,7 +13,7 @@ onUpdated(() => {
       <!-- modal -->
       <Transition name="modal">
         <div v-if="props.open" ref="modalRef"
-          :class="['p-8 dark:text-white text-black rounded-lg bg-white text-black dark:bg-dark-light fixed z-[1000] top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2', cssClass]">
+          :class="['p-8 dark:text-white text-black rounded-lg bg-white text-black dark:bg-dark-light fixed z-[1000] top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2', props.class]">
           <slot></slot>
         </div>
       </Transition>

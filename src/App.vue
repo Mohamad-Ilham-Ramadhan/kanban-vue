@@ -26,6 +26,7 @@ function toggleTheme() {
 
 const openCreateNewBoard = ref(false)
 const openOption = ref(false)
+const openModalDelete = ref(false)
 
 function onSubmit(values) {
   alert(JSON.stringify(values, null, 2))
@@ -61,12 +62,55 @@ function onInvalidSubmit() {
           >
             <IconEllipsis />
           </button>
-          <div v-show="openOption" class="absolute z-[1000] right-0 top-[130%] w-[196px] px-6 py-4 rounded-lg font-semibold bg-dark drop-shadow-md">
-            <div class="hover:cursor-pointer hover:opacity-60 text-slate-400 mb-3 transition-opacity">Edit Board</div>
-            <div class="hover:cursor-pointer hover:opacity-60 text-red-500 transition-opacity">Delete Board</div>
+          <div
+            v-show="openOption"
+            class="absolute z-[1000] right-0 top-[130%] w-[196px] px-6 py-4 rounded-lg font-semibold bg-dark drop-shadow-md"
+          >
+            <div
+              class="hover:cursor-pointer hover:opacity-60 text-slate-400 mb-3 transition-opacity"
+            >
+              Edit Board
+            </div>
+            <div
+              class="hover:cursor-pointer hover:opacity-60 text-red-450 transition-opacity"
+              @click="
+                () => {
+                  openModalDelete = true
+                  openOption = false
+                }
+              "
+            >
+              Delete Board
+            </div>
           </div>
           <div v-show="openOption" @click="openOption = false" class="fixed z-[100] inset-0"></div>
         </div>
+        <!-- Modal Delete -->
+        <Modal :open="openModalDelete" @close-modal="openModalDelete = false" class="w-[480px]">
+          <div class="text-red-450 font-bold text-lg mb-4">Delete this board?</div>
+          <div class="text-[.8rem] text-slate-400 font-semibold leading-6 mb-6">
+            Are you sure you want to delete the '{{ boardStore.board.name }}' board? This action
+            will remove all columns and tasks and cannot be reversed.
+          </div>
+          <div class="flex justify-between">
+            <Button
+              @click="boardStore.deleteActiveBoard()"
+              size="small"
+              text="Delete"
+              class="w-full mr-2"
+              background-color="bg-red-450 hover:opacity-60"
+              color="text-white"
+            />
+            <Button
+              @click="openModalDelete = false"
+              size="small"
+              text="Cancel"
+              class="w-full ml-2"
+              background-color="bg-white hover:opacity-60"
+              color="text-primary"
+            />
+          </div>
+        </Modal>
       </div>
     </div>
   </header>
@@ -109,15 +153,17 @@ function onInvalidSubmit() {
             <Modal
               :open="openCreateNewBoard"
               @close-modal="openCreateNewBoard = false"
-              css-class="w-[480px]"
+              class="w-[480px]"
             >
               <div class="font-bold text-lg mb-4">Add New Board</div>
               <Form
-                @submit="(values) => {
-                  boardStore.createNewBoard(values)
-                  openCreateNewBoard = false
-                  boardStore.setActiveIndex(boardStore.boards.length - 1)
-                }"
+                @submit="
+                  (values) => {
+                    boardStore.createNewBoard(values)
+                    openCreateNewBoard = false
+                    boardStore.setActiveIndex(boardStore.boards.length - 1)
+                  }
+                "
                 @invalid-submit="onInvalidSubmit"
                 :validation-schema="
                   yup.object().shape({
@@ -200,9 +246,7 @@ function onInvalidSubmit() {
           <div
             class="flex items-center font-bold text-[15px] text-slate-400 hover:opacity-70 hover:cursor-pointer transition-colors pl-10"
           >
-            <span>
-              <IconHide /> </span
-            ><span>Hide Sidebar</span>
+            <span> <IconHide /> </span><span>Hide Sidebar</span>
           </div>
         </div>
       </div>
