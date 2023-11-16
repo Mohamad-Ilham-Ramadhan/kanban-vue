@@ -107,6 +107,7 @@ function onInvalidSubmit() {
                 @submit="(values) => {
                   boardStore.createNewBoard(values)
                   openCreateNewBoard = false
+                  boardStore.setActiveIndex(boardStore.boards.length - 1)
                 }"
                 @invalid-submit="onInvalidSubmit"
                 :validation-schema="
