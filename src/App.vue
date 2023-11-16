@@ -260,7 +260,7 @@ function onInvalidSubmit() {
         <div class="flex w-full h-full px-8 py-6">
           <div
             v-for="(c, index) in boardStore.board.columns"
-            class="shrink-0 w-[286px] mr-7 flex flex-col"
+            class="shrink-0 w-[286px] mr-8 flex flex-col"
           >
             <div class="flex items-center mb-6">
               <div :class="['w-[14px] h-[14px] rounded-full mr-3', `bg-dot${index}`]"></div>
@@ -270,8 +270,8 @@ function onInvalidSubmit() {
             </div>
 
             <div v-show="c.tasks.length > 0" class="flex flex-col">
-              <div v-for="(t, index) in c.tasks" class="bg-dark-light rounded-lg border border-gray-750 hover:cursor-grab px-4 py-6 mb-4">
-                <div class="font-semibold text-[15px] mb-3">{{t.title}}</div>
+              <div v-for="(t, index) in c.tasks" class="bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab px-4 py-6 mb-4">
+                <div class="font-bold text-[15px] mb-3">{{t.title}}</div>
                 <div class="text-xs text-slate-400 font-semibold">{{ t.subtasks.filter(st => st.isDone).length }} of {{ t.subtasks.length }} subtasks</div>
               </div>
             </div>
