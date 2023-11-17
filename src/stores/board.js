@@ -225,6 +225,9 @@ export const useBoardStore = defineStore('board', {
             }
             return c
          })
+      },
+      setName(name) {
+         this.board.name = name
       }
    },
    persist: {
