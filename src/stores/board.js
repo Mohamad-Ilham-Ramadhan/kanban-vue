@@ -218,6 +218,17 @@ export const useBoardStore = defineStore('board', {
          this.boards.splice(this.activeIndex, 1)
          this.activeIndex = 0
       },
+      addNewcolumn(columns) {
+         console.log('addNewcolumn() columns', columns)
+
+         columns.forEach( (c, index) => {
+            if (c.preserved) {
+               this.board.columns[index].name = c.name 
+            } else {
+               this.board.columns.push({id: uuid(), name: c.name, tasks: []})
+            }
+         })
+      }
    },
    persist: {
       key: 'kanban'

@@ -368,8 +368,8 @@ function onInvalidSubmit() {
               <Form
                 @submit="
                   (values) => {
-                    // openModalNewColumn = false
-                    console.log(values)
+                    boardStore.addNewcolumn(values.columns)
+                    openModalNewColumn = false
                   }
                 "
                 @invalid-submit="onInvalidSubmit"
@@ -381,7 +381,7 @@ function onInvalidSubmit() {
                     }))
                   })
                 "
-                :initial-values="{ coba: '', name: boardStore.board.name, columns: boardStore.board.columns.map( c => ({name: c.name, preserved: true})) }"
+                :initial-values="{ name: boardStore.board.name, columns: boardStore.board.columns.map( c => ({name: c.name, preserved: true})) }"
               >
                 <div class="mb-4">
                   <label
