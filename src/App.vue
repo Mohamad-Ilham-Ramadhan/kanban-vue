@@ -119,21 +119,26 @@ function onInvalidSubmit() {
         </Modal>
 
         <!-- Modal Edit Board -->
-        <Modal :open="openModalEdit" @close-modal="openModalEdit = false">
+        <Modal :open="openModalEdit" @close-modal="openModalEdit = false" class="w-[480px]">
           <div class="font-bold text-lg mb-4">Edit Board</div>
           <Form
             @submit="
               (values) => {
+                console.log('SUBMIT form edit')
+                boardStore.addNewcolumn(values.columns)
+                boardStore.setName(values.name)
                 openModalEdit = false
               }
             "
             :validation-schema="
               yup.object().shape({
                 name: yup.string().required(),
-                columns: yup.array().of(yup.string().required())
+                columns: yup.array().of(yup.object().shape({
+                  name: yup.string().required()
+                }))
               })
             "
-            :initial-values="{ name: '', columns: [''] }"
+            :initial-values="{ name: boardStore.board.name, columns: boardStore.board.columns }"
           >
             <div class="mb-4">
               <label
@@ -154,12 +159,13 @@ function onInvalidSubmit() {
                     >
                   </div>
                   <div v-for="(field, index) in fields" class="flex items-center mb-2">
-                    <Input :name="`columns[${index}]`" type="text" />
+                    <Input :name="`columns[${index}].name`" :value="field.value.name" type="text" />
                     <button
                       v-show="fields.length > 1"
                       @click="remove(index)"
-                      class="text-slate-400 p-2"
+                      :class="['text-slate-400 p-2', field.value.tasks.length > 0 ? 'opacity-30' : '']"
                       type="button"
+                      :disabled="field.value.tasks.length > 0"
                     >
                       <IconClose />
                     </button>
@@ -167,7 +173,7 @@ function onInvalidSubmit() {
                 </div>
                 <Button
                   v-show="fields.length < 6"
-                  @click="push('')"
+                  @click="push({name: '', tasks: []})"
                   text="+ Add New Column"
                   type="button"
                   class="block w-full"
@@ -177,7 +183,7 @@ function onInvalidSubmit() {
                 />
               </FieldArray>
             </div>
-            <Button class="w-full" type="submit" text="Create New Board" size="small" />
+            <Button class="w-full" type="submit" text="Save Changes" size="small" />
           </Form>
         </Modal>
       </div>
@@ -377,7 +383,6 @@ function onInvalidSubmit() {
                   yup.object().shape({
                     columns: yup.array().of(yup.object().shape({
                       name: yup.string().required(),
-                      preserved: yup.boolean()
                     }))
                   })
                 "
