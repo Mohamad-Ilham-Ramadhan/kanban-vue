@@ -27,17 +27,14 @@ function toggleTheme() {
 const openCreateNewBoard = ref(false)
 const openOption = ref(false)
 const openModalDelete = ref(false)
+const openModalNewColumn = ref(false)
+const openModalEdit = ref(false)
 
 function onSubmit(values) {
   alert(JSON.stringify(values, null, 2))
 }
 function onInvalidSubmit() {
   alert('Invalid submit')
-  // const submitBtn = document.querySelector('.submit-btn');
-  // submitBtn.classList.add('invalid');
-  // setTimeout(() => {
-  //   submitBtn.classList.remove('invalid');
-  // }, 1000);
 }
 </script>
 
@@ -54,7 +51,7 @@ function onInvalidSubmit() {
     <div class="flex flex-row w-full justify-between items-center px-8">
       <div class="font-bold text-2xl">{{ boardStore.board.name }}</div>
       <div class="flex items-center">
-        <Button text="+ Add New Task" class="mr-4" />
+        <Button text="+ Add New Task" class="mr-4"/>
         <div class="relative">
           <button
             @click="openOption = !openOption"
@@ -68,6 +65,10 @@ function onInvalidSubmit() {
           >
             <div
               class="hover:cursor-pointer hover:opacity-60 text-slate-400 mb-3 transition-opacity"
+              @click="() => {
+                openModalEdit = true
+                openOption = false
+              }"
             >
               Edit Board
             </div>
@@ -85,7 +86,7 @@ function onInvalidSubmit() {
           </div>
           <div v-show="openOption" @click="openOption = false" class="fixed z-[100] inset-0"></div>
         </div>
-        <!-- Modal Delete -->
+        <!-- Modal Delete Board -->
         <Modal :open="openModalDelete" @close-modal="openModalDelete = false" class="w-[480px]">
           <div class="text-red-450 font-bold text-lg mb-4">Delete this board?</div>
           <div class="text-[.8rem] text-slate-400 font-semibold leading-6 mb-6">
@@ -94,10 +95,12 @@ function onInvalidSubmit() {
           </div>
           <div class="flex justify-between">
             <Button
-              @click="() => {
-                boardStore.deleteActiveBoard()
-                openModalDelete = false
-              }"
+              @click="
+                () => {
+                  boardStore.deleteActiveBoard()
+                  openModalDelete = false
+                }
+              "
               size="small"
               text="Delete"
               class="w-full mr-2"
@@ -113,6 +116,69 @@ function onInvalidSubmit() {
               color="text-primary"
             />
           </div>
+        </Modal>
+
+        <!-- Modal Edit Board -->
+        <Modal :open="openModalEdit" @close-modal="openModalEdit = false">
+          <div class="font-bold text-lg mb-4">Edit Board</div>
+          <Form
+            @submit="
+              (values) => {
+                openModalEdit = false
+              }
+            "
+            :validation-schema="
+              yup.object().shape({
+                name: yup.string().required(),
+                columns: yup.array().of(yup.string().required())
+              })
+            "
+            :initial-values="{ name: '', columns: [''] }"
+          >
+            <div class="mb-4">
+              <label
+                for="name"
+                class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
+                >Name</label
+              >
+              <Input name="name" type="text" />
+            </div>
+            <div class="mb-4">
+              <FieldArray name="columns" v-slot="{ fields, push, remove }">
+                <div class="mb-4">
+                  <div class="mb-2">
+                    <label
+                      for="name"
+                      class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
+                      >Columns</label
+                    >
+                  </div>
+                  <div v-for="(field, index) in fields" class="flex items-center mb-2">
+                    <Input :name="`columns[${index}]`" type="text" />
+                    <button
+                      v-show="fields.length > 1"
+                      @click="remove(index)"
+                      class="text-slate-400 p-2"
+                      type="button"
+                    >
+                      <IconClose />
+                    </button>
+                  </div>
+                </div>
+                <Button
+                  v-show="fields.length < 6"
+                  @click="push('')"
+                  text="+ Add New Column"
+                  type="button"
+                  class="block w-full"
+                  size="small"
+                  background-color="bg-white hover:bg-indigo-50"
+                  color="text-primary"
+                />
+              </FieldArray>
+            </div>
+            <Button class="w-full" type="submit" text="Create New Board" size="small" />
+          </Form>
         </Modal>
       </div>
     </div>
@@ -270,9 +336,15 @@ function onInvalidSubmit() {
             </div>
 
             <div v-show="c.tasks.length > 0" class="flex flex-col">
-              <div v-for="(t, index) in c.tasks" class="bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab px-4 py-6 mb-4">
-                <div class="font-bold text-[15px] mb-3">{{t.title}}</div>
-                <div class="text-xs text-slate-400 font-semibold">{{ t.subtasks.filter(st => st.isDone).length }} of {{ t.subtasks.length }} subtasks</div>
+              <div
+                v-for="(t, index) in c.tasks"
+                class="bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab px-4 py-6 mb-4"
+              >
+                <div class="font-bold text-[15px] mb-3">{{ t.title }}</div>
+                <div class="text-xs text-slate-400 font-semibold">
+                  {{ t.subtasks.filter((st) => st.isDone).length }} of
+                  {{ t.subtasks.length }} subtasks
+                </div>
               </div>
             </div>
 
@@ -285,10 +357,78 @@ function onInvalidSubmit() {
           <div class="shrink-0 w-[286px] flex flex-col">
             <div class="h-[44px]"></div>
             <div
-              class="h-full bg-gradient-to-b dark:from-[#383942] dark:to-dark from-slate-200 to-light-theme-bg text-slate-400 dark:text-slate-400 hover:text-primary hover:cursor-pointer rounded-lg transition-colors flex items-center justify-center font-bold text-2xl"
+              class="h-full bg-gradient-to-b dark:from-dark-light dark:to-dark from-slate-200 to-light-theme-bg text-slate-400 dark:text-slate-400 hover:text-primary dark:hover:text-primary hover:cursor-pointer rounded-lg transition-colors shadow-md shadow-zinc-900 flex items-center justify-center font-bold text-2xl"
+              @click="openModalNewColumn=true"
             >
               + New Column
             </div>
+            <!-- Modal Add New Column -->
+            <Modal :open="openModalNewColumn" @close-modal="openModalNewColumn = false" class="w-[480px]">
+              <div class="font-bold text-lg mb-4">Add New Column</div>
+              <Form
+                @submit="
+                  (values) => {
+                    // openModalNewColumn = false
+                    console.log(values)
+                  }
+                "
+                @invalid-submit="onInvalidSubmit"
+                :validation-schema="
+                  yup.object().shape({
+                    columns: yup.array().of(yup.object().shape({
+                      name: yup.string().required(),
+                      preserved: yup.boolean()
+                    }))
+                  })
+                "
+                :initial-values="{ coba: '', name: boardStore.board.name, columns: boardStore.board.columns.map( c => ({id: c.id, name: c.name, preserved: true})) }"
+              >
+                <div class="mb-4">
+                  <label
+                    for="name"
+                    class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
+                    >Name</label
+                  >
+                  <Input name="name" type="text" :disabled="true" />
+                </div>
+                
+                <div class="mb-4">
+                  <FieldArray name="columns" v-slot="{ fields, push, remove }">
+                    <div class="mb-4">
+                      <div class="mb-2">
+                        <label
+                          for="name"
+                          class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
+                          >Columns</label
+                        >
+                      </div>
+                      <div v-for="(field, index) in fields" class="flex items-center mb-2">
+                        <Input :name="`columns[${index}].name`" :value="field.value.name" type="text" />
+                        <button
+                          v-show="fields.length > 1"
+                          class="text-slate-400 p-2 opacity-30"
+                          type="button"
+                          disabled
+                        >
+                          <IconClose />
+                        </button>
+                      </div>
+                    </div>
+                    <Button
+                      v-show="fields.length < 6"
+                      @click="push('')"
+                      text="+ Add New Column"
+                      type="button"
+                      class="block w-full"
+                      size="small"
+                      background-color="bg-white hover:bg-indigo-50"
+                      color="text-primary"
+                    />
+                  </FieldArray>
+                </div>
+                <Button class="w-full" type="submit" text="Create New Board" size="small" />
+              </Form>
+            </Modal>
           </div>
           <div class="shrink-0 w-[100px]"></div>
         </div>
