@@ -381,7 +381,7 @@ function onInvalidSubmit() {
                     }))
                   })
                 "
-                :initial-values="{ name: boardStore.board.name, columns: boardStore.board.columns.map( c => ({name: c.name, preserved: true})) }"
+                :initial-values="{ name: boardStore.board.name, columns: boardStore.board.columns }"
               >
                 <div class="mb-4">
                   <label
@@ -406,9 +406,9 @@ function onInvalidSubmit() {
                         <Input :name="`columns[${index}].name`" :value="field.value.name" type="text" />
                         <button
                           v-show="fields.length > 1"
-                          :class="['text-slate-400 p-2', field.value.preserved ? 'opacity-30' : '']"
+                          :class="['text-slate-400 p-2', field.value.tasks.length > 0 ? 'opacity-30' : '']"
                           type="button"
-                          :disabled="field.value.preserved"
+                          :disabled="field.value.tasks.length > 0"
                           @click="remove(index)"
                         >
                           <IconClose />
@@ -417,7 +417,7 @@ function onInvalidSubmit() {
                     </div>
                     <Button
                       v-show="fields.length < 6"
-                      @click="push({name: '', preserved: false})"
+                      @click="push({name: '', tasks: []})"
                       text="+ Add New Column"
                       type="button"
                       class="block w-full"
@@ -427,7 +427,7 @@ function onInvalidSubmit() {
                     />
                   </FieldArray>
                 </div>
-                <Button class="w-full" type="submit" text="Create New Board" size="small" />
+                <Button class="w-full" type="submit" text="Save Changes" size="small" />
               </Form>
             </Modal>
           </div>
