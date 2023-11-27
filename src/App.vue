@@ -41,8 +41,10 @@ function moveScrollHandler(e) {
 }
 function removeScrollHandler() {
   console.log('remove scroll handler')
+  doc.body.classList.toggle('select-none')
   doc.removeEventListener('mousemove', moveScrollHandler)
   doc.removeEventListener('mouseup', removeScrollHandler)
+  dragScroll.value = false
 }
 </script>
 
@@ -349,13 +351,15 @@ function removeScrollHandler() {
         @mousedown="
           (e) => {
             dragScroll = true
-
             doc.body.classList.toggle('select-none')
             doc.addEventListener('mousemove', moveScrollHandler)
             doc.addEventListener('mouseup', removeScrollHandler)
           }
         "
       >
+        <Teleport to="body">
+          <div v-if="dragScroll" class="absolute inset-0 z-[1000]" id="scrolling-overlay" comment="to prevent hover effect of any element"></div>
+        </Teleport>
         <div
           class="flex w-full h-full px-8 py-6"
         >
