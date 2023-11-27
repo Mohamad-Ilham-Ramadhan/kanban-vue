@@ -424,7 +424,7 @@ function removeScrollHandler() {
               <Form
                 @submit="
                   (values) => {
-                    boardStore.addNewcolumn(values.columns)
+                    boardStore.addNewcolumn(values.columns.map(c => ({...c, name: c.name.trim()})))
                     openModalNewColumn = false
                   }
                 "
