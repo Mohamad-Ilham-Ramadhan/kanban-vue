@@ -30,12 +30,6 @@ const openModalDelete = ref(false)
 const openModalNewColumn = ref(false)
 const openModalEdit = ref(false)
 
-function onSubmit(values) {
-  alert(JSON.stringify(values, null, 2))
-}
-function onInvalidSubmit() {
-  alert('Invalid submit')
-}
 const refDragScroll = ref(null)
 const dragScroll = ref(false)
 const x = ref(0)
@@ -46,9 +40,9 @@ function moveScrollHandler(e) {
   refDragScroll.value.scrollLeft = refDragScroll.value.scrollLeft + e.movementX
 }
 function removeScrollHandler() {
-  doc.body.classList.toggle('select-none')
+  console.log('remove scroll handler')
   doc.removeEventListener('mousemove', moveScrollHandler)
-  doc.removeEventListener('mousemove', removeScrollHandler)
+  doc.removeEventListener('mouseup', removeScrollHandler)
 }
 </script>
 
@@ -260,7 +254,7 @@ function removeScrollHandler() {
                     boardStore.setActiveIndex(boardStore.boards.length - 1)
                   }
                 "
-                @invalid-submit="onInvalidSubmit"
+                @invalid-submit="() => {}"
                 :validation-schema="
                   yup.object().shape({
                     name: yup.string().required(),
@@ -364,11 +358,6 @@ function removeScrollHandler() {
       >
         <div
           class="flex w-full h-full px-8 py-6"
-          @mousedown="
-            (e) => {
-              console.log('card wrapper mouse down')
-            }
-          "
         >
           <div
             v-for="(c, index) in boardStore.board.columns"
@@ -429,7 +418,7 @@ function removeScrollHandler() {
                     openModalNewColumn = false
                   }
                 "
-                @invalid-submit="onInvalidSubmit"
+                @invalid-submit="() => {}"
                 :validation-schema="
                   yup.object().shape({
                     columns: yup.array().of(
