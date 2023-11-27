@@ -29,6 +29,6 @@ module.exports = {
     },
   },
   plugins: [],
-  safelist: ['bg-dot0', 'bg-dot1', 'bg-dot2', 'bg-dot3', 'bg-dot4', 'bg-dot5']
+  safelist: ['bg-dot0', 'bg-dot1', 'bg-dot2', 'bg-dot3', 'bg-dot4', 'bg-dot5', 'select-none']
 }
 

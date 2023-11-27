@@ -36,6 +36,20 @@ function onSubmit(values) {
 function onInvalidSubmit() {
   alert('Invalid submit')
 }
+const refDragScroll = ref(null)
+const dragScroll = ref(false)
+const x = ref(0)
+
+const doc = document
+
+function moveScrollHandler(e) {
+  refDragScroll.value.scrollLeft = refDragScroll.value.scrollLeft + e.movementX
+}
+function removeScrollHandler() {
+  doc.body.classList.toggle('select-none')
+  doc.removeEventListener('mousemove', moveScrollHandler)
+  doc.removeEventListener('mousemove', removeScrollHandler)
+}
 </script>
 
 <template>
@@ -51,7 +65,7 @@ function onInvalidSubmit() {
     <div class="flex flex-row w-full justify-between items-center px-8">
       <div class="font-bold text-2xl">{{ boardStore.board.name }}</div>
       <div class="flex items-center">
-        <Button text="+ Add New Task" class="mr-4"/>
+        <Button text="+ Add New Task" class="mr-4" />
         <div class="relative">
           <button
             @click="openOption = !openOption"
@@ -65,10 +79,12 @@ function onInvalidSubmit() {
           >
             <div
               class="hover:cursor-pointer hover:opacity-60 text-slate-400 mb-3 transition-opacity"
-              @click="() => {
-                openModalEdit = true
-                openOption = false
-              }"
+              @click="
+                () => {
+                  openModalEdit = true
+                  openOption = false
+                }
+              "
             >
               Edit Board
             </div>
@@ -133,9 +149,11 @@ function onInvalidSubmit() {
             :validation-schema="
               yup.object().shape({
                 name: yup.string().required(),
-                columns: yup.array().of(yup.object().shape({
-                  name: yup.string().required()
-                }))
+                columns: yup.array().of(
+                  yup.object().shape({
+                    name: yup.string().required()
+                  })
+                )
               })
             "
             :initial-values="{ name: boardStore.board.name, columns: boardStore.board.columns }"
@@ -163,7 +181,10 @@ function onInvalidSubmit() {
                     <button
                       v-show="fields.length > 1"
                       @click="remove(index)"
-                      :class="['text-slate-400 p-2', field.value.tasks.length > 0 ? 'opacity-30' : '']"
+                      :class="[
+                        'text-slate-400 p-2',
+                        field.value.tasks.length > 0 ? 'opacity-30' : ''
+                      ]"
                       type="button"
                       :disabled="field.value.tasks.length > 0"
                     >
@@ -173,7 +194,7 @@ function onInvalidSubmit() {
                 </div>
                 <Button
                   v-show="fields.length < 6"
-                  @click="push({name: '', tasks: []})"
+                  @click="push({ name: '', tasks: [] })"
                   text="+ Add New Column"
                   type="button"
                   class="block w-full"
@@ -328,8 +349,27 @@ function onInvalidSubmit() {
     </aside>
 
     <main class="pl-[300px] pt-[96px] pb-[40px] flex w-full h-[100vh] overflow-hidden">
-      <div class="beautify-scrollbar w-[100vw] h-[calc(100vh-96px)] overflow-auto">
-        <div class="flex w-full h-full px-8 py-6">
+      <div
+        class="beautify-scrollbar w-[100vw] h-[calc(100vh-96px)] overflow-auto hover:cursor-col-resize"
+        ref="refDragScroll"
+        @mousedown="
+          (e) => {
+            dragScroll = true
+
+            doc.body.classList.toggle('select-none')
+            doc.addEventListener('mousemove', moveScrollHandler)
+            doc.addEventListener('mouseup', removeScrollHandler)
+          }
+        "
+      >
+        <div
+          class="flex w-full h-full px-8 py-6"
+          @mousedown="
+            (e) => {
+              console.log('card wrapper mouse down')
+            }
+          "
+        >
           <div
             v-for="(c, index) in boardStore.board.columns"
             class="shrink-0 w-[286px] mr-8 flex flex-col"
@@ -341,10 +381,17 @@ function onInvalidSubmit() {
               </div>
             </div>
 
+            <!-- card (tasks) -->
             <div v-show="c.tasks.length > 0" class="flex flex-col">
               <div
                 v-for="(t, index) in c.tasks"
-                class="bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab px-4 py-6 mb-4"
+                class="bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 mb-4"
+                @mousedown="
+                  (e) => {
+                    console.log('card mouse down')
+                    e.stopPropagation()
+                  }
+                "
               >
                 <div class="font-bold text-[15px] mb-3">{{ t.title }}</div>
                 <div class="text-xs text-slate-400 font-semibold">
@@ -364,12 +411,16 @@ function onInvalidSubmit() {
             <div class="h-[44px]"></div>
             <div
               class="h-full bg-gradient-to-b dark:from-dark-light dark:to-dark from-slate-200 to-light-theme-bg text-slate-400 dark:text-slate-400 hover:text-primary dark:hover:text-primary hover:cursor-pointer rounded-lg transition-colors shadow-md shadow-zinc-900 flex items-center justify-center font-bold text-2xl"
-              @click="openModalNewColumn=true"
+              @click="openModalNewColumn = true"
             >
               + New Column
             </div>
             <!-- Modal Add New Column -->
-            <Modal :open="openModalNewColumn" @close-modal="openModalNewColumn = false" class="w-[480px]">
+            <Modal
+              :open="openModalNewColumn"
+              @close-modal="openModalNewColumn = false"
+              class="w-[480px]"
+            >
               <div class="font-bold text-lg mb-4">Add New Column</div>
               <Form
                 @submit="
@@ -381,12 +432,17 @@ function onInvalidSubmit() {
                 @invalid-submit="onInvalidSubmit"
                 :validation-schema="
                   yup.object().shape({
-                    columns: yup.array().of(yup.object().shape({
-                      name: yup.string().required(),
-                    }))
+                    columns: yup.array().of(
+                      yup.object().shape({
+                        name: yup.string().required()
+                      })
+                    )
                   })
                 "
-                :initial-values="{ name: boardStore.board.name, columns: boardStore.board.columns }"
+                :initial-values="{
+                  name: boardStore.board.name,
+                  columns: boardStore.board.columns
+                }"
               >
                 <div class="mb-4">
                   <label
@@ -408,10 +464,17 @@ function onInvalidSubmit() {
                         >
                       </div>
                       <div v-for="(field, index) in fields" class="flex items-center mb-2">
-                        <Input :name="`columns[${index}].name`" :value="field.value.name" type="text" />
+                        <Input
+                          :name="`columns[${index}].name`"
+                          :value="field.value.name"
+                          type="text"
+                        />
                         <button
                           v-show="fields.length > 1"
-                          :class="['text-slate-400 p-2', field.value.tasks.length > 0 ? 'opacity-30' : '']"
+                          :class="[
+                            'text-slate-400 p-2',
+                            field.value.tasks.length > 0 ? 'opacity-30' : ''
+                          ]"
                           type="button"
                           :disabled="field.value.tasks.length > 0"
                           @click="remove(index)"
@@ -422,7 +485,7 @@ function onInvalidSubmit() {
                     </div>
                     <Button
                       v-show="fields.length < 6"
-                      @click="push({name: '', tasks: []})"
+                      @click="push({ name: '', tasks: [] })"
                       text="+ Add New Column"
                       type="button"
                       class="block w-full"

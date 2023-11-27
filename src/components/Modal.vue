@@ -2,9 +2,6 @@
 import { ref, Teleport, Transition, defineProps, onUpdated } from 'vue'
 const props = defineProps(['open', 'class'])
 const modalRef = ref(null)
-onUpdated(() => {
-  console.log(props.open, modalRef.value)
-})
 </script>
 
 <template>
