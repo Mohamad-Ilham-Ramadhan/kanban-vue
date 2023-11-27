@@ -37,7 +37,7 @@ const x = ref(0)
 const doc = document
 
 function moveScrollHandler(e) {
-  refDragScroll.value.scrollLeft = refDragScroll.value.scrollLeft + e.movementX
+  refDragScroll.value.scrollLeft = refDragScroll.value.scrollLeft - e.movementX
 }
 function removeScrollHandler() {
   console.log('remove scroll handler')
@@ -350,6 +350,7 @@ function removeScrollHandler() {
         ref="refDragScroll"
         @mousedown="
           (e) => {
+            console.log('drag scroll mousedown', e)
             dragScroll = true
             doc.body.classList.toggle('select-none')
             doc.addEventListener('mousemove', moveScrollHandler)
@@ -360,6 +361,7 @@ function removeScrollHandler() {
         <Teleport to="body">
           <div v-if="dragScroll" class="absolute inset-0 z-[1000]" id="scrolling-overlay" comment="to prevent hover effect of any element"></div>
         </Teleport>
+
         <div
           class="flex w-full h-full px-8 py-6"
         >
@@ -404,7 +406,11 @@ function removeScrollHandler() {
             <div class="h-[44px]"></div>
             <div
               class="h-full bg-gradient-to-b dark:from-dark-light dark:to-dark from-slate-200 to-light-theme-bg text-slate-400 dark:text-slate-400 hover:text-primary dark:hover:text-primary hover:cursor-pointer rounded-lg transition-colors shadow-md shadow-zinc-900 flex items-center justify-center font-bold text-2xl"
-              @click="openModalNewColumn = true"
+              @click="(e) => {
+                console.log('new column')
+                openModalNewColumn = true
+              }"
+              @mousedown="(e) => {e.stopPropagation()}"
             >
               + New Column
             </div>
