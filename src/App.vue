@@ -137,8 +137,8 @@ function removeScrollHandler() {
             @submit="
               (values) => {
                 console.log('SUBMIT form edit')
-                boardStore.addNewcolumn(values.columns)
-                boardStore.setName(values.name)
+                boardStore.addNewcolumn(values.columns.map( c => ({...c, name: c.name.trim()})))
+                boardStore.setName(values.name.trim())
                 openModalEdit = false
               }
             "
