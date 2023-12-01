@@ -1,5 +1,6 @@
 <script setup >
-import { ref, Teleport, Transition, defineProps, onUpdated } from 'vue'
+import { ref, Teleport, Transition, defineProps, defineEmits, onUpdated } from 'vue'
+const emit = defineEmits(['close-modal'])
 const props = defineProps(['open', 'class'])
 const modalRef = ref(null)
 </script>
