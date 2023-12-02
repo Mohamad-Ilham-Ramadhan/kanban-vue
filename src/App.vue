@@ -1,5 +1,5 @@
 <script setup>
-import { ref, Teleport, Transition, watch } from 'vue'
+import { ref, Teleport, Transition, VueElement, watch } from 'vue'
 import Logo from '@/components/Logo.vue'
 import Button from './components/Button.vue'
 import IconEllipsis from '@/components/icons/IconEllipsis.vue'
@@ -10,8 +10,12 @@ import IconHide from '@/components/icons/IconHide.vue'
 import IconClose from '@/components/icons/IconClose.vue'
 import Modal from '@/components/Modal.vue'
 import Input from '@/components/Input.vue'
-import { Form, FieldArray } from 'vee-validate'
+import Textarea from '@/components/Textarea.vue'
+import Select from '@/components/Select.vue'
+import { Form, FieldArray, Field} from 'vee-validate'
 import * as yup from 'yup'
+import { v4 as uuid } from 'uuid';
+
 // store
 import { useBoardStore } from '@/stores/board.js'
 const boardStore = useBoardStore()
@@ -29,6 +33,9 @@ const openOption = ref(false)
 const openModalDelete = ref(false)
 const openModalNewColumn = ref(false)
 const openModalEdit = ref(false)
+const openModalAddTask = ref(false)
+const openSelectStatus = ref(false) // select status in add new task form
+const refSelect = ref(null)
 
 const refDragScroll = ref(null)
 const dragScroll = ref(false)
@@ -61,7 +68,98 @@ function removeScrollHandler() {
     <div class="flex flex-row w-full justify-between items-center px-8">
       <div class="font-bold text-2xl">{{ boardStore.board.name }}</div>
       <div class="flex items-center">
-        <Button text="+ Add New Task" class="mr-4" />
+        <Button text="+ Add New Task" class="mr-4" @click="openModalAddTask = true" />
+        <Modal :open="openModalAddTask" @close-modal="openModalAddTask = false" class="w-[480px]">
+          <!-- {
+                id: uuid(), title: 'Build UI for onboarding flow.', description: '', subtasks: [
+                    { id: uuid(), text: 'Sign up page', isDone: true },
+                    { id: uuid(), text: 'Sign in page', isDone: false },
+                    { id: uuid(), text: 'Welcome page', isDone: false },
+                ], y: 0, pageYTop: 0, pageYBottom: 0, moved: ''
+              }, 
+          -->
+          <Form
+            @submit="
+              (values) => {
+                console.log('submit add new task', values)
+                boardStore.addNewTask(values)
+                openModalAddTask = false
+              }
+            "
+            :validation-schema="
+              yup.object().shape({
+                title: yup.string().required(),
+                description: yup.string().required(),
+                subtasks: yup.array().of(
+                  yup.object().shape({
+                    id: yup.string().required(),
+                    text: yup.string().required(),
+                    isDone: yup.boolean().required(),
+                  })
+                )
+              })
+            "
+            :initial-values="{
+              title: '',
+              description: '',
+              subtasks: [{id: uuid(), text: '', isDone: false}],
+              status: '',
+            }"
+          >
+            <div class="text-lg font-bold mb-6">Add New Task</div>
+            <div class="mb-4">
+              <label for="title" class="block text-xs font-bold mb-2">Title</label>
+              <Input type="text" name="title" id="title" />
+            </div>
+
+            <div class="mb-4">
+              <label for="title" class="block text-xs font-bold mb-2">Description</label>
+              <Textarea name="description" id="description" />
+            </div>
+
+            <FieldArray name="subtasks" v-slot="{ fields, push, remove }">
+              <div class="mb-4">
+                <div class="mb-2">
+                  <label
+                    for="name"
+                    class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
+                    >Subtasks</label
+                  >
+                </div>
+                <div v-for="(field, index) in fields" class="flex items-center mb-2">
+                  <Input :name="`subtasks[${index}].text`" :value="field.value.text" type="text" />
+                  <button
+                    @click="remove(index)"
+                    class='text-slate-400 p-2'
+                    type="button"
+                  >
+                    <IconClose />
+                  </button>
+                </div>
+              </div>
+              <Button
+                v-show="fields.length < 6"
+                @click="push({ id: uuid(), name: '', isDone: false })"
+                text="+ Add New Subtask"
+                type="button"
+                class="block w-full"
+                size="small"
+                background-color="bg-white hover:bg-indigo-50"
+                color="text-primary"
+              />
+            </FieldArray>
+
+            <div class="mb-4">
+              <label for="status" class="font-semibold text-xs text-slate-400 dark:text-white block mb-2">Status</label>
+              <Select :open="openSelectStatus" @open-select="openSelectStatus=true" @close-select="openSelectStatus=false" :items="boardStore.board.columns.map((c,i) => ({name: c.name, index: i}))" name="status" renderValueProp="name" realValueProp="index" />
+            </div>
+
+            <div>
+              <Button text="Add" type="submit" />
+            </div>
+          </Form>
+        </Modal>
+
         <div class="relative">
           <button
             @click="openOption = !openOption"
@@ -137,7 +235,7 @@ function removeScrollHandler() {
             @submit="
               (values) => {
                 console.log('SUBMIT form edit')
-                boardStore.addNewcolumn(values.columns.map( c => ({...c, name: c.name.trim()})))
+                boardStore.addNewcolumn(values.columns.map((c) => ({ ...c, name: c.name.trim() })))
                 boardStore.setName(values.name.trim())
                 openModalEdit = false
               }
@@ -359,12 +457,15 @@ function removeScrollHandler() {
         "
       >
         <Teleport to="body">
-          <div v-if="dragScroll" class="absolute inset-0 z-[1000]" id="scrolling-overlay" comment="to prevent hover effect of any element"></div>
+          <div
+            v-if="dragScroll"
+            class="absolute inset-0 z-[1000]"
+            id="scrolling-overlay"
+            comment="to prevent hover effect of any element"
+          ></div>
         </Teleport>
 
-        <div
-          class="flex w-full h-full px-8 py-6"
-        >
+        <div class="flex w-full h-full px-8 py-6">
           <div
             v-for="(c, index) in boardStore.board.columns"
             class="shrink-0 w-[286px] mr-8 flex flex-col"
@@ -406,11 +507,17 @@ function removeScrollHandler() {
             <div class="h-[44px]"></div>
             <div
               class="h-full bg-gradient-to-b dark:from-dark-light dark:to-dark from-slate-200 to-light-theme-bg text-slate-400 dark:text-slate-400 hover:text-primary dark:hover:text-primary hover:cursor-pointer rounded-lg transition-colors shadow-md shadow-zinc-900 flex items-center justify-center font-bold text-2xl"
-              @click="(e) => {
-                console.log('new column')
-                openModalNewColumn = true
-              }"
-              @mousedown="(e) => {e.stopPropagation()}"
+              @click="
+                (e) => {
+                  console.log('new column')
+                  openModalNewColumn = true
+                }
+              "
+              @mousedown="
+                (e) => {
+                  e.stopPropagation()
+                }
+              "
             >
               + New Column
             </div>
@@ -424,7 +531,9 @@ function removeScrollHandler() {
               <Form
                 @submit="
                   (values) => {
-                    boardStore.addNewcolumn(values.columns.map(c => ({...c, name: c.name.trim()})))
+                    boardStore.addNewcolumn(
+                      values.columns.map((c) => ({ ...c, name: c.name.trim() }))
+                    )
                     openModalNewColumn = false
                   }
                 "

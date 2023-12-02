@@ -228,6 +228,14 @@ export const useBoardStore = defineStore('board', {
       },
       setName(name) {
          this.board.name = name
+      },
+      addNewTask(task) {
+         this.boards[this.activeIndex].columns[task.status.index].tasks.push({
+            id: uuid(),
+            title: task.title,
+            description: task.description,
+            subtasks: task.subtasks, 
+         })
       }
    },
    persist: {
