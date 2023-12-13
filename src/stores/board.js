@@ -236,6 +236,23 @@ export const useBoardStore = defineStore('board', {
             description: task.description,
             subtasks: task.subtasks, 
          })
+      },
+      swapTask(colIndex, startIndex, endIndex) {
+         // this.board.columns[colIndex].tasks
+         console.log('SWAP TASK', colIndex, startIndex, endIndex)
+         if (endIndex > startIndex) { // drag ke bawah
+            const newTasks = this.board.columns[colIndex].tasks.map((t, index) => {
+               if (index > endIndex || index < startIndex) return t
+               if (index == endIndex) return this.board.columns[colIndex].tasks[startIndex] 
+               if (index >= startIndex) return this.board.columns[colIndex].tasks[index + 1]
+            })
+            console.log('newTasks', newTasks)
+         } else { // drag ke atas
+
+         }
+      },
+      toggleSubtask(columnIndex, taskIndex, subtaskIndex) {
+         this.board.columns[columnIndex].tasks[taskIndex].subtasks[subtaskIndex].isDone = !this.board.columns[columnIndex].tasks[taskIndex].subtasks[subtaskIndex].isDone
       }
    },
    persist: {

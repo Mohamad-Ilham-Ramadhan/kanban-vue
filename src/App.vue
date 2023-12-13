@@ -8,13 +8,14 @@ import IconMoonStar from '@/components/icons/IconMoonStar.vue'
 import IconSun from '@/components/icons/IconSun.vue'
 import IconHide from '@/components/icons/IconHide.vue'
 import IconClose from '@/components/icons/IconClose.vue'
+import IconCheck from '@/components/icons/IconCheck.vue'
 import Modal from '@/components/Modal.vue'
 import Input from '@/components/Input.vue'
 import Textarea from '@/components/Textarea.vue'
 import Select from '@/components/Select.vue'
-import { Form, FieldArray, Field} from 'vee-validate'
+import { Form, FieldArray, Field } from 'vee-validate'
 import * as yup from 'yup'
-import { v4 as uuid } from 'uuid';
+import { v4 as uuid } from 'uuid'
 
 // store
 import { useBoardStore } from '@/stores/board.js'
@@ -35,6 +36,8 @@ const openModalNewColumn = ref(false)
 const openModalEdit = ref(false)
 const openModalAddTask = ref(false)
 const openSelectStatus = ref(false) // select status in add new task form
+const openModalTask = ref(false)
+const modalTaskData = ref({id: '', colIndex: null, taskIndex: null, title: '', description: '', subtasks: [] })
 const refSelect = ref(null)
 
 const refDragScroll = ref(null)
@@ -42,17 +45,20 @@ const dragScroll = ref(false)
 const x = ref(0)
 
 const doc = document
+const win = window
+const DOMMatrix = window.DOMMatrix
 
 function moveScrollHandler(e) {
   refDragScroll.value.scrollLeft = refDragScroll.value.scrollLeft - e.movementX
 }
 function removeScrollHandler() {
-  console.log('remove scroll handler')
   doc.body.classList.toggle('select-none')
   doc.removeEventListener('mousemove', moveScrollHandler)
   doc.removeEventListener('mouseup', removeScrollHandler)
   dragScroll.value = false
 }
+
+let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
 </script>
 
 <template>
@@ -94,7 +100,7 @@ function removeScrollHandler() {
                   yup.object().shape({
                     id: yup.string().required(),
                     text: yup.string().required(),
-                    isDone: yup.boolean().required(),
+                    isDone: yup.boolean().required()
                   })
                 )
               })
@@ -102,8 +108,8 @@ function removeScrollHandler() {
             :initial-values="{
               title: '',
               description: '',
-              subtasks: [{id: uuid(), text: '', isDone: false}],
-              status: '',
+              subtasks: [{ id: uuid(), text: '', isDone: false }],
+              status: ''
             }"
           >
             <div class="text-lg font-bold mb-6">Add New Task</div>
@@ -128,11 +134,7 @@ function removeScrollHandler() {
                 </div>
                 <div v-for="(field, index) in fields" class="flex items-center mb-2">
                   <Input :name="`subtasks[${index}].text`" :value="field.value.text" type="text" />
-                  <button
-                    @click="remove(index)"
-                    class='text-slate-400 p-2'
-                    type="button"
-                  >
+                  <button @click="remove(index)" class="text-slate-400 p-2" type="button">
                     <IconClose />
                   </button>
                 </div>
@@ -150,8 +152,20 @@ function removeScrollHandler() {
             </FieldArray>
 
             <div class="mb-4">
-              <label for="status" class="font-semibold text-xs text-slate-400 dark:text-white block mb-2">Status</label>
-              <Select :open="openSelectStatus" @open-select="openSelectStatus=true" @close-select="openSelectStatus=false" :items="boardStore.board.columns.map((c,i) => ({name: c.name, index: i}))" name="status" renderValueProp="name" realValueProp="index" />
+              <label
+                for="status"
+                class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
+                >Status</label
+              >
+              <Select
+                :open="openSelectStatus"
+                @open-select="openSelectStatus = true"
+                @close-select="openSelectStatus = false"
+                :items="boardStore.board.columns.map((c, i) => ({ name: c.name, index: i }))"
+                name="status"
+                renderValueProp="name"
+                realValueProp="index"
+              />
             </div>
 
             <div>
@@ -167,6 +181,7 @@ function removeScrollHandler() {
           >
             <IconEllipsis />
           </button>
+
           <div
             v-show="openOption"
             class="absolute z-[1000] right-0 top-[130%] w-[196px] px-6 py-4 rounded-lg font-semibold bg-dark drop-shadow-md"
@@ -448,7 +463,6 @@ function removeScrollHandler() {
         ref="refDragScroll"
         @mousedown="
           (e) => {
-            console.log('drag scroll mousedown', e)
             dragScroll = true
             doc.body.classList.toggle('select-none')
             doc.addEventListener('mousemove', moveScrollHandler)
@@ -466,25 +480,124 @@ function removeScrollHandler() {
         </Teleport>
 
         <div class="flex w-full h-full px-8 py-6">
+
+          <!-- Modal Task-->
+          <Modal :open="openModalTask" @close-modal="openModalTask = false" class="w-[480px]">
+            <div class="relative mb-6">
+              <div class="font-bold">{{ modalTaskData.title }}</div>
+              <IconEllipsis class="absolute top-0 right-0" />
+            </div>
+            <div class="text-xs font-semibold text-slate-400 mb-6">
+              {{ modalTaskData.description === '' ?  'No description' : modalTaskData.description }}
+            </div>
+            <label class="block text-xs font-bold mb-2">Subtasks ({{ modalTaskData.subtasks.reduce((acc, cv) => cv.isDone ? acc + 1 : acc, 0) }} of {{ modalTaskData.subtasks.length }})</label>
+            <div>
+              <div 
+                v-for="(subtask, index) in modalTaskData.subtasks" 
+                class="rounded bg-dark p-3 flex items-center hover:cursor-pointer mb-2"
+                @click="() => {
+                  boardStore.toggleSubtask(modalTaskData.columnIndex, modalTaskData.taskIndex, index)
+                }"
+              >
+                <div :class="['flex justify-center items-center w-[17px] h-[17px] border border-slate-600 rounded-sm mr-2', subtask.isDone ? 'bg-primary' : 'bg-dark-light']">
+                  <IconCheck v-if="subtask.isDone" class="w-[10px] h-[10px]"/>
+                </div>
+                <div :class="['font-semibold text-xs', subtask.isDone && 'line-through text-gray-400']">{{ subtask.text }}</div>
+              </div>
+            </div>
+          </Modal>
+          <!-- Modal Task-->
+
           <div
-            v-for="(c, index) in boardStore.board.columns"
+            v-for="(c, colIndex) in boardStore.board.columns"
             class="shrink-0 w-[286px] mr-8 flex flex-col"
           >
             <div class="flex items-center mb-6">
-              <div :class="['w-[14px] h-[14px] rounded-full mr-3', `bg-dot${index}`]"></div>
+              <div :class="['w-[14px] h-[14px] rounded-full mr-3', `bg-dot${colIndex}`]"></div>
               <div class="uppercase font-semibold tracking-[3px] text-xs text-slate-400">
                 {{ c.name }}({{ c.tasks.length }})
               </div>
             </div>
 
             <!-- card (tasks) -->
-            <div v-show="c.tasks.length > 0" class="flex flex-col">
+            <div v-show="c.tasks.length > 0" class="wrapper-task flex flex-col">
               <div
                 v-for="(t, index) in c.tasks"
-                class="bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 mb-4"
+                class="card-task bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 mb-4"
+                data-moveable="0"
+                :data-index="index"
                 @mousedown="
                   (e) => {
-                    console.log('card mouse down')
+                    console.log('mousedown')
+                    console.log('colummn index', colIndex)
+                    const $this = e.currentTarget;
+                    const startIndex = $this.dataset.index
+                    $this.dataset.moveable = '1';
+                    $this.style.zIndex = '1000';
+                    const r = $this.getBoundingClientRect()
+                    initialRect = {top: r.top, bottom: r.bottom, height: r.height}
+                    console.log('initial rect', initialRect)
+
+                    const dragCard = (e) => {
+                      isDragged = true
+                      const $index = $this.dataset.index
+                      const matrix = new DOMMatrix(win.getComputedStyle($this).transform) // to get value of current transform translate(x,y)
+                      const tx = matrix.e 
+                      const ty = matrix.f
+                      $this.style.transform = `translate(${tx + e.movementX}px, ${ty + e.movementY}px)`
+                      
+                      const r = $this.getBoundingClientRect()
+                      const $wrapper = $this.parentElement
+                      if (e.movementY < 0) { // ke atas
+                        if ($index == 0) return
+                      } else { // ke bawah
+                        if ($index == c.tasks.length - 1) return
+                        // console.log('INITIAL RECT', initialRect)
+                        const $botCard = Array.from($wrapper.querySelectorAll('.card-task')).find(($el) => Number($el.dataset.index) == Number($index) + 1 )
+                        const rBotCard = $botCard.getBoundingClientRect()
+                        const swapThreshold = rBotCard.top + (rBotCard.height / 2)
+                        if (r.bottom > swapThreshold) {
+                          // index swap
+                          console.log('swap')
+                          console.log('initialRect', initialRect)
+                          const temp = $index
+                          $this.dataset.index = $botCard.dataset.index
+                          $botCard.dataset.index = temp 
+
+                          // initial rect kalkulasi dari => rBotCard
+                          const tempBottom = rBotCard.bottom 
+                          const tempTop = rBotCard.bottom - initialRect.height
+
+                          // transform.translate y
+                          console.log('selisih', )
+                          $botCard.style.transform = `translate(0px, -${rBotCard.top - initialRect.top}px)`
+
+                          initialRect.bottom = tempBottom
+                          initialRect.top = tempTop
+                        }
+                      }
+                    }
+                    const cancelDragCard = (e) => {
+                      console.log('mouseup')
+
+                      if (!isDragged) {
+                        console.log('OPEN MODAL')
+                        openModalTask = true
+                        modalTaskData = {...t, taskIndex: index, columnIndex: colIndex}
+                      }
+
+                      $this.dataset.moveable = '0'
+                      $this.style.transform = 'translate(0px, 0px)'
+                      $this.style.zIndex = '0'
+                      doc.removeEventListener('mousemove', dragCard)
+                      doc.removeEventListener('mouseup', cancelDragCard)
+                      
+                      boardStore.swapTask(colIndex, startIndex, $this.dataset.index)
+                      isDragged = false  
+                    }
+
+                    doc.addEventListener('mousemove', dragCard)
+                    doc.addEventListener('mouseup', cancelDragCard)
                     e.stopPropagation()
                   }
                 "
