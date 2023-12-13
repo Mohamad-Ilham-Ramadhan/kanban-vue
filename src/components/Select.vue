@@ -1,6 +1,7 @@
 <script setup>
 import { ref, Teleport, Transition, defineProps, defineEmits, onUpdated, toRef } from 'vue'
 import { useField } from 'vee-validate'
+import IconArrow from '@/components/icons/IconArrowDown.vue'
 
 const paperRef = ref(null)
 const selectButtonRef = ref(null)
@@ -8,16 +9,13 @@ const props = defineProps(['open', 'items', 'name', 'renderValueProp', 'realValu
 const emit = defineEmits(['open-select', 'close-select', 'select-value'])
 
 onUpdated(() => {
-  console.log('Select open has changed')
   if (paperRef.value !== null) {
     // @ts-ignore
     const { top, bottom, left, right, width, height } =
       selectButtonRef.value.getBoundingClientRect()
-    console.log('top', top, 'bottom', bottom, 'height', height + top)
     setTimeout(() => {
       // @ts-ignore
       const { bottom: paperBottom, height: paperHeight } = paperRef.value.getBoundingClientRect()
-      console.log('paperBottom', paperBottom)
       paperRef.value.style.left = `${left}px`
       paperRef.value.style.width = `${width}px`
 
@@ -26,7 +24,6 @@ onUpdated(() => {
           // @ts-ignore
           paperRef.value.style.top = `${bottom + 10}px`
           // @ts-ignore
-          console.log('paperBottom', paperBottom)
         } else if (paperRef.value !== null && paperBottom + bottom > window.innerHeight) {
           // @ts-ignore
           paperRef.value.style.top = `${window.innerHeight - paperHeight - 20}px`
@@ -61,11 +58,12 @@ const {
   <div class="relative">
     <button
       ref="selectButtonRef"
-      class="block w-full text-left border-2 border-slate-400 dark:border-gray-600 focus:border-primary dark:focus:border-primary rounded text-sm py-2 px-4"
+      class="block relative w-full text-left border-2 border-slate-400 dark:border-gray-600 focus:border-primary dark:focus:border-primary rounded text-sm py-2 px-4"
       @click="$emit('open-select')"
       type="button"
     >
-      {{ inputValue[props.renderValueProp] }}
+      <div>{{ inputValue[props.renderValueProp] }}</div>
+      <IconArrow :class="['text-primary w-[18px] h-[18px] absolute right-[12px] top-[10px] transition-transform', props.open && 'rotate-180']"/>
     </button>
     <input class="invisible" aria-hidden="true" :value="inputValue" :name="name" />
   </div>

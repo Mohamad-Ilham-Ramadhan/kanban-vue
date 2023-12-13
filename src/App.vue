@@ -76,14 +76,6 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
       <div class="flex items-center">
         <Button text="+ Add New Task" class="mr-4" @click="openModalAddTask = true" />
         <Modal :open="openModalAddTask" @close-modal="openModalAddTask = false" class="w-[480px]">
-          <!-- {
-                id: uuid(), title: 'Build UI for onboarding flow.', description: '', subtasks: [
-                    { id: uuid(), text: 'Sign up page', isDone: true },
-                    { id: uuid(), text: 'Sign in page', isDone: false },
-                    { id: uuid(), text: 'Welcome page', isDone: false },
-                ], y: 0, pageYTop: 0, pageYBottom: 0, moved: ''
-              }, 
-          -->
           <Form
             @submit="
               (values) => {
@@ -144,7 +136,7 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
                 @click="push({ id: uuid(), name: '', isDone: false })"
                 text="+ Add New Subtask"
                 type="button"
-                class="block w-full"
+                class="block w-full mb-4"
                 size="small"
                 background-color="bg-white hover:bg-indigo-50"
                 color="text-primary"
@@ -491,7 +483,7 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
               {{ modalTaskData.description === '' ?  'No description' : modalTaskData.description }}
             </div>
             <label class="block text-xs font-bold mb-2">Subtasks ({{ modalTaskData.subtasks.reduce((acc, cv) => cv.isDone ? acc + 1 : acc, 0) }} of {{ modalTaskData.subtasks.length }})</label>
-            <div>
+            <div class="mb-4">
               <div 
                 v-for="(subtask, index) in modalTaskData.subtasks" 
                 class="rounded bg-dark p-3 flex items-center hover:cursor-pointer mb-2"
@@ -505,6 +497,8 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
                 <div :class="['font-semibold text-xs', subtask.isDone && 'line-through text-gray-400']">{{ subtask.text }}</div>
               </div>
             </div>
+
+            <label class="block font-bold text-xs mb-2">Current Status</label>
           </Modal>
           <!-- Modal Task-->
 
