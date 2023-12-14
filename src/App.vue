@@ -10,8 +10,9 @@ import IconHide from '@/components/icons/IconHide.vue'
 import IconClose from '@/components/icons/IconClose.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
 import Modal from '@/components/Modal.vue'
-import Input from '@/components/Input.vue'
-import Textarea from '@/components/Textarea.vue'
+import Input from '@/components/VeeValidate/Input.vue'
+import Textarea from '@/components/VeeValidate/Textarea.vue'
+import SelectVee from '@/components/VeeValidate/Select.vue'
 import Select from '@/components/Select.vue'
 import { Form, FieldArray, Field } from 'vee-validate'
 import * as yup from 'yup'
@@ -37,7 +38,11 @@ const openModalEdit = ref(false)
 const openModalAddTask = ref(false)
 const openSelectStatus = ref(false) // select status in add new task form
 const openModalTask = ref(false)
-const modalTaskData = ref({id: '', colIndex: null, taskIndex: null, title: '', description: '', subtasks: [] })
+const modalTaskData = ref({id: '', columnIndex: null, taskIndex: null, title: '', description: '', subtasks: [] })
+watch(modalTaskData, () => {
+  console.log('modal task data', modalTaskData)
+
+})
 const refSelect = ref(null)
 
 const refDragScroll = ref(null)
@@ -149,7 +154,7 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
                 class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
                 >Status</label
               >
-              <Select
+              <SelectVee
                 :open="openSelectStatus"
                 @open-select="openSelectStatus = true"
                 @close-select="openSelectStatus = false"
@@ -476,19 +481,19 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
           <!-- Modal Task-->
           <Modal :open="openModalTask" @close-modal="openModalTask = false" class="w-[480px]">
             <div class="relative mb-6">
-              <div class="font-bold">{{ modalTaskData.title }}</div>
+              <div class="font-bold">{{ boardStore.task.title }}</div>
               <IconEllipsis class="absolute top-0 right-0" />
             </div>
             <div class="text-xs font-semibold text-slate-400 mb-6">
-              {{ modalTaskData.description === '' ?  'No description' : modalTaskData.description }}
+              {{ boardStore.task.description === '' ?  'No description' : boardStore.task.description }}
             </div>
-            <label class="block text-xs font-bold mb-2">Subtasks ({{ modalTaskData.subtasks.reduce((acc, cv) => cv.isDone ? acc + 1 : acc, 0) }} of {{ modalTaskData.subtasks.length }})</label>
+            <label class="block text-xs font-bold mb-2">Subtasks ({{ boardStore.task.subtasks.reduce((acc, cv) => cv.isDone ? acc + 1 : acc, 0) }} of {{ boardStore.task.subtasks.length }})</label>
             <div class="mb-4">
               <div 
-                v-for="(subtask, index) in modalTaskData.subtasks" 
+                v-for="(subtask, index) in boardStore.task.subtasks" 
                 class="rounded bg-dark p-3 flex items-center hover:cursor-pointer mb-2"
                 @click="() => {
-                  boardStore.toggleSubtask(modalTaskData.columnIndex, modalTaskData.taskIndex, index)
+                  boardStore.toggleSubtask(boardStore.activeColumnIndex, boardStore.activeTaskIndex, index)
                 }"
               >
                 <div :class="['flex justify-center items-center w-[17px] h-[17px] border border-slate-600 rounded-sm mr-2', subtask.isDone ? 'bg-primary' : 'bg-dark-light']">
@@ -499,6 +504,20 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
             </div>
 
             <label class="block font-bold text-xs mb-2">Current Status</label>
+            <Select
+              :open="openSelectStatus"
+              @open-select="openSelectStatus = true"
+              @close-select="openSelectStatus = false"
+              :items="boardStore.board.columns.map((c, i) => ({ name: c.name, index: i }))"
+              name="status"
+              renderValueProp="name"
+              realValueProp="index"
+              :value="boardStore.board.columns[boardStore.activeColumnIndex]"
+              :handleChange="(item) => {
+                console.log('selected item',  item)
+                boardStore.changeTaskColumn(boardStore.activeColumnIndex, item.index, boardStore.activeTaskIndex)
+              }"
+            />
           </Modal>
           <!-- Modal Task-->
 
@@ -576,8 +595,9 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
 
                       if (!isDragged) {
                         console.log('OPEN MODAL')
+                        // modalTaskData = {...t, taskIndex: index, columnIndex: colIndex}
+                        boardStore.setColumnAndTaskIndex(colIndex, index)
                         openModalTask = true
-                        modalTaskData = {...t, taskIndex: index, columnIndex: colIndex}
                       }
 
                       $this.dataset.moveable = '0'

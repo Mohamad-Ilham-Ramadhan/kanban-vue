@@ -5,7 +5,6 @@ import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import App from './App.vue'
-import Coba from './Coba.vue'
 
 const app = createApp(App)
 

@@ -1,12 +1,12 @@
 <script setup>
 import { ref, Teleport, Transition, defineProps, defineEmits, onUpdated, toRef } from 'vue'
+import { useField } from 'vee-validate'
 import IconArrow from '@/components/icons/IconArrowDown.vue'
 
 const paperRef = ref(null)
 const selectButtonRef = ref(null)
-const props = defineProps(['open', 'items', 'name', 'renderValueProp', 'realValueProp', 'value', 'handleChange'])
+const props = defineProps(['open', 'items', 'name', 'renderValueProp', 'realValueProp', 'initialValue'])
 const emit = defineEmits(['open-select', 'close-select', 'select-value'])
-
 onUpdated(() => {
   if (paperRef.value !== null) {
     // @ts-ignore
@@ -42,7 +42,15 @@ onUpdated(() => {
 })
 
 const name = toRef(props, 'name')
-
+const {
+  value: inputValue,
+  errorMessage,
+  handleBlur,
+  handleChange,
+  meta
+} = useField(name, undefined, {
+  initialValue: props.initialValue ? props.items[props.initialValue] : props.items[0]
+})
 </script>
 
 <template>
@@ -53,7 +61,7 @@ const name = toRef(props, 'name')
       @click="$emit('open-select')"
       type="button"
     >
-      <div>{{ props.value[props.renderValueProp] }}</div>
+      <div>{{ inputValue[props.renderValueProp] }}</div>
       <IconArrow :class="['text-primary w-[18px] h-[18px] absolute right-[12px] top-[10px] transition-transform', props.open && 'rotate-180']"/>
     </button>
     <input class="invisible" aria-hidden="true" :value="inputValue" :name="name" />

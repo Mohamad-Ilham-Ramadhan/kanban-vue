@@ -1,8 +1,11 @@
 import { defineStore } from 'pinia'
 import { v4 as uuid } from 'uuid'
+import { toRaw } from 'vue'
 export const useBoardStore = defineStore('board', {
    state: () => ({
-      activeIndex: 0,
+      activeBoardIndex: 0, // active board index
+      activeColumnIndex: 0, // for modal task
+      activeTaskIndex: 0, // for modal task
       boards: [
          {
             id: uuid(),
@@ -200,11 +203,12 @@ export const useBoardStore = defineStore('board', {
       ]
    }),
    getters: {
-      board: (state) => state.boards[state.activeIndex]
+      board: (state) => state.boards[state.activeBoardIndex],
+      task: (state) => state.boards[state.activeBoardIndex].columns[state.activeColumnIndex].tasks[state.activeTaskIndex]
    },
    actions: {
-      setActiveIndex(index) {
-         this.activeIndex = index
+      setActiveBoardIndex(index) {
+         this.activeBoardIndex = index
       },
       createNewBoard({name, columns}) {
          const newBoard = {
@@ -215,8 +219,8 @@ export const useBoardStore = defineStore('board', {
          this.boards.push(newBoard)
       },
       deleteActiveBoard() {
-         this.boards.splice(this.activeIndex, 1)
-         this.activeIndex = 0
+         this.boards.splice(this.activeBoardIndex, 1)
+         this.activeBoardIndex = 0
       },
       addNewcolumn(columns) {
          this.board.columns = columns.map( c => {
@@ -230,7 +234,7 @@ export const useBoardStore = defineStore('board', {
          this.board.name = name
       },
       addNewTask(task) {
-         this.boards[this.activeIndex].columns[task.status.index].tasks.push({
+         this.boards[this.activeBoardIndex].columns[task.status.index].tasks.push({
             id: uuid(),
             title: task.title,
             description: task.description,
@@ -253,6 +257,16 @@ export const useBoardStore = defineStore('board', {
       },
       toggleSubtask(columnIndex, taskIndex, subtaskIndex) {
          this.board.columns[columnIndex].tasks[taskIndex].subtasks[subtaskIndex].isDone = !this.board.columns[columnIndex].tasks[taskIndex].subtasks[subtaskIndex].isDone
+      },
+      changeTaskColumn(fromColumnIndex, toColumnIndex, taskIndex) {
+         const theTask = this.board.columns[fromColumnIndex].tasks.splice(taskIndex, 1)
+         this.board.columns[toColumnIndex].tasks.push(toRaw(theTask[0]))
+         this.activeColumnIndex = toColumnIndex
+         this.activeTaskIndex = this.board.columns[toColumnIndex].tasks.length - 1
+      },
+      setColumnAndTaskIndex(columnIndex, taskIndex) {
+         this.activeColumnIndex = columnIndex
+         this.activeTaskIndex = taskIndex
       }
    },
    persist: {
