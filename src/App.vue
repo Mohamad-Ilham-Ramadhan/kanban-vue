@@ -565,7 +565,27 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
                       const r = $this.getBoundingClientRect()
                       if (e.movementY < 0) { // ke atas
                         if ($index == 0) return
+                        const $topCard = Array.from($wrapper.querySelectorAll('.card-task')).find(($el) => Number($el.dataset.index) == Number($index) - 1 )
+                        const rTopCard = $topCard.getBoundingClientRect()
+                        const swapThreshold = rTopCard.top + (rTopCard.height / 2)
+                        if (r.top < swapThreshold) {
+                          console.log('swap atas')
+                          const temp = $index
+                          $this.dataset.index = $topCard.dataset.index
+                          $topCard.dataset.index = temp 
+
+                          // initial rect kalkulasi dari => rBotCard
+                          const tempBottom = rTopCard.top + initialRect.height 
+                          const tempTop = rTopCard.top
+
+                          // transform.translate y
+                          $topCard.style.transform = `translate(0px, ${initialRect.bottom - rTopCard.top - rTopCard.height}px)`
+
+                          initialRect.bottom = tempBottom
+                          initialRect.top = tempTop
+                        }
                       } else { // ke bawah
+
                         if ($index == c.tasks.length - 1) return
                         // console.log('INITIAL RECT', initialRect)
                         const $botCard = Array.from($wrapper.querySelectorAll('.card-task')).find(($el) => Number($el.dataset.index) == Number($index) + 1 )

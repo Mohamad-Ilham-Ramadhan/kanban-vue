@@ -252,8 +252,14 @@ export const useBoardStore = defineStore('board', {
             })
             console.log('newTasks', newTasks)
             this.boards[this.activeBoardIndex].columns[colIndex].tasks = newTasks
-         } else { // drag ke atas
-
+         } else if (endIndex < startIndex) { // drag ke atas
+            console.log('swap task atas')
+            const newTasks = this.board.columns[colIndex].tasks.map((t, index) => {
+               if (index < endIndex || index > startIndex) return t
+               if (index == endIndex) return this.board.columns[colIndex].tasks[startIndex] 
+               if (index <= startIndex) return this.board.columns[colIndex].tasks[index - 1]
+            })
+            this.boards[this.activeBoardIndex].columns[colIndex].tasks = newTasks
          }
       },
       toggleSubtask(columnIndex, taskIndex, subtaskIndex) {
