@@ -482,7 +482,9 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
           <Modal :open="openModalTask" @close-modal="openModalTask = false" class="w-[480px]">
             <div class="relative mb-6">
               <div class="font-bold">{{ boardStore.task.title }}</div>
-              <IconEllipsis class="absolute top-0 right-0" />
+              <button class="absolute top-0 right-0 text-slate-400 p-2 hover:cursor-pointer">
+                <IconEllipsis class="" />
+              </button>
             </div>
             <div class="text-xs font-semibold text-slate-400 mb-6">
               {{ boardStore.task.description === '' ?  'No description' : boardStore.task.description }}
@@ -550,6 +552,7 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
                     const r = $this.getBoundingClientRect()
                     initialRect = {top: r.top, bottom: r.bottom, height: r.height}
                     console.log('initial rect', initialRect)
+                    const $wrapper = $this.parentElement
 
                     const dragCard = (e) => {
                       isDragged = true
@@ -560,7 +563,6 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
                       $this.style.transform = `translate(${tx + e.movementX}px, ${ty + e.movementY}px)`
                       
                       const r = $this.getBoundingClientRect()
-                      const $wrapper = $this.parentElement
                       if (e.movementY < 0) { // ke atas
                         if ($index == 0) return
                       } else { // ke bawah
@@ -590,6 +592,8 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
                         }
                       }
                     }
+
+
                     const cancelDragCard = (e) => {
                       console.log('mouseup')
 
@@ -599,15 +603,19 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
                         boardStore.setColumnAndTaskIndex(colIndex, index)
                         openModalTask = true
                       }
-
+                      // reset trasnlate
                       $this.dataset.moveable = '0'
                       $this.style.transform = 'translate(0px, 0px)'
                       $this.style.zIndex = '0'
                       doc.removeEventListener('mousemove', dragCard)
                       doc.removeEventListener('mouseup', cancelDragCard)
-                      
+                      // reset the rest translate
                       boardStore.swapTask(colIndex, startIndex, $this.dataset.index)
                       isDragged = false  
+                      $wrapper.querySelectorAll('.card-task').forEach((n, i) => {
+                        n.style.transform = 'translate(0px, 0px)'
+                        n.dataset.index = i
+                      })
                     }
 
                     doc.addEventListener('mousemove', dragCard)

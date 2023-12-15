@@ -251,6 +251,7 @@ export const useBoardStore = defineStore('board', {
                if (index >= startIndex) return this.board.columns[colIndex].tasks[index + 1]
             })
             console.log('newTasks', newTasks)
+            this.boards[this.activeBoardIndex].columns[colIndex].tasks = newTasks
          } else { // drag ke atas
 
          }
