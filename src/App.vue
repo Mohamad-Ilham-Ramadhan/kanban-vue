@@ -567,6 +567,9 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
                         if ($index == 0) return
                         const $topCard = Array.from($wrapper.querySelectorAll('.card-task')).find(($el) => Number($el.dataset.index) == Number($index) - 1 )
                         const rTopCard = $topCard.getBoundingClientRect()
+                        const topMatrix = new DOMMatrix(win.getComputedStyle($topCard).transform) // to get value of current transform translate(x,y)
+                        const topTx = topMatrix.e 
+                        const topTy = topMatrix.f
                         const swapThreshold = rTopCard.top + (rTopCard.height / 2)
                         if (r.top < swapThreshold) {
                           console.log('swap atas')
@@ -579,7 +582,7 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
                           const tempTop = rTopCard.top
 
                           // transform.translate y
-                          $topCard.style.transform = `translate(0px, ${initialRect.bottom - rTopCard.top - rTopCard.height}px)`
+                          $topCard.style.transform = `translate(0px, ${topTy + (initialRect.bottom - rTopCard.top - rTopCard.height)}px)`
 
                           initialRect.bottom = tempBottom
                           initialRect.top = tempTop
@@ -590,6 +593,9 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
                         // console.log('INITIAL RECT', initialRect)
                         const $botCard = Array.from($wrapper.querySelectorAll('.card-task')).find(($el) => Number($el.dataset.index) == Number($index) + 1 )
                         const rBotCard = $botCard.getBoundingClientRect()
+                        const botMatrix = new DOMMatrix(win.getComputedStyle($botCard).transform) // to get value of current transform translate(x,y)
+                        const botTx = botMatrix.e 
+                        const botTy = botMatrix.f
                         const swapThreshold = rBotCard.top + (rBotCard.height / 2)
                         if (r.bottom > swapThreshold) {
                           // index swap
@@ -605,7 +611,7 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
 
                           // transform.translate y
                           console.log('selisih', )
-                          $botCard.style.transform = `translate(0px, -${rBotCard.top - initialRect.top}px)`
+                          $botCard.style.transform = `translate(0px, ${botTy - (rBotCard.top - initialRect.top)}px)`
 
                           initialRect.bottom = tempBottom
                           initialRect.top = tempTop
