@@ -200,6 +200,86 @@ export const useBoardStore = defineStore('board', {
                }
             ]
          },
+         {
+            id: uuid(),
+            name: 'Coba',
+            columns: [
+               {
+                  id: uuid(),
+                  name: 'Todo',
+                  tasks: [
+                     {
+                        id: uuid(),
+                        title: '1',
+                        description: 'asdf',
+                        subtasks: []
+                     },{
+                        id: uuid(),
+                        title: '2',
+                        description: 'asdf',
+                        subtasks: []
+                     },{
+                        id: uuid(),
+                        title: '3',
+                        description: 'asdf',
+                        subtasks: []
+                     },
+                  ]
+               },{
+                  id: uuid(),
+                  name: 'Doing',
+                  tasks: [
+                     {
+                        id: uuid(),
+                        title: '1',
+                        description: 'asdf',
+                        subtasks: []
+                     },{
+                        id: uuid(),
+                        title: '2',
+                        description: 'asdf',
+                        subtasks: []
+                     },{
+                        id: uuid(),
+                        title: '3',
+                        description: 'asdf',
+                        subtasks: []
+                     },{
+                        id: uuid(),
+                        title: '4',
+                        description: 'asdf',
+                        subtasks: []
+                     },{
+                        id: uuid(),
+                        title: '5',
+                        description: 'asdf',
+                        subtasks: []
+                     },
+                  ]
+               },{
+                  id: uuid(),
+                  name: 'Finish',
+                  tasks: [
+                     {
+                        id: uuid(),
+                        title: '1',
+                        description: 'asdf',
+                        subtasks: []
+                     },{
+                        id: uuid(),
+                        title: '2',
+                        description: 'asdf',
+                        subtasks: []
+                     },{
+                        id: uuid(),
+                        title: '3',
+                        description: 'asdf',
+                        subtasks: []
+                     },
+                  ]
+               },
+            ]
+         }
       ]
    }),
    getters: {
@@ -208,6 +288,7 @@ export const useBoardStore = defineStore('board', {
    },
    actions: {
       setActiveBoardIndex(index) {
+         console.log('set active board index')
          this.activeBoardIndex = index
       },
       createNewBoard({name, columns}) {
@@ -241,31 +322,40 @@ export const useBoardStore = defineStore('board', {
             subtasks: task.subtasks, 
          })
       },
-      swapTask(colIndex, startIndex, endIndex) {
+      swapTask(fromColumnIndex, toColumnIndex, fromIndex, toIndex) {
          // this.board.columns[colIndex].tasks
-         console.log('SWAP TASK', colIndex, startIndex, endIndex)
-         if (endIndex > startIndex) { // drag ke bawah
-            const newTasks = this.board.columns[colIndex].tasks.map((t, index) => {
-               if (index > endIndex || index < startIndex) return t
-               if (index == endIndex) return this.board.columns[colIndex].tasks[startIndex] 
-               if (index >= startIndex) return this.board.columns[colIndex].tasks[index + 1]
-            })
-            console.log('newTasks', newTasks)
-            this.boards[this.activeBoardIndex].columns[colIndex].tasks = newTasks
-         } else if (endIndex < startIndex) { // drag ke atas
-            console.log('swap task atas')
-            const newTasks = this.board.columns[colIndex].tasks.map((t, index) => {
-               if (index < endIndex || index > startIndex) return t
-               if (index == endIndex) return this.board.columns[colIndex].tasks[startIndex] 
-               if (index <= startIndex) return this.board.columns[colIndex].tasks[index - 1]
-            })
-            this.boards[this.activeBoardIndex].columns[colIndex].tasks = newTasks
+         console.log('SWAP TASK', fromColumnIndex, toColumnIndex, fromIndex, toIndex)
+         if (toColumnIndex === null) return
+         if (fromColumnIndex === toColumnIndex) {
+            if (toIndex > fromIndex) { // drag ke bawah
+               const newTasks = this.board.columns[toColumnIndex].tasks.map((t, index) => {
+                  if (index > toIndex || index < fromIndex) return t
+                  if (index == toIndex) return this.board.columns[toColumnIndex].tasks[fromIndex] 
+                  if (index >= fromIndex) return this.board.columns[toColumnIndex].tasks[index + 1]
+               })
+               console.log('newTasks', newTasks)
+               this.boards[this.activeBoardIndex].columns[toColumnIndex].tasks = newTasks
+            } else if (toIndex < fromIndex) { // drag ke atas
+               console.log('swap task atas')
+               const newTasks = this.board.columns[toColumnIndex].tasks.map((t, index) => {
+                  if (index < toIndex || index > fromIndex) return t
+                  if (index == toIndex) return this.board.columns[toColumnIndex].tasks[fromIndex] 
+                  if (index <= fromIndex) return this.board.columns[toColumnIndex].tasks[index - 1]
+               })
+               this.boards[this.activeBoardIndex].columns[toColumnIndex].tasks = newTasks
+            }
+         } else {
+            console.log('BEDA COLUMN')
+            // oldColumn
+            const theTask = this.board.columns[fromColumnIndex].tasks.splice(fromIndex, 1)[0];
+            this.board.columns[toColumnIndex].tasks.splice(toIndex, 0, theTask)
          }
       },
       toggleSubtask(columnIndex, taskIndex, subtaskIndex) {
          this.board.columns[columnIndex].tasks[taskIndex].subtasks[subtaskIndex].isDone = !this.board.columns[columnIndex].tasks[taskIndex].subtasks[subtaskIndex].isDone
       },
       changeTaskColumn(fromColumnIndex, toColumnIndex, taskIndex) {
+
          const theTask = this.board.columns[fromColumnIndex].tasks.splice(taskIndex, 1)
          this.board.columns[toColumnIndex].tasks.push(toRaw(theTask[0]))
          this.activeColumnIndex = toColumnIndex

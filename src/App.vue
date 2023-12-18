@@ -43,8 +43,6 @@ watch(modalTaskData, () => {
   console.log('modal task data', modalTaskData)
 
 })
-const refSelect = ref(null)
-
 const refDragScroll = ref(null)
 const dragScroll = ref(false)
 const x = ref(0)
@@ -63,7 +61,9 @@ function removeScrollHandler() {
   dragScroll.value = false
 }
 
-let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
+const tasksWrapperRefs = ref([])
+
+// let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
 </script>
 
 <template>
@@ -337,7 +337,7 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
                   ? 'bg-primary text-white'
                   : 'dark:text-slate-400 text-slate-500'
               ]"
-              @click="boardStore.setActiveIndex(index)"
+              @click="boardStore.setActiveBoardIndex(index)"
             >
               <IconBoard class="mr-4" />
               <div>{{ b.name }}</div>
@@ -525,7 +525,7 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
 
           <div
             v-for="(c, colIndex) in boardStore.board.columns"
-            class="shrink-0 w-[286px] mr-8 flex flex-col"
+            class="column shrink-0 w-[286px] mr-16 flex flex-col"
           >
             <div class="flex items-center mb-6">
               <div :class="['w-[14px] h-[14px] rounded-full mr-3', `bg-dot${colIndex}`]"></div>
@@ -535,26 +535,38 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
             </div>
 
             <!-- card (tasks) -->
-            <div v-show="c.tasks.length > 0" class="wrapper-task flex flex-col">
+            <div v-show="c.tasks.length > 0" ref="tasksWrapperRefs" :data-column-index="colIndex" class="wrapper-task flex flex-col">
               <div
                 v-for="(t, index) in c.tasks"
-                class="card-task bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 mb-4"
+                class="card-task  card-task-transition bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 mb-4"
                 data-moveable="0"
                 :data-index="index"
                 @mousedown="
                   (e) => {
                     console.log('mousedown')
-                    console.log('colummn index', colIndex)
+                    // console.log('colummn index', colIndex)
+                    
+                    const fromColumnIndex = colIndex 
+                    const fromIndex = index 
+                    let currentColumnIndex = colIndex
                     const $this = e.currentTarget;
+                    $this.classList.remove('card-task-transition')
                     const startIndex = $this.dataset.index
                     $this.dataset.moveable = '1';
                     $this.style.zIndex = '1000';
                     const r = $this.getBoundingClientRect()
-                    initialRect = {top: r.top, bottom: r.bottom, height: r.height}
-                    console.log('initial rect', initialRect)
-                    const $wrapper = $this.parentElement
+                    let initialRect = {top: r.top, bottom: r.bottom, height: r.height} // shadow Rect
+                    const marginBottom = parseInt(win.getComputedStyle($this).marginBottom)
+
+                    let $wrapper = tasksWrapperRefs[colIndex]
+
+                    const rWrapper = $wrapper.getBoundingClientRect()
+                    // let $rightWrapper = $wrapper.parentElement.nextElementSibling.querySelector('.wrapper-task')
+                    let $rightWrapper = tasksWrapperRefs[colIndex + 1]
+                    let $leftWrapper = tasksWrapperRefs[colIndex - 1]
 
                     const dragCard = (e) => {
+                     
                       isDragged = true
                       const $index = $this.dataset.index
                       const matrix = new DOMMatrix(win.getComputedStyle($this).transform) // to get value of current transform translate(x,y)
@@ -563,16 +575,122 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
                       $this.style.transform = `translate(${tx + e.movementX}px, ${ty + e.movementY}px)`
                       
                       const r = $this.getBoundingClientRect()
+                      const midX = (r.width / 2) + r.left
+
+                      // HORIZONTAL 
+
+                      if (e.movementX > 0 ) { // ke kanan
+
+                        if ($wrapper !== null && midX > $wrapper.getBoundingClientRect().right) { // OUT
+                          $leftWrapper = $wrapper;
+                          $wrapper = null;
+                          currentColumnIndex = null;
+
+                          const leftTasksCount = Number($leftWrapper.dataset.columnIndex) === fromColumnIndex ? $leftWrapper.querySelectorAll('.card-task').length - 1 : $leftWrapper.querySelectorAll('.card-task').length;
+
+                          if ($this.dataset.index < leftTasksCount) { // column issue
+                            const $next = $leftWrapper.querySelector(`.card-task[data-index='${Number($this.dataset.index)+1}']`) 
+                            const nTop = $next.getBoundingClientRect().top 
+                            $leftWrapper.querySelectorAll('.card-task').forEach((n,i) => { // geser
+                              if (Number(n.dataset.index) > Number($this.dataset.index)) {
+                                const matrix = new DOMMatrix(win.getComputedStyle(n).transform)
+                                const nTx = matrix.e 
+                                const nTy = matrix.f
+                                const calculation = Math.round(nTy - (nTop - initialRect.top))
+                                n.style.transform = `translate(${nTx}px, ${calculation}px)`
+                                n.dataset.index = Number(n.dataset.index) - 1
+                              }
+                            })
+                          }
+
+                        } else if ($wrapper === null && midX > $rightWrapper.getBoundingClientRect().left) { // Kanan IN
+                          $wrapper = $rightWrapper 
+                          currentColumnIndex = Number($wrapper.dataset.columnIndex)
+                          $rightWrapper = tasksWrapperRefs[currentColumnIndex + 1]
+                          $leftWrapper = tasksWrapperRefs[currentColumnIndex - 1]
+                          const midY = $this.getBoundingClientRect().top + ($this.getBoundingClientRect().height / 2)
+                          let newIndex = 0
+                          let $top = null
+                          $wrapper.querySelectorAll('.card-task').forEach((n, index) => {
+                            if (n === $this) return
+                            if (midY <= n.getBoundingClientRect().top || (midY >= n.getBoundingClientRect().top && midY <= n.getBoundingClientRect().bottom)) { // geser ke bawah
+                              const matrix = new DOMMatrix(win.getComputedStyle(n).transform)
+                              const nTx = matrix.e 
+                              const nTy = matrix.f
+                              n.style.transform = `translate(${nTx}px, ${nTy + r.height + marginBottom}px)`
+                              n.dataset.index = Number(n.dataset.index) + 1
+                            } else {
+                              newIndex = Number(n.dataset.index) + 1
+                              $top = n
+                            }
+                          })
+                          $this.dataset.index = newIndex
+                          initialRect.left = $wrapper.getBoundingClientRect().left
+                          initialRect.right = $wrapper.getBoundingClientRect().right
+                          initialRect.top = $top === null ? $wrapper.getBoundingClientRect().top : $top.getBoundingClientRect().bottom + parseInt(win.getComputedStyle($top).marginBottom)
+                          initialRect.bottom = initialRect.top + initialRect.height;
+
+                        }
+                      } else if (e.movementX < 0) { // ke kiri
+
+                        if (!!$wrapper && midX < $wrapper.getBoundingClientRect().left) { // OUT
+                          $rightWrapper = $wrapper
+                          $leftWrapper = tasksWrapperRefs[Number($wrapper.dataset.columnIndex) - 1]
+                          $wrapper = null
+                          currentColumnIndex = null
+                          
+                          // geser bawah tasks 
+                          $rightWrapper.querySelectorAll('.card-task').forEach((n, index) => {
+                            if ( n.dataset.index > $this.dataset.index ) {
+                              const nty = new DOMMatrix(win.getComputedStyle(n).transform).f // current translateY of n
+                              n.style.transform = `translate(0px, ${nty - ($this.getBoundingClientRect().height + marginBottom)}px)`
+                              n.dataset.index = Number(n.dataset.index) - 1
+                            }
+                          })
+
+                        } else if (!!$wrapper == false && !!$leftWrapper && midX < $leftWrapper.getBoundingClientRect().right) { // IN Left
+                          $wrapper = $leftWrapper 
+                          $leftWrapper = tasksWrapperRefs[Number($wrapper.dataset.columnIndex) - 1]
+                          currentColumnIndex = Number($wrapper.dataset.columnIndex) 
+                          let newIndex=0
+                          const midY = $this.getBoundingClientRect().top + (initialRect.height / 2)
+                          let $top = null
+                          $wrapper.querySelectorAll('.card-task').forEach((n, index) => {
+                            if (n == $this) return 
+
+                            rn = n.getBoundingClientRect()
+                            if (midY < rn.top || (midY > rn.top && midY < rn.bottom)) {
+                              n.dataset.index = Number(n.dataset.index) + 1
+                              nty = new DOMMatrix(win.getComputedStyle(n).transform).f // n's current translate y 
+                              n.style.transform = `translate(0px, ${nty + (initialRect.height + marginBottom)}px)`
+                            } else {
+                              newIndex = Number(n.dataset.index) + 1
+                              $top = n
+                            }
+                          })
+                          $this.dataset.index = newIndex;
+                          initialRect.left = $wrapper.getBoundingClientRect().left;
+                          initialRect.right = $wrapper.getBoundingClientRect().right;
+                          initialRect.top = $top === null ? $wrapper.getBoundingClientRect().top : $top.getBoundingClientRect().bottom + parseInt(win.getComputedStyle($top).marginBottom)
+                          initialRect.bottom = initialRect.top + initialRect.height;
+                        }
+                        
+                      }
+
+                      if ($wrapper == null ) return;
+
+                      // VERTICAL 
+
                       if (e.movementY < 0) { // ke atas
                         if ($index == 0) return
-                        const $topCard = Array.from($wrapper.querySelectorAll('.card-task')).find(($el) => Number($el.dataset.index) == Number($index) - 1 )
-                        const rTopCard = $topCard.getBoundingClientRect()
+                        const $topCard = Array.from($wrapper.querySelectorAll('.card-task')).find(($el) => Number($el.dataset.index) == Number($this.dataset.index) - 1 ) // cause of error
+                        // console.log('$this index',$this.dataset.index ,'$topCard', $topCard)
+                        const rTopCard = $topCard.getBoundingClientRect() // error
                         const topMatrix = new DOMMatrix(win.getComputedStyle($topCard).transform) // to get value of current transform translate(x,y)
                         const topTx = topMatrix.e 
                         const topTy = topMatrix.f
                         const swapThreshold = rTopCard.top + (rTopCard.height / 2)
                         if (r.top < swapThreshold) {
-                          console.log('swap atas')
                           const temp = $index
                           $this.dataset.index = $topCard.dataset.index
                           $topCard.dataset.index = temp 
@@ -588,19 +706,15 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
                           initialRect.top = tempTop
                         }
                       } else { // ke bawah
-
-                        if ($index == c.tasks.length - 1) return
-                        // console.log('INITIAL RECT', initialRect)
-                        const $botCard = Array.from($wrapper.querySelectorAll('.card-task')).find(($el) => Number($el.dataset.index) == Number($index) + 1 )
+                        
+                        const columnTasksLength = currentColumnIndex === fromColumnIndex ? boardStore.board.columns[currentColumnIndex].tasks.length - 1 : boardStore.board.columns[currentColumnIndex].tasks.length // 
+                        if ($this.dataset.index == columnTasksLength) return
+                        const $botCard = Array.from($wrapper.querySelectorAll('.card-task')).find(($el) => Number($el.dataset.index) == Number($this.dataset.index) + 1 )
                         const rBotCard = $botCard.getBoundingClientRect()
-                        const botMatrix = new DOMMatrix(win.getComputedStyle($botCard).transform) // to get value of current transform translate(x,y)
-                        const botTx = botMatrix.e 
-                        const botTy = botMatrix.f
+                        const botTy = new DOMMatrix(win.getComputedStyle($botCard).transform).f // to get value of current transform translate(x,y)
                         const swapThreshold = rBotCard.top + (rBotCard.height / 2)
                         if (r.bottom > swapThreshold) {
                           // index swap
-                          console.log('swap')
-                          console.log('initialRect', initialRect)
                           const temp = $index
                           $this.dataset.index = $botCard.dataset.index
                           $botCard.dataset.index = temp 
@@ -608,9 +722,6 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
                           // initial rect kalkulasi dari => rBotCard
                           const tempBottom = rBotCard.bottom 
                           const tempTop = rBotCard.bottom - initialRect.height
-
-                          // transform.translate y
-                          console.log('selisih', )
                           $botCard.style.transform = `translate(0px, ${botTy - (rBotCard.top - initialRect.top)}px)`
 
                           initialRect.bottom = tempBottom
@@ -621,26 +732,29 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
 
 
                     const cancelDragCard = (e) => {
-                      console.log('mouseup')
+                      console.log('cancel drag card')
 
                       if (!isDragged) {
                         console.log('OPEN MODAL')
-                        // modalTaskData = {...t, taskIndex: index, columnIndex: colIndex}
                         boardStore.setColumnAndTaskIndex(colIndex, index)
                         openModalTask = true
                       }
-                      // reset trasnlate
+                      console.log('update store', fromColumnIndex, currentColumnIndex, fromIndex, $this.dataset.index)
+                      // reset $this translate
                       $this.dataset.moveable = '0'
                       $this.style.transform = 'translate(0px, 0px)'
                       $this.style.zIndex = '0'
                       doc.removeEventListener('mousemove', dragCard)
                       doc.removeEventListener('mouseup', cancelDragCard)
+
                       // reset the rest translate
-                      boardStore.swapTask(colIndex, startIndex, $this.dataset.index)
+                      boardStore.swapTask(fromColumnIndex, currentColumnIndex, startIndex, $this.dataset.index)
                       isDragged = false  
-                      $wrapper.querySelectorAll('.card-task').forEach((n, i) => {
-                        n.style.transform = 'translate(0px, 0px)'
-                        n.dataset.index = i
+                      tasksWrapperRefs.forEach(w => {
+                        w.querySelectorAll('.card-task').forEach((n, index) => {
+                          n.style.transform = 'translate(0px, 0px)'
+                          n.dataset.index = index
+                        })
                       })
                     }
 
@@ -775,4 +889,8 @@ let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+  .card-task-transition {
+    transition: transform linear .1s;
+  }
+</style>
