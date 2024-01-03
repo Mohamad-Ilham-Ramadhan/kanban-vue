@@ -584,93 +584,152 @@ const tasksWrapperRefs = ref([])
                   (e) => {
                     console.log('mousedown')
                     const $this = e.currentTarget
-                    const sColumnIndex = colIndex; // start 
-                    let cColumnIndex = colIndex; // current
-                    let $wrapper = $this.parentElement;
-                    let $leftWrapper = tasksWrapperRefs[colIndex - 1];
-                    let $rightWrapper = tasksWrapperRefs[colIndex + 1];
+                    const sColumnIndex = colIndex // start
+                    let cColumnIndex = colIndex // current
+                    let $wrapper = $this.parentElement
+                    let $leftWrapper = tasksWrapperRefs[colIndex - 1]
+                    let $rightWrapper = tasksWrapperRefs[colIndex + 1]
                     const $rect = $this.getBoundingClientRect()
                     const $clone = $this.cloneNode(true)
-                    $clone.style.position = 'absolute';
+                    $clone.style.position = 'absolute'
                     $clone.style.width = `${$rect.width}px`
                     $clone.style.height = `${$rect.height}px`
-                    $clone.style.top = `${$rect.top}px` 
-                    $clone.style.left = `${$rect.left}px` 
+                    $clone.style.top = `${$rect.top}px`
+                    $clone.style.left = `${$rect.left}px`
                     $clone.classList.remove('card-task-transition')
                     doc.body.appendChild($clone)
                     $this.style.opacity = '.2'
-                    
-                    let gridMap;
+
+                    let gridMap
 
                     const dragCard = (e) => {
                       isDragged = true
                       let $cloneMatrix = new DOMMatrix(win.getComputedStyle($clone).transform)
                       let $cloneRect = $clone.getBoundingClientRect()
-                      let $cloneMidX = $cloneRect.left + ($cloneRect.width / 2)
-                      let $cloneMidY = $cloneRect.top + ($cloneRect.height / 2)
+                      let $cloneMidX = $cloneRect.left + $cloneRect.width / 2
+                      let $cloneMidY = $cloneRect.top + $cloneRect.height / 2
                       // console.log('$cloneMidX', $cloneMidX)
-                      $clone.style.transform = `translate(${$cloneMatrix.e + e.movementX}px, ${$cloneMatrix.f + e.movementY }px)`
-                       
-                      // VERTICAL 
-                      if (e.movementY < 0) { //  ATAS
-                        const $topCard = $this.previousElementSibling;
+                      $clone.style.transform = `translate(${$cloneMatrix.e + e.movementX}px, ${
+                        $cloneMatrix.f + e.movementY
+                      }px)`
+
+                      const removeDraggedCard = () => {
+                        let $next = $this.nextElementSibling
+                        while (!!$next) {
+                          $next.dataset.index = Number($next.dataset.index) - 1
+                          $next = $next.nextElementSibling
+                        }
+                        $this.remove()
+                        $wrapper = null
+                        cColumnIndex = null
+                      }
+
+                      const insertDraggedCard = ($wrapper) => {
+                        // dragged card === $this
+                        let i = 0
+                        let isInserted = false
+                        while (i < $wrapper.childNodes.length) {
+                          n = $wrapper.childNodes[i]
+                          if (n.classList === undefined) {
+                            i++
+                            continue
+                          }
+                          if (isInserted) {
+                            console.log('after inserted node', n)
+                            n.dataset.index = Number(n.dataset.index) + 1
+                            i++
+                            continue
+                          }
+                          const nRect = n.getBoundingClientRect()
+                          if (
+                            isInserted === false &&
+                            (($cloneMidY > nRect.top && $cloneMidY < nRect.bottom) ||
+                              $cloneMidY < nRect.top)
+                          ) {
+                            console.log('move', n)
+                            $wrapper.insertBefore($this, n)
+                            $this.dataset.index = n.dataset.index
+                            isInserted = true
+                            i++
+                            continue
+                          }
+                          i++
+                        }
+                      }
+
+                      // VERTICAL
+                      if (e.movementY < 0) {
+                        //  ATAS
+                        const $topCard = $this.previousElementSibling
                         if (!!$topCard === false) return
                         const $topRect = $topCard.getBoundingClientRect()
-                        const swapThreshold = $topRect.top + ($topRect.height / 2) 
+                        const swapThreshold = $topRect.top + $topRect.height / 2
                         if ($cloneRect.top < swapThreshold) {
                           console.log('top swap')
                           $wrapper.insertBefore($this, $topCard)
-                          $this.dataset.index = $topCard.dataset.index 
+                          $this.dataset.index = $topCard.dataset.index
                           $topCard.dataset.index = Number($topCard.dataset.index) + 1
                         }
-                      } else if (e.movementY > 0) { // BAWAH
+                      } else if (e.movementY > 0) {
+                        // BAWAH
 
-                        const $bottomCard = $this.nextElementSibling;
+                        const $bottomCard = $this.nextElementSibling
                         if (!!$bottomCard === false) return
                         const $bottomRect = $bottomCard.getBoundingClientRect()
-                        const swapThreshold = $bottomRect.top + ($bottomRect.height / 2) 
+                        const swapThreshold = $bottomRect.top + $bottomRect.height / 2
                         if ($cloneRect.bottom > swapThreshold) {
                           console.log('bottom swap')
                           $wrapper.insertBefore($bottomCard, $this)
-                          $this.dataset.index = $bottomCard.dataset.index 
+                          $this.dataset.index = $bottomCard.dataset.index
                           $bottomCard.dataset.index = Number($bottomCard.dataset.index) - 1
                         }
-                      } else if (e.movementX > 0) { // KANAN
+                      } else if (e.movementX > 0) {
+                        // KANAN
                         console.log('KANAN')
-                        if (!!$wrapper && $cloneMidX > $wrapper.getBoundingClientRect().right) { // KANAN OUT
+                        if (!!$wrapper && $cloneMidX > $wrapper.getBoundingClientRect().right) {
+                          // KANAN OUT
                           console.log('KANAN OUT')
-                          $this.remove()
-                          $leftWrapper = $wrapper 
-                          $wrapper = null;
-                        } else if (!!$wrapper === false && $cloneMidX > $rightWrapper.getBoundingClientRect().left) { // KANAN IN
+                          $leftWrapper = $wrapper
+
+                          removeDraggedCard()
+                        } else if (
+                          !!$wrapper === false &&
+                          $cloneMidX > $rightWrapper.getBoundingClientRect().left
+                        ) {
+                          // KANAN IN
                           console.log('KANAN IN')
-                          $wrapper = $rightWrapper 
+                          $wrapper = $rightWrapper
                           cColumnIndex = Number($wrapper.dataset.columnIndex)
                           $rightWrapper = tasksWrapperRefs[cColumnIndex + 1]
-                          console.log('$this', $this)
-                          console.log('childNodes.length', $wrapper.childNodes.length)
 
-                          
-                          let i = 0;
-                          while (i < $wrapper.childNodes.length) {
-                              n = $wrapper.childNodes[i]
-                              if (n.classList === undefined) {i++; continue};
-                              const nRect = n.getBoundingClientRect()
-                              console.log('nRect', nRect)
-                              if ( ($cloneMidY > nRect.top && $cloneMidY < nRect.bottom) || $cloneMidY < nRect.top) {
-                                console.log('move', n)
-                                $wrapper.insertBefore($this, n)
-                                break;
-                              }
-                              i++;
-                            }
-                            
+                          // insert $this
+                          insertDraggedCard($wrapper)
                         }
-                      } else if (e.movementX < 0) { // KIRI
-                        // console.log('Kiri')
+                      } else if (e.movementX < 0) {
+                        // KIRI
+                        console.log('Kiri')
+                        if (!!$wrapper && $cloneMidX < $wrapper.getBoundingClientRect().left) {
+                          // KIRI OUT
+                          console.log('KIRI OUT')
+                          $rightWrapper = $wrapper
 
+                          removeDraggedCard()
+                          
+                        } else if (
+                          !!$wrapper === false &&
+                          $cloneMidX < $leftWrapper.getBoundingClientRect().right
+                        ) {
+                          // KIRI IN
+                          console.log('KIRI IN')
+                          cColumnIndex = Number($leftWrapper.dataset.columnIndex)
+                          $wrapper = $leftWrapper
+                          $leftWrapper = tasksWrapperRefs[cColumnIndex - 1]
+
+                          // insert $this
+                          insertDraggedCard($wrapper)
+                        }
                       }
-                    } 
+                    }
 
                     const cancelDragCard = (e) => {
                       console.log('cancel drag card')
@@ -690,7 +749,7 @@ const tasksWrapperRefs = ref([])
                     doc.addEventListener('mouseup', cancelDragCard)
                     e.stopPropagation()
                   }
-                  "
+                "
               >
                 <div class="font-bold text-[15px] mb-3">{{ t.title }}</div>
                 <div class="text-xs text-slate-400 font-semibold">
