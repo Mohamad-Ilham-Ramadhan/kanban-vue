@@ -607,6 +607,7 @@ const tasksWrapperRefs = ref([])
                       let $cloneMatrix = new DOMMatrix(win.getComputedStyle($clone).transform)
                       let $cloneRect = $clone.getBoundingClientRect()
                       let $cloneMidX = $cloneRect.left + ($cloneRect.width / 2)
+                      let $cloneMidY = $cloneRect.top + ($cloneRect.height / 2)
                       // console.log('$cloneMidX', $cloneMidX)
                       $clone.style.transform = `translate(${$cloneMatrix.e + e.movementX}px, ${$cloneMatrix.f + e.movementY }px)`
                        
@@ -647,9 +648,24 @@ const tasksWrapperRefs = ref([])
                           cColumnIndex = Number($wrapper.dataset.columnIndex)
                           $rightWrapper = tasksWrapperRefs[cColumnIndex + 1]
                           console.log('$this', $this)
+                          console.log('childNodes.length', $wrapper.childNodes.length)
+
+                          
+                          let i = 0;
+                          while (i < $wrapper.childNodes.length) {
+                              n = $wrapper.childNodes[i]
+                              if (n.classList === undefined) {i++; continue};
+                              const nRect = n.getBoundingClientRect()
+                              console.log('nRect', nRect)
+                              if ( ($cloneMidY > nRect.top && $cloneMidY < nRect.bottom) || $cloneMidY < nRect.top) {
+                                console.log('move', n)
+                                $wrapper.insertBefore($this, n)
+                                break;
+                              }
+                              i++;
+                            }
+                            
                         }
-
-
                       } else if (e.movementX < 0) { // KIRI
                         // console.log('Kiri')
 
