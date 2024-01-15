@@ -584,6 +584,7 @@ const tasksWrapperRefs = ref([])
                   (e) => {
                     console.log('mousedown')
                     const $this = e.currentTarget
+                    const startIndex = Number($this.dataset.index);
                     const sColumnIndex = colIndex // start
                     let cColumnIndex = colIndex // current
                     let $wrapper = $this.parentElement
@@ -736,11 +737,24 @@ const tasksWrapperRefs = ref([])
                       $clone.remove()
                       $this.style.opacity = ''
                       $clone.classList.add('card-task-transition')
-                      if (!isDragged) {
+
+                      if (!isDragged) { // open modal task
                         console.log('OPEN MODAL')
                         boardStore.setColumnAndTaskIndex(colIndex, index)
                         openModalTask = true
                       }
+
+                      const currentIndex = Number($this.dataset.index)
+                      console.log('start Index', startIndex)
+                      console.log('current Index', currentIndex)
+                      console.log('start column index', sColumnIndex)
+                      console.log('current column index', cColumnIndex)
+
+                      win.setTimeout(() => {
+                        
+                        // boardStore.swapTask(sColumnIndex, cColumnIndex, startIndex, currentIndex)
+                        boardStore.coba(sColumnIndex, startIndex)
+                      }, 1000);
 
                       doc.removeEventListener('mousemove', dragCard)
                       doc.removeEventListener('mouseup', cancelDragCard)

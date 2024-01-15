@@ -322,7 +322,7 @@ export const useBoardStore = defineStore('board', {
             subtasks: task.subtasks, 
          })
       },
-      swapTask(fromColumnIndex, toColumnIndex, fromIndex, toIndex) {
+      swapTask(fromColumnIndex, toColumnIndex, fromIndex, toIndex) { // drag/sort card task
          // this.board.columns[colIndex].tasks
          console.log('SWAP TASK', fromColumnIndex, toColumnIndex, fromIndex, toIndex)
          if (toColumnIndex === null) return
@@ -350,6 +350,14 @@ export const useBoardStore = defineStore('board', {
             const theTask = this.board.columns[fromColumnIndex].tasks.splice(fromIndex, 1)[0];
             this.board.columns[toColumnIndex].tasks.splice(toIndex, 0, theTask)
          }
+      },
+      coba(columnIndex, index) {
+         console.log('index', index)
+         const temp = this.board.columns[columnIndex].tasks[index].title
+         this.board.columns[columnIndex].tasks[index].title = 666
+         setTimeout(() => 
+            this.board.columns[columnIndex].tasks[index].title = temp
+         ,1000)
       },
       toggleSubtask(columnIndex, taskIndex, subtaskIndex) {
          this.board.columns[columnIndex].tasks[taskIndex].subtasks[subtaskIndex].isDone = !this.board.columns[columnIndex].tasks[taskIndex].subtasks[subtaskIndex].isDone
