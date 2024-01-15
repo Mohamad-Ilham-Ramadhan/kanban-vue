@@ -613,6 +613,7 @@ const tasksWrapperRefs = ref([])
                     doc.body.appendChild(shadowCard)
 
                     let $movedCards = new Set();
+                    let $movedCardsWhenThisOut = new Set();
                     
                     let $wrapper = tasksWrapperRefs[colIndex]
 
@@ -641,6 +642,7 @@ const tasksWrapperRefs = ref([])
 
                         if ($wrapper !== null && midX > $wrapper.getBoundingClientRect().right) {
                           // KANAN OUT
+                          console.log('KANAN OUT')
                           $leftWrapper = $wrapper
                           $wrapper = null
                           currentColumnIndex = null
@@ -659,6 +661,9 @@ const tasksWrapperRefs = ref([])
                             $leftWrapper.querySelectorAll('.card-task').forEach((n, i) => {
                               // geser
                               if (Number(n.dataset.index) > Number($this.dataset.index)) {
+                                // add moved cards to reset translate later when $this card doesn't have current column
+                                $movedCardsWhenThisOut.add(n)
+
                                 const matrix = new DOMMatrix(win.getComputedStyle(n).transform)
                                 const nTx = matrix.e
                                 const nTy = matrix.f
@@ -673,6 +678,9 @@ const tasksWrapperRefs = ref([])
                           midX > $rightWrapper.getBoundingClientRect().left
                         ) {
                           // KANAN IN
+
+                          $movedCardsWhenThisOut.clear();
+
                           $wrapper = $rightWrapper
                           currentColumnIndex = Number($wrapper.dataset.columnIndex)
                           $rightWrapper = tasksWrapperRefs[currentColumnIndex + 1]
@@ -725,6 +733,9 @@ const tasksWrapperRefs = ref([])
                           // geser bawah tasks
                           $rightWrapper.querySelectorAll('.card-task').forEach((n, index) => {
                             if (n.dataset.index > $this.dataset.index) {
+                              // add moved cards to reset translate later when $this card doesn't have current column
+                              $movedCardsWhenThisOut.add(n)
+
                               const nty = new DOMMatrix(win.getComputedStyle(n).transform).f // current translateY of n
                               n.style.transform = `translate(0px, ${
                                 nty - ($this.getBoundingClientRect().height + marginBottom)
@@ -738,6 +749,9 @@ const tasksWrapperRefs = ref([])
                           midX < $leftWrapper.getBoundingClientRect().right
                         ) {
                           // KIRI IN
+
+                          $movedCardsWhenThisOut.clear();
+
                           $wrapper = $leftWrapper
                           $leftWrapper = tasksWrapperRefs[Number($wrapper.dataset.columnIndex) - 1]
                           currentColumnIndex = Number($wrapper.dataset.columnIndex)
@@ -892,6 +906,15 @@ const tasksWrapperRefs = ref([])
                       doc.removeEventListener('mousemove', dragCard)
                       doc.removeEventListener('mouseup', cancelDragCard)
 
+                      // Ketika $this card tidak masuk di column manapun
+                      if (currentColumnIndex === null) {
+                        $movedCardsWhenThisOut.forEach( (c)  => {
+                          const moveY = shadowRect.height + marginBottom;
+                          const cTy = new DOMMatrix(win.getComputedStyle(c).transform).f; // card's current translateY
+                          c.style.transform = `translate(0px, ${moveY + cTy}px)`;
+                        })
+                      }
+
                       win.setTimeout(() => {
                         // reset the rest translate
                         $this.classList.add('card-task-transition')
@@ -903,7 +926,8 @@ const tasksWrapperRefs = ref([])
                           $this.dataset.index
                         )
                         isDragged = false
-                        // affectedColumns.forEach
+
+                        // Clearing trasnlate and shadowRect of each cards
                         $movedCards.forEach( (c) => {
                           console.log('clear moved.shadowRect', c.shadowRect)
                           c.shadowRect = undefined

@@ -210,17 +210,17 @@ export const useBoardStore = defineStore('board', {
                   tasks: [
                      {
                         id: uuid(),
-                        title: '1',
+                        title: '(1) 1',
                         description: 'asdf',
                         subtasks: []
                      },{
                         id: uuid(),
-                        title: '2',
+                        title: '(1) 2',
                         description: 'asdf',
                         subtasks: []
                      },{
                         id: uuid(),
-                        title: '3',
+                        title: '(1) 3',
                         description: 'asdf',
                         subtasks: []
                      },
@@ -231,27 +231,27 @@ export const useBoardStore = defineStore('board', {
                   tasks: [
                      {
                         id: uuid(),
-                        title: '1',
+                        title: '(2) 1',
                         description: 'asdf',
                         subtasks: []
                      },{
                         id: uuid(),
-                        title: '2',
+                        title: '(2) 2',
                         description: 'asdf',
                         subtasks: []
                      },{
                         id: uuid(),
-                        title: '3',
+                        title: '(2) 3',
                         description: 'asdf',
                         subtasks: []
                      },{
                         id: uuid(),
-                        title: '4',
+                        title: '(2) 4',
                         description: 'asdf',
                         subtasks: []
                      },{
                         id: uuid(),
-                        title: '5',
+                        title: '(2) 5',
                         description: 'asdf',
                         subtasks: []
                      },
@@ -262,17 +262,17 @@ export const useBoardStore = defineStore('board', {
                   tasks: [
                      {
                         id: uuid(),
-                        title: '1',
+                        title: '(3) 1',
                         description: 'asdf',
                         subtasks: []
                      },{
                         id: uuid(),
-                        title: '2',
+                        title: '(3) 2',
                         description: 'asdf',
                         subtasks: []
                      },{
                         id: uuid(),
-                        title: '3',
+                        title: '(3) 3',
                         description: 'asdf',
                         subtasks: []
                      },
