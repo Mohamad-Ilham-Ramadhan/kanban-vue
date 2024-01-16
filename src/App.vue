@@ -676,6 +676,7 @@ const tasksWrapperRefs = ref([])
                           }
                         } else if (
                           $wrapper === null &&
+                          r.bottom > $rightWrapper.getBoundingClientRect().top &&
                           midX > $rightWrapper.getBoundingClientRect().left
                         ) {
                           // KANAN IN
@@ -733,11 +734,12 @@ const tasksWrapperRefs = ref([])
 
                         if (!!$wrapper && midX < $wrapper.getBoundingClientRect().left) {
                           // KIRI OUT
+                          console.log('KIRI OUT')
                           $rightWrapper = $wrapper
                           $leftWrapper = tasksWrapperRefs[Number($wrapper.dataset.columnIndex) - 1]
                           $wrapper = null
                           currentColumnIndex = null
-
+                          
                           // geser bawah tasks
                           $rightWrapper.querySelectorAll('.card-task').forEach((n, index) => {
                             if (n.dataset.index > $this.dataset.index) {
@@ -754,10 +756,11 @@ const tasksWrapperRefs = ref([])
                         } else if (
                           !!$wrapper == false &&
                           !!$leftWrapper &&
+                          r.bottom > $leftWrapper.getBoundingClientRect().top &&
                           midX < $leftWrapper.getBoundingClientRect().right
                         ) {
                           // KIRI IN
-
+                          console.log('KIRI IN')
                           $movedCardsWhenThisOut.clear();
 
                           $wrapper = $leftWrapper
@@ -811,10 +814,11 @@ const tasksWrapperRefs = ref([])
                           // move the rest card in $wrapper
                           $wrapper.querySelectorAll('.card-task').forEach((c, index) => {
                             if (c === $this) return 
-                            console.log('geser', c.dataset.title)
                             const cTy = new DOMMatrix(win.getComputedStyle(c).transform).f;// current translate Y
-                            console.log('cTy', cTy)
-                            c.style.transform = `translate(0px, ${cTy - (r.height + marginBottom)}px)`
+                            const cRect = c.getBoundingClientRect()
+                            const moveY = r.height + marginBottom
+                            c.shadowRect = {top: cRect - moveY, bottom: (cRect - moveY) + cRect.height, left: cRect.left, right: c.right, height: cRect.height, width: cRect.width};
+                            c.style.transform = `translate(0px, ${cTy - moveY}px)`
                           });
                           $wrapper = null;
                         }
