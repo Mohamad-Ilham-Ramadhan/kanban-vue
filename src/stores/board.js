@@ -325,24 +325,28 @@ export const useBoardStore = defineStore('board', {
       swapTask(fromColumnIndex, toColumnIndex, fromIndex, toIndex) { // drag/sort card task
          // this.board.columns[colIndex].tasks
          console.log('SWAP TASK', fromColumnIndex, toColumnIndex, fromIndex, toIndex)
-         if (toColumnIndex === null) return
-         if (fromColumnIndex === toColumnIndex) {
+         if (toColumnIndex === null && fromIndex === toIndex) {
+            console.log('not doing anything')
+            
+         } else if (fromColumnIndex === toColumnIndex || toColumnIndex === null) {
+            console.log('SAME COLUMN')
+
             if (toIndex > fromIndex) { // drag ke bawah
-               const newTasks = this.board.columns[toColumnIndex].tasks.map((t, index) => {
+               const newTasks = this.board.columns[fromColumnIndex].tasks.map((t, index) => {
                   if (index > toIndex || index < fromIndex) return t
-                  if (index == toIndex) return this.board.columns[toColumnIndex].tasks[fromIndex] 
-                  if (index >= fromIndex) return this.board.columns[toColumnIndex].tasks[index + 1]
+                  if (index == toIndex) return this.board.columns[fromColumnIndex].tasks[fromIndex] 
+                  if (index >= fromIndex) return this.board.columns[fromColumnIndex].tasks[index + 1]
                })
                console.log('newTasks', newTasks)
-               this.boards[this.activeBoardIndex].columns[toColumnIndex].tasks = newTasks
+               this.boards[this.activeBoardIndex].columns[fromColumnIndex].tasks = newTasks;
             } else if (toIndex < fromIndex) { // drag ke atas
                console.log('swap task atas')
-               const newTasks = this.board.columns[toColumnIndex].tasks.map((t, index) => {
+               const newTasks = this.board.columns[fromColumnIndex].tasks.map((t, index) => {
                   if (index < toIndex || index > fromIndex) return t
-                  if (index == toIndex) return this.board.columns[toColumnIndex].tasks[fromIndex] 
-                  if (index <= fromIndex) return this.board.columns[toColumnIndex].tasks[index - 1]
+                  if (index == toIndex) return this.board.columns[fromColumnIndex].tasks[fromIndex] 
+                  if (index <= fromIndex) return this.board.columns[fromColumnIndex].tasks[index - 1]
                })
-               this.boards[this.activeBoardIndex].columns[toColumnIndex].tasks = newTasks
+               this.boards[this.activeBoardIndex].columns[fromColumnIndex].tasks = newTasks
             }
          } else {
             console.log('BEDA COLUMN')
