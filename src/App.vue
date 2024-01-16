@@ -580,6 +580,7 @@ const tasksWrapperRefs = ref([])
                 data-moveable="0"
                 :data-index="index"
                 :data-y="0"
+                :data-title="t.title"
                 @mousedown="
                   (e) => {
                     console.log('mousedown')
@@ -678,6 +679,7 @@ const tasksWrapperRefs = ref([])
                           midX > $rightWrapper.getBoundingClientRect().left
                         ) {
                           // KANAN IN
+                          console.log('KANAN IN')
 
                           $movedCardsWhenThisOut.clear();
 
@@ -692,24 +694,28 @@ const tasksWrapperRefs = ref([])
                           let $top = null
                           $wrapper.querySelectorAll('.card-task').forEach((n, index) => {
                             if (n === $this) return
+                            const nRect = n.getBoundingClientRect() 
                             if (
-                              midY <= n.getBoundingClientRect().top ||
-                              (midY >= n.getBoundingClientRect().top &&
-                                midY <= n.getBoundingClientRect().bottom)
+                              midY <= nRect.top ||
+                              (midY >= nRect.top &&
+                                midY <= nRect.bottom)
                             ) {
                               // geser ke bawah
+                              console.log('geser', n.dataset.title)
                               const matrix = new DOMMatrix(win.getComputedStyle(n).transform)
-                              const nTx = matrix.e
+                              // const nTx = matrix.e
                               const nTy = matrix.f
-                              n.style.transform = `translate(${nTx}px, ${
-                                nTy + r.height + marginBottom
-                              }px)`
+                              n.shadowRect = {top: nRect.top + r.height + marginBottom, bottom: nRect.top + r.height + marginBottom + nRect.height, left: nRect.left, right: nRect.right, height: nRect.height, width: nRect.width}
+
+                              n.style.transform = `translate(0px, ${nTy + r.height + marginBottom}px)` // LKSJDF
                               n.dataset.index = Number(n.dataset.index) + 1
                             } else {
+                              console.log('assign $top')
                               newIndex = Number(n.dataset.index) + 1
                               $top = n
                             }
                           })
+                          // console.log('$top', $top)
                           $this.dataset.index = newIndex
                           shadowRect.left = $wrapper.getBoundingClientRect().left
                           shadowRect.right = $wrapper.getBoundingClientRect().right
@@ -719,7 +725,9 @@ const tasksWrapperRefs = ref([])
                               : $top.getBoundingClientRect().bottom +
                                 parseInt(win.getComputedStyle($top).marginBottom)
                           shadowRect.bottom = shadowRect.top + shadowRect.height
+                          shadowCard.style.left = `${shadowRect.left}px`
                         }
+
                       } else if (e.movementX < 0) {
                         // KIRI
 
@@ -761,10 +769,11 @@ const tasksWrapperRefs = ref([])
                           $wrapper.querySelectorAll('.card-task').forEach((n, index) => {
                             if (n == $this) return
 
-                            rn = n.getBoundingClientRect()
-                            if (midY < rn.top || (midY > rn.top && midY < rn.bottom)) {
+                            nRect = n.getBoundingClientRect()
+                            if (midY < nRect.top || (midY > nRect.top && midY < nRect.bottom)) {
                               n.dataset.index = Number(n.dataset.index) + 1
                               nty = new DOMMatrix(win.getComputedStyle(n).transform).f // n's current translate y
+                              n.shadowRect = {top: nRect.top + r.height + marginBottom, bottom: nRect.top + r.height + marginBottom + nRect.height, left: nRect.left, right: nRect.right, height: nRect.height, width: nRect.width}
                               n.style.transform = `translate(0px, ${
                                 nty + (shadowRect.height + marginBottom)
                               }px)`
@@ -781,7 +790,8 @@ const tasksWrapperRefs = ref([])
                               ? $wrapper.getBoundingClientRect().top
                               : $top.getBoundingClientRect().bottom +
                                 parseInt(win.getComputedStyle($top).marginBottom)
-                          shadowRect.bottom = shadowRect.top + shadowRect.height
+                          shadowRect.bottom = shadowRect.top + shadowRect.height;
+                          shadowCard.style.left = `${shadowRect.left}px`;
                         }
                       }
 
@@ -790,6 +800,25 @@ const tasksWrapperRefs = ref([])
                       // VERTICAL
 
                       if (e.movementY < 0) { // ATAS
+
+                        // TOP OUT 
+                        // console.log('currentColumnIndex', currentColumnIndex)
+                        // console.log('r.top', r.top)
+                        // console.log('$wrapper.getBoundingClientRect().top', $wrapper.getBoundingClientRect().top)
+                        if (typeof currentColumnIndex === 'number' && r.bottom < $wrapper.getBoundingClientRect().top) {
+                          console.log('TOP OUT')
+                          currentColumnIndex = null;
+                          // move the rest card in $wrapper
+                          $wrapper.querySelectorAll('.card-task').forEach((c, index) => {
+                            if (c === $this) return 
+                            console.log('geser', c.dataset.title)
+                            const cTy = new DOMMatrix(win.getComputedStyle(c).transform).f;// current translate Y
+                            console.log('cTy', cTy)
+                            c.style.transform = `translate(0px, ${cTy - (r.height + marginBottom)}px)`
+                          });
+                          $wrapper = null;
+                        }
+
                         if ($index == 0) return
                         const $topCard = Array.from($wrapper.querySelectorAll('.card-task')).find(
                           ($el) => Number($el.dataset.index) == Number($this.dataset.index) - 1
@@ -824,6 +853,7 @@ const tasksWrapperRefs = ref([])
                             console.log('add topcard to $movedCards', $movedCards)
                             $movedCards.add($topCard);
                           }
+                          shadowCard.style.top = `${shadowRect.top}px`
                         }
                       } else if (e.movementY > 0) { // BAWAH
                         console.log('BAWAH')
@@ -899,9 +929,9 @@ const tasksWrapperRefs = ref([])
                       const cr = $this.getBoundingClientRect() // current $this's rect
                       const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
                       $this.dataset.moveable = '0'
-                      $this.style.transform = `translate(0px, ${
+                      $this.style.transform = `translate(${shadowRect.left - cr.left + matrix.e}px, ${
                         shadowRect.top - cr.top + matrix.f
-                      }px)` // TINGGAL YANG HORIZONTAL
+                      }px)`;
                       $this.style.zIndex = '0'
                       doc.removeEventListener('mousemove', dragCard)
                       doc.removeEventListener('mouseup', cancelDragCard)

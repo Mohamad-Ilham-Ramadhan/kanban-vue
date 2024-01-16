@@ -349,7 +349,7 @@ export const useBoardStore = defineStore('board', {
                this.boards[this.activeBoardIndex].columns[fromColumnIndex].tasks = newTasks
             }
          } else {
-            console.log('BEDA COLUMN')
+            console.log('DIFFERENT COLUMN')
             // oldColumn
             const theTask = this.board.columns[fromColumnIndex].tasks.splice(fromIndex, 1)[0];
             this.board.columns[toColumnIndex].tasks.splice(toIndex, 0, theTask)
