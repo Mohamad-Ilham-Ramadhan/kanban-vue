@@ -901,6 +901,7 @@ const tasksWrapperRefs = ref([])
                         }
 
                         if ($index == 0) return
+
                         const $topCard = Array.from($wrapper.querySelectorAll('.card-task')).find(
                           ($el) => Number($el.dataset.index) == Number($this.dataset.index) - 1
                         ) // cause of error
@@ -915,12 +916,23 @@ const tasksWrapperRefs = ref([])
                           console.log('SWAP ATAS')
                           if ($topCard.shadowRect === undefined) {
                             $topCard.shadowRect = {top: rTopCard.top, bottom: rTopCard.bottom, height: rTopCard.height, width: rTopCard.width, left: rTopCard.left, right: rTopCard.right}
+                            const sc = doc.createElement('div'); // shadowCard
+                            sc.style.height = `${$topCard.shadowRect.height}px`;
+                            sc.style.width = `${$topCard.shadowRect.width}px`;
+                            sc.style.position = 'absolute';
+                            sc.style.zIndex = '-1';
+                            sc.style.top = `${$topCard.shadowRect.top}px`;
+                            sc.style.left = `${$topCard.shadowRect.left}px`;
+                            sc.style.border = '1px solid red';
+                            doc.body.appendChild(sc)
+                            $topCard.shadowCard = sc;
                           }
                           const bottom = shadowRect.bottom 
                           shadowRect.top = $topCard.shadowRect.top;
                           shadowRect.bottom = $topCard.shadowRect.top + shadowRect.height;
                           $topCard.shadowRect.bottom = bottom
-                          $topCard.shadowRect.top = $topCard.shadowRect.bottom - $topCard.shadowRect.height
+                          $topCard.shadowRect.top = $topCard.shadowRect.bottom - $topCard.shadowRect.height;
+                          $topCard.shadowCard.style.top = `${$topCard.shadowRect.top}px`;
 
                           const temp = $index
                           $this.dataset.index = $topCard.dataset.index
