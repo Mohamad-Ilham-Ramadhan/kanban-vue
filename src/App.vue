@@ -728,8 +728,22 @@ const tasksWrapperRefs = ref([])
                               console.log('geser', n.dataset.title)
                               const matrix = new DOMMatrix(win.getComputedStyle(n).transform)
                               const nTy = matrix.f
-                              n.shadowRect = {top: nRect.top + r.height + marginBottom, bottom: nRect.top + r.height + marginBottom + nRect.height, left: nRect.left, right: nRect.right, height: nRect.height, width: nRect.width}
 
+                              if (n.shadowRect === undefined) {
+                                n.shadowRect = {top: nRect.top, bottom: nRect.bottom, left: nRect.left, right: nRect.right, height: nRect.height, width: nRect.width}
+                                const nSCard = doc.createElement('div'); // n.shadowCard
+                                nSCard.style.height = `${n.shadowRect.height}px`;
+                                nSCard.style.width = `${n.shadowRect.width}px`;
+                                nSCard.style.border = '1px solid red';
+                                nSCard.style.position = 'absolute';
+                                nSCard.style.top = `${n.shadowRect.top}px`;
+                                nSCard.style.left = `${n.shadowRect.left}px`;
+                                doc.body.appendChild(nSCard)
+                                n.shadowCard = nSCard;
+                              }
+
+                              n.shadowRect.top = n.shadowRect.top + shadowRect.height + marginBottom;
+                              n.shadowCard.style.top = `${n.shadowRect.top}px`;
                               n.style.transform = `translate(0px, ${nTy + r.height + marginBottom}px)` // LKSJDF
                               n.dataset.index = Number(n.dataset.index) + 1
                             } else {
