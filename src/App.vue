@@ -624,6 +624,10 @@ const tasksWrapperRefs = ref([])
                     let $leftWrapper = tasksWrapperRefs[colIndex - 1]
 
                     const dragCard = (e) => {
+                      // PROBLEM:
+                      /*
+                        kanan kiri in/out ketika animation masih berjalan dan kita melakukan kanan/kiri in/out maka translateY pada cards acak2kan
+                      */
                       isDragged = true
                       const $index = $this.dataset.index
                       const matrix = new DOMMatrix(win.getComputedStyle($this).transform) // to get value of current transform translate(x,y)
@@ -655,10 +659,10 @@ const tasksWrapperRefs = ref([])
 
                           if ($this.dataset.index < leftTasksCount) {
                             // column issue
-                            const $next = $leftWrapper.querySelector(
-                              `.card-task[data-index='${Number($this.dataset.index) + 1}']`
-                            )
-                            const nTop = $next.getBoundingClientRect().top
+                            // const $next = $leftWrapper.querySelector(
+                            //   `.card-task[data-index='${Number($this.dataset.index) + 1}']`
+                            // )
+                            // const nTop = $next.getBoundingClientRect().top
                             $leftWrapper.querySelectorAll('.card-task').forEach((n, i) => {
                               // geser
                               if (Number(n.dataset.index) > Number($this.dataset.index)) {
@@ -668,7 +672,25 @@ const tasksWrapperRefs = ref([])
                                 const matrix = new DOMMatrix(win.getComputedStyle(n).transform)
                                 const nTx = matrix.e
                                 const nTy = matrix.f
-                                const calculation = Math.round(nTy - (nTop - shadowRect.top))
+                                const r = n.getBoundingClientRect() 
+                                if (n.shadowRect === undefined) {
+                                  n.shadowRect = {top: r.top, bottom: r.bottom, left: r.left, right: r.right, height: r.height, width: r.width};
+                                  const sc = doc.createElement('div');
+                                  sc.style.width = `${r.width}px`;
+                                  sc.style.height = `${r.height}px`;
+                                  sc.style.position = 'absolute';
+                                  sc.style.top = `${r.top}px`
+                                  sc.style.left = `${r.left}px`
+                                  sc.style.border = '1px solid red';
+                                  doc.body.appendChild(sc)
+                                  n.shadowCard = sc
+                                  console.log('n.shadowRect === undefined', n.shadowRect)
+                                } else {
+                                  console.log('n.shadowRect exist')
+                                }
+                                n.shadowRect.top = n.shadowRect.top - (shadowRect.height + marginBottom);
+                                n.shadowCard.style.top = `${n.shadowRect.top}px`;
+                                const calculation = Math.round(nTy - (r.top - n.shadowRect.top))
                                 n.style.transform = `translate(${nTx}px, ${calculation}px)`
                                 n.dataset.index = Number(n.dataset.index) - 1
                               }
@@ -976,7 +998,7 @@ const tasksWrapperRefs = ref([])
                             }, 50)
                           })
                         })
-                      }, 201) // harus sama dengan css transition duration-nya
+                      }, 1001) // harus sama dengan css transition duration-nya
                     }
 
                     doc.addEventListener('mousemove', dragCard)
@@ -1115,5 +1137,6 @@ const tasksWrapperRefs = ref([])
   /* transition: transform cubic-bezier(.49,.79,.28,.96) .15s; */
   /* transition: transform linear 200ms; */
   transition: transform cubic-bezier(.32,.82,.4,.99) 200ms;
+  transition: transform cubic-bezier(.32,.82,.4,.99) 1000ms;
 }
 </style>
