@@ -641,7 +641,6 @@ const tasksWrapperRefs = ref([])
                       const midX = r.width / 2 + r.left
 
                       // HORIZONTAL
-
                       if (e.movementX > 0) {
                         // KANAN
 
@@ -659,10 +658,6 @@ const tasksWrapperRefs = ref([])
 
                           if ($this.dataset.index < leftTasksCount) {
                             // column issue
-                            // const $next = $leftWrapper.querySelector(
-                            //   `.card-task[data-index='${Number($this.dataset.index) + 1}']`
-                            // )
-                            // const nTop = $next.getBoundingClientRect().top
                             $leftWrapper.querySelectorAll('.card-task').forEach((n, i) => {
                               // geser
                               if (Number(n.dataset.index) > Number($this.dataset.index)) {
@@ -679,6 +674,7 @@ const tasksWrapperRefs = ref([])
                                   sc.style.width = `${r.width}px`;
                                   sc.style.height = `${r.height}px`;
                                   sc.style.position = 'absolute';
+                                  sc.style.zIndex = '-1';
                                   sc.style.top = `${r.top}px`
                                   sc.style.left = `${r.left}px`
                                   sc.style.border = '1px solid red';
@@ -702,8 +698,8 @@ const tasksWrapperRefs = ref([])
                           r.bottom > $rightWrapper.getBoundingClientRect().top &&
                           midX > $rightWrapper.getBoundingClientRect().left
                         ) {
-                          // KANAN IN
-                          console.log('KANAN IN')
+                          // KIRI IN (masuk dari kiri)
+                          console.log('KIRI IN')
 
                           $movedCardsWhenThisOut.clear();
 
@@ -738,14 +734,18 @@ const tasksWrapperRefs = ref([])
                                 nSCard.style.position = 'absolute';
                                 nSCard.style.top = `${n.shadowRect.top}px`;
                                 nSCard.style.left = `${n.shadowRect.left}px`;
+                                nSCard.style.zIndex = '-1'
                                 doc.body.appendChild(nSCard)
                                 n.shadowCard = nSCard;
                               }
 
                               n.shadowRect.top = n.shadowRect.top + shadowRect.height + marginBottom;
                               n.shadowCard.style.top = `${n.shadowRect.top}px`;
-                              n.style.transform = `translate(0px, ${nTy + r.height + marginBottom}px)` // LKSJDF
+
+                              console.log('movement', n.shadowRect.top - nRect.top);
+                              n.style.transform = `translate(0px, ${nTy + (n.shadowRect.top - nRect.top)}px)`;
                               n.dataset.index = Number(n.dataset.index) + 1
+
                             } else {
                               console.log('assign $top')
                               newIndex = Number(n.dataset.index) + 1
@@ -790,6 +790,7 @@ const tasksWrapperRefs = ref([])
                                 nSCard.style.height = `${nRect.height}px`;
                                 nSCard.style.width = `${nRect.width}px`;
                                 nSCard.style.position = 'absolute';
+                                nSCard.style.zIndex = '-1';
                                 nSCard.style.top = `${nRect.top}px`;
                                 nSCard.style.left = `${nRect.left}px`;
                                 nSCard.style.border = '1px solid red';
@@ -807,13 +808,13 @@ const tasksWrapperRefs = ref([])
                             }
                           })
                         } else if (
-                          !!$wrapper == false &&
+                          !!$wrapper === false &&
                           !!$leftWrapper &&
                           r.bottom > $leftWrapper.getBoundingClientRect().top &&
                           midX < $leftWrapper.getBoundingClientRect().right
                         ) {
-                          // KIRI IN
-                          console.log('KIRI IN')
+                          // KANAN IN (masuk dari kanan)
+                          console.log('KANAN IN')
                           $movedCardsWhenThisOut.clear();
 
                           $wrapper = $leftWrapper
@@ -836,13 +837,25 @@ const tasksWrapperRefs = ref([])
                               
                               if (n.shadowRect === undefined) {
                                 console.log('n.shadowRect === undefined')
-                                n.shadowRect = {top: nRect.top + r.height + marginBottom, bottom: nRect.top + r.height + marginBottom + nRect.height, left: nRect.left, right: nRect.right, height: nRect.height, width: nRect.width}
+                                n.shadowRect = {top: nRect.top, bottom: nRect.bottom, left: nRect.left, right: nRect.right, height: nRect.height, width: nRect.width}
+                                const nSCard = doc.createElement('div');
+                                nSCard.style.height = `${n.shadowRect.height}px`;
+                                nSCard.style.width = `${n.shadowRect.width}px`;
+                                nSCard.style.border = '1px solid red';
+                                nSCard.style.position = 'absolute';
+                                nSCard.style.top = `${n.shadowRect.top}px`;
+                                nSCard.style.left = `${n.shadowRect.left}px`;
+                                nSCard.style.zIndex = '-1'
+                                doc.body.appendChild(nSCard)
+                                n.shadowCard = nSCard;
                               } else {
                                 console.log('n.shadowRect exist')
-                                n.shadowRect.top = n.shadowRect.top + shadowRect.height + marginBottom;
                               }
+
                               n.shadowCard.style.top = `${n.shadowRect.top}px`;
-                              // n.style.transform = `translate(0px, ${nty + (shadowRect.height + marginBottom)}px)`
+
+                              n.shadowRect.top = n.shadowRect.top + (shadowRect.height + marginBottom)
+                              console.log('movement', (n.shadowRect.top - nRect.top))
                               n.style.transform = `translate(0px, ${nty + (n.shadowRect.top - nRect.top)}px`;
                             } else {
                               newIndex = Number(n.dataset.index) + 1
