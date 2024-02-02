@@ -688,6 +688,7 @@ const tasksWrapperRefs = ref([])
                                 } else {
                                   console.log('n.shadowRect exist')
                                 }
+
                                 n.shadowRect.top = n.shadowRect.top - (shadowRect.height + marginBottom);
                                 n.shadowCard.style.top = `${n.shadowRect.top}px`;
                                 const calculation = Math.round(nTy - (r.top - n.shadowRect.top))
@@ -791,22 +792,34 @@ const tasksWrapperRefs = ref([])
                           let newIndex = 0
                           const midY = $this.getBoundingClientRect().top + shadowRect.height / 2
                           let $top = null
+
                           $wrapper.querySelectorAll('.card-task').forEach((n, index) => {
                             if (n == $this) return
 
-                            nRect = n.getBoundingClientRect()
+                            const nRect = n.getBoundingClientRect()
+
                             if (midY < nRect.top || (midY > nRect.top && midY < nRect.bottom)) {
+                              // MOVE CARDS
+                              console.log('n', n)
                               n.dataset.index = Number(n.dataset.index) + 1
                               nty = new DOMMatrix(win.getComputedStyle(n).transform).f // n's current translate y
-                              n.shadowRect = {top: nRect.top + r.height + marginBottom, bottom: nRect.top + r.height + marginBottom + nRect.height, left: nRect.left, right: nRect.right, height: nRect.height, width: nRect.width}
-                              n.style.transform = `translate(0px, ${
-                                nty + (shadowRect.height + marginBottom)
-                              }px)`
+                              
+                              if (n.shadowRect === undefined) {
+                                console.log('n.shadowRect === undefined')
+                                n.shadowRect = {top: nRect.top + r.height + marginBottom, bottom: nRect.top + r.height + marginBottom + nRect.height, left: nRect.left, right: nRect.right, height: nRect.height, width: nRect.width}
+                              } else {
+                                console.log('n.shadowRect exist')
+                                n.shadowRect.top = n.shadowRect.top + shadowRect.height + marginBottom;
+                              }
+                              n.shadowCard.style.top = `${n.shadowRect.top}px`;
+                              // n.style.transform = `translate(0px, ${nty + (shadowRect.height + marginBottom)}px)`
+                              n.style.transform = `translate(0px, ${nty + (n.shadowRect.top - nRect.top)}px`;
                             } else {
                               newIndex = Number(n.dataset.index) + 1
                               $top = n
                             }
                           })
+
                           $this.dataset.index = newIndex
                           shadowRect.left = $wrapper.getBoundingClientRect().left
                           shadowRect.right = $wrapper.getBoundingClientRect().right
@@ -817,6 +830,7 @@ const tasksWrapperRefs = ref([])
                                 parseInt(win.getComputedStyle($top).marginBottom)
                           shadowRect.bottom = shadowRect.top + shadowRect.height;
                           shadowCard.style.left = `${shadowRect.left}px`;
+
                         }
                       }
 
