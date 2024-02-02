@@ -727,7 +727,6 @@ const tasksWrapperRefs = ref([])
                               // geser ke bawah
                               console.log('geser', n.dataset.title)
                               const matrix = new DOMMatrix(win.getComputedStyle(n).transform)
-                              // const nTx = matrix.e
                               const nTy = matrix.f
                               n.shadowRect = {top: nRect.top + r.height + marginBottom, bottom: nRect.top + r.height + marginBottom + nRect.height, left: nRect.left, right: nRect.right, height: nRect.height, width: nRect.width}
 
@@ -768,11 +767,28 @@ const tasksWrapperRefs = ref([])
                             if (n.dataset.index > $this.dataset.index) {
                               // add moved cards to reset translate later when $this card doesn't have current column
                               $movedCardsWhenThisOut.add(n)
+                              const nRect = n.getBoundingClientRect();
 
+                              if (n.shadowRect === undefined) {
+                                console.log('n.shadowRect === undefined')
+                                n.shadowRect = {top: nRect.top, bottom: nRect.bottom, left: nRect.left, right: nRect.right, height: nRect.height, width: nRect.width}
+                                const nSCard = doc.createElement('div'); // n.ShadowCard
+                                nSCard.style.height = `${nRect.height}px`;
+                                nSCard.style.width = `${nRect.width}px`;
+                                nSCard.style.position = 'absolute';
+                                nSCard.style.top = `${nRect.top}px`;
+                                nSCard.style.left = `${nRect.left}px`;
+                                nSCard.style.border = '1px solid red';
+                                doc.body.appendChild(nSCard)
+                                n.shadowCard = nSCard
+                              } else {
+                                console.log('n.shadowRect exist')
+                              }
+
+                              n.shadowRect.top = n.shadowRect.top - (shadowRect.height + marginBottom);
+                              n.shadowCard.style.top = `${n.shadowRect.top}px`;
                               const nty = new DOMMatrix(win.getComputedStyle(n).transform).f // current translateY of n
-                              n.style.transform = `translate(0px, ${
-                                nty - ($this.getBoundingClientRect().height + marginBottom)
-                              }px)`
+                              n.style.transform = `translate(0px, ${nty - (nRect.top - n.shadowRect.top)}px)`
                               n.dataset.index = Number(n.dataset.index) - 1
                             }
                           })
