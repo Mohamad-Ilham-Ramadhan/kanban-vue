@@ -884,9 +884,7 @@ const tasksWrapperRefs = ref([])
                       if (e.movementY < 0) { // ATAS
 
                         // TOP OUT 
-                        // console.log('currentColumnIndex', currentColumnIndex)
-                        // console.log('r.top', r.top)
-                        // console.log('$wrapper.getBoundingClientRect().top', $wrapper.getBoundingClientRect().top)
+
                         if (typeof currentColumnIndex === 'number' && r.bottom < $wrapper.getBoundingClientRect().top) {
                           console.log('TOP OUT')
                           currentColumnIndex = null;
@@ -914,6 +912,7 @@ const tasksWrapperRefs = ref([])
                         const swapThreshold = rTopCard.top + rTopCard.height / 2
 
                         if (r.top < swapThreshold) { // SWAP ATAS
+                          console.log('SWAP ATAS')
                           if ($topCard.shadowRect === undefined) {
                             $topCard.shadowRect = {top: rTopCard.top, bottom: rTopCard.bottom, height: rTopCard.height, width: rTopCard.width, left: rTopCard.left, right: rTopCard.right}
                           }
@@ -953,19 +952,32 @@ const tasksWrapperRefs = ref([])
                         const botTy = new DOMMatrix(win.getComputedStyle($botCard).transform).f // to get value of current transform translate(x,y)
                         const swapThreshold = rBotCard.top + rBotCard.height / 2
                         if (r.bottom > swapThreshold) {
+                          console.log('SWAP BAWAH')
                           // const dataY = Number($botCard.dataset.y)
                           $botCard.dataset.y = Number($botCard.dataset.y) - Number(shadowRect.top)
 
                           if ($botCard.shadowRect === undefined) {
+                            console.log('$botCard.shadowRect === undefined')
                             $botCard.shadowRect = {top: rBotCard.top, bottom: rBotCard.bottom, height: rBotCard.height, width: rBotCard.width, left: rBotCard.left, right: rBotCard.right}
-                          }
+                            const sc = doc.createElement('div'); // shadowCard
+                            sc.style.height = `${$botCard.shadowRect.height}px`;
+                            sc.style.width = `${$botCard.shadowRect.width}px`;
+                            sc.style.position = 'absolute';
+                            sc.style.zIndex = '-1';
+                            sc.style.top = `${$botCard.shadowRect.top}px`;
+                            sc.style.left = `${$botCard.shadowRect.left}px`;
+                            sc.style.border = '1px solid red';
+                            doc.body.appendChild(sc)
+                            $botCard.shadowCard = sc;
+                          } 
 
+                          // move
                           const top = shadowRect.top
                           shadowRect.bottom = $botCard.shadowRect.bottom 
                           shadowRect.top = shadowRect.bottom - shadowRect.height
                           $botCard.shadowRect.top = top 
                           $botCard.shadowRect.bottom = top + $botCard.shadowRect.height
-
+                          $botCard.shadowCard.style.top = `${$botCard.shadowRect.top}px`;
 
                           // index swap
                           const temp = $index
