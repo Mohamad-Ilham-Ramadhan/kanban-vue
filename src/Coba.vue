@@ -594,12 +594,12 @@ const tasksWrapperRefs = ref([])
                   (e) => {
                     const $this = e.currentTarget;
                     const marginBottom = win.parseInt(win.getComputedStyle($this).marginBottom);
-                    const $wrapper = $this.parentElement;
+                    let $wrapper = $this.parentElement;
                     const transitionDuration = parseFloat(win.getComputedStyle($this).transitionDuration) * 1000; // in ms
 
                     $this.classList.remove('card-task-transition')
                     $this.classList.remove('z-50')
-                    $this.style.zIndex = '1000';
+                    $this.style.zIndex = '100';
 
                     // create shadowRect 
                     const rect = $this.getBoundingClientRect();
@@ -614,9 +614,11 @@ const tasksWrapperRefs = ref([])
                     
 
                     let isDragged = false
+                    let fromIndex = Number($this.dataset.index);
                     let $thisIndex = Number($this.dataset.index);
                     let startColumnIndex = Number(colIndex);
                     let endColumnIndex = Number(colIndex);
+                    let movedCards = new Set([$this]);
 
                     let $botCard = $wrapper.querySelector(`.card-task[data-index='${$thisIndex + 1}']`);
                     let $topCard = $wrapper.querySelector(`.card-task[data-index='${$thisIndex - 1}']`);
@@ -644,6 +646,10 @@ const tasksWrapperRefs = ref([])
                           const moveYbot = -(rect.height + marginBottom) + (new DOMMatrix(win.getComputedStyle($botCard).transform)).f;
                           $botCard.style.transform = `translate(0px, ${moveYbot}px)`;
 
+                          // add to movedCards
+                          movedCards.add($botCard)
+                          
+                          // set data is-animating
                           $botCard.dataset.isAnimating = 1; // means true
                           const $temp = $botCard;
                           win.setTimeout(() => {
@@ -669,6 +675,17 @@ const tasksWrapperRefs = ref([])
                         // UP
                         console.log('up')
 
+                        // OUT FROM TOP
+                        if ($wrapper !== null && e.clientY < $wrapper.getBoundingClientRect().top) {
+                          $wrapper.querySelectorAll('.card-task').forEach(($c, index) => {
+                            if (index === 0) return; 
+                            $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f - ($this.getBoundingClientRect().height + marginBottom)}px)`;
+                            $c.dataset.index = Number($c.dataset.index) - 1;
+                          })
+                          $wrapper = null;
+                          console.log('OUT FROM TOP');
+                        }
+
                         if (!!Number($topCard?.dataset?.isAnimating) == false && $topCard !== null && e.clientY < $topCard.getBoundingClientRect().bottom) {
                           console.log('swap atas')
 
@@ -680,6 +697,9 @@ const tasksWrapperRefs = ref([])
                           // move $topCard
                           const moveYbot = (rect.height + marginBottom) + (new DOMMatrix(win.getComputedStyle($topCard).transform)).f;
                           $topCard.style.transform = `translate(0px, ${moveYbot}px)`;
+
+                          // add to movedCards
+                          movedCards.add($topCard)
 
                           $topCard.dataset.isAnimating = 1; // means true
                           const $temp = $topCard;
@@ -725,6 +745,26 @@ const tasksWrapperRefs = ref([])
 
                       doc.removeEventListener('mousemove', dragCard)
                       doc.removeEventListener('mouseup', cancelDrag)
+                      
+                      // update store
+                      win.setTimeout(() => {
+                        // set translateY 0 to all moved cards
+                        boardStore.swapTask(
+                          startColumnIndex,
+                          endColumnIndex,
+                          fromIndex,
+                          Number($this.dataset.index),
+                        )
+                        movedCards.forEach( (c) => {
+                          c.classList.remove('card-task-transition')
+                          c.style.transform = 'translate(0px, 0px)';
+                          win.setTimeout(() => {
+                            c.classList.add('card-task-transition')
+                            console.log('add transition class')
+                          }, 1)
+                        })
+                      }, transitionDuration + 1)
+                      
                     }
 
                     doc.addEventListener('mousemove', dragCard)
