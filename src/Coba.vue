@@ -631,7 +631,7 @@ const tasksWrapperRefs = ref([])
                         // DOWN
                         console.log('bawah')
                         // console.log('$botCard', $botCard);
-                        if (!!Number($botCard.dataset.isAnimating) == false && $botCard !== null && e.clientY > $botCard.getBoundingClientRect().top) {
+                        if (!!Number($botCard?.dataset?.isAnimating) == false && $botCard !== null && e.clientY > $botCard.getBoundingClientRect().top) {
                           console.log('swap bawah')
 
                           // move $shadowRect 
@@ -649,15 +649,53 @@ const tasksWrapperRefs = ref([])
                             console.log('set dataset isAnimating = false')
                           }, transitionDuration)
 
-                          // get next $botCard and $topCard
+                          // swap index of both cards
+                          const tempIndex = $thisIndex;
                           $thisIndex += 1;
+                          $botCard.dataset.index = tempIndex;
+                          $this.dataset.index = $thisIndex;
+
+                          // get next $botCard and $topCard
                           $botCard = $wrapper.querySelector(`.card-task[data-index='${$thisIndex + 1}']`);
                           $topCard = $wrapper.querySelector(`.card-task[data-index='${$thisIndex - 1}']`);
 
+                          console.log('new $botCard', $botCard)
+                          console.log('new $topCard', $topCard)
+                          
                         }
                       } else if (e.movementY < 0) {
                         // UP
                         console.log('up')
+
+                        if (!!Number($topCard?.dataset?.isAnimating) == false && $topCard !== null && e.clientY < $topCard.getBoundingClientRect().bottom) {
+                          console.log('swap atas')
+
+                          // move $shadowRect 
+                          const moveY = (new DOMMatrix(win.getComputedStyle($shadowRect).transform)).f - ($topCard.getBoundingClientRect().height + marginBottom);
+                          console.log('moveY', moveY)
+                          $shadowRect.style.transform = `translate(0px, ${moveY}px)`;
+
+                          // move $topCard
+                          const moveYbot = (rect.height + marginBottom) + (new DOMMatrix(win.getComputedStyle($topCard).transform)).f;
+                          $topCard.style.transform = `translate(0px, ${moveYbot}px)`;
+
+                          $topCard.dataset.isAnimating = 1; // means true
+                          const $temp = $topCard;
+                          win.setTimeout(() => {
+                            $temp.dataset.isAnimating = 0; // means false
+                            console.log('set dataset isAnimating = false')
+                          }, transitionDuration)
+
+                          // swap index of both cards
+                          const tempIndex = $thisIndex;
+                          $thisIndex -= 1;
+                          $topCard.dataset.index = tempIndex;
+                          $this.dataset.index = $thisIndex;
+
+                          // get next $topCard and $topCard
+                          $botCard = $wrapper.querySelector(`.card-task[data-index='${$thisIndex + 1}']`);
+                          $topCard = $wrapper.querySelector(`.card-task[data-index='${$thisIndex - 1}']`);
+                        }
                       }
                     }
                     const cancelDrag = function () {
