@@ -598,6 +598,8 @@ const tasksWrapperRefs = ref([])
                     const transitionDuration = parseFloat(win.getComputedStyle($this).transitionDuration) * 1000; // in ms
 
                     $this.classList.remove('card-task-transition')
+                    $this.classList.remove('z-50')
+                    $this.style.zIndex = '1000';
 
                     // create shadowRect 
                     const rect = $this.getBoundingClientRect();
@@ -865,6 +867,6 @@ const tasksWrapperRefs = ref([])
   /* transition: transform cubic-bezier(.49,.79,.28,.96) .15s; */
   /* transition: transform linear 200ms; */
   /* transition: transform cubic-bezier(.32,.82,.4,.99) 200ms; */
-  transition: transform cubic-bezier(0.32, 0.82, 0.4, 0.99) 500ms;
+  transition: transform cubic-bezier(0.32, 0.82, 0.4, 0.99) 200ms;
 }
 </style>
