@@ -69,9 +69,6 @@ function removeScrollHandler() {
 
 const tasksWrapperRefs = ref([])
 
-
-
-
 // let shadowRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
 </script>
 
@@ -403,7 +400,11 @@ const tasksWrapperRefs = ref([])
                           >Columns</label
                         >
                       </div>
-                      <div v-for="(field, index) in fields" :key="index" class="flex items-center mb-2">
+                      <div
+                        v-for="(field, index) in fields"
+                        :key="index"
+                        class="flex items-center mb-2"
+                      >
                         <Input :name="`columns[${index}]`" type="text" />
                         <button
                           v-show="fields.length > 1"
@@ -580,94 +581,88 @@ const tasksWrapperRefs = ref([])
               :data-column-index="colIndex"
               class="wrapper-task flex flex-col"
             >
-              <div v-for="(t, index) in c.tasks" :key="t.id" class="relative card-task-wrapper mb-4" :data-index="index">
-                <div
-                  class="card-task card-task-transition bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 relative z-50"
-                  data-moveable="0"
-                  :data-index="index"
-                  :data-y="0"
-                  :data-title="t.title"
-                  @mousedown="(e) => {
+              <div
+                v-for="(t, index) in c.tasks"
+                class="card-task card-task-transition bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 mb-4 relative z-50"
+                :key="t.id"
+                data-moveable="0"
+                :data-index="index"
+                :data-y="0"
+                :data-title="t.title"
+                :data-is-animating="0"
+                @mousedown="
+                  (e) => {
                     const $this = e.currentTarget;
-                    const $shadowRect = $this.nextElementSibling;
-                    const $cardWrapper = $this.parentElement;
-                    const $wrapper = tasksWrapperRefs[colIndex];
-                    const marginBottom = win.parseInt(win.getComputedStyle($cardWrapper).marginBottom)
-                    console.log('marginBottom', marginBottom);
-                    
-                    $this.classList.remove('card-task-transition')
-                    $shadowRect.classList.remove('border-red-300')
-                    $this.classList.remove('z-50');
-                    $this.classList.add('z-[1000]');
+                    const marginBottom = win.parseInt(win.getComputedStyle($this).marginBottom);
+                    const $wrapper = $this.parentElement;
+                    const transitionDuration = parseFloat(win.getComputedStyle($this).transitionDuration) * 1000; // in ms
 
-                    let isDragged = false;
+                    $this.classList.remove('card-task-transition')
+
+                    // create shadowRect 
+                    const rect = $this.getBoundingClientRect();
+                    const $shadowRect = doc.createElement('div');
+                    $shadowRect.style.height = `${rect.height}px`;
+                    $shadowRect.style.width = `${rect.width}px`;
+                    $shadowRect.style.position = 'absolute';
+                    $shadowRect.style.top = `${rect.top}px`;
+                    $shadowRect.style.left = `${rect.left}px`;
+                    $shadowRect.style.border = '1px solid white';
+                    doc.body.appendChild($shadowRect);
+                    
+
+                    let isDragged = false
                     let $thisIndex = Number($this.dataset.index);
                     let startColumnIndex = Number(colIndex);
                     let endColumnIndex = Number(colIndex);
 
-                    console.log('$thisIndex', $thisIndex);
-
-                    const dragCard = function(e) {
+                    let $botCard = $wrapper.querySelector(`.card-task[data-index='${$thisIndex + 1}']`);
+                    let $topCard = $wrapper.querySelector(`.card-task[data-index='${$thisIndex - 1}']`);
+                    
+                    const dragCard = function (e) {
                       // console.log('drag card', e)
-                      isDragged = true;
+                      isDragged = true
                       const matrix = new DOMMatrix(win.getComputedStyle($this).transform) // to get value of current transform translate(x,y)
-                      $this.style.transform = `translate(${matrix.e + e.movementX}px, ${matrix.f + e.movementY}px)`;
+                      $this.style.transform = `translate(${matrix.e + e.movementX}px, ${
+                        matrix.f + e.movementY
+                      }px)`
 
-                      if (e.movementY > 0) { // DOWN 
+                      if (e.movementY > 0) {
+                        // DOWN
                         console.log('bawah')
-                        
-                        const $nextBotWrapper = $wrapper.querySelector(`.card-task-wrapper[data-index='${$thisIndex + 1}']`);
-                        if ($nextBotWrapper === null) return
-                        
-                        if (e.clientY > $nextBotWrapper.getBoundingClientRect().top) {
+                        // console.log('$botCard', $botCard);
+                        if (!!Number($botCard.dataset.isAnimating) == false && $botCard !== null && e.clientY > $botCard.getBoundingClientRect().top) {
                           console.log('swap bawah')
-                          console.log('$nextBotWrapper', $nextBotWrapper);
-                          console.log('$thisIndex', $thisIndex);
-                          $thisIndex = $thisIndex + 1;
-                          // move $this's $shadowRect
-                          const $botShadowRect = $nextBotWrapper.lastElementChild;
-                          const $shadowRectTopBefore = $shadowRect.getBoundingClientRect().top;
-                          const moveY = $botShadowRect.getBoundingClientRect().height + marginBottom;
-                          console.log('moveY', moveY)
-                          const currentY = new DOMMatrix(win.getComputedStyle($shadowRect).transform).f
-                          $shadowRect.style.transform = `translate(0px, ${currentY + moveY}px)`;
 
-                          // move $bot's $shadowRect
-                          const moveYbot = $shadowRectTopBefore - $botShadowRect.getBoundingClientRect().top;
-                          $botShadowRect.style.transform = `translate(0px, ${moveYbot}px)`;
-                          const $botCard = $nextBotWrapper.firstElementChild;
+                          // move $shadowRect 
+                          const moveY = ($botCard.getBoundingClientRect().height + marginBottom) + (new DOMMatrix(win.getComputedStyle($shadowRect).transform)).f;
+                          $shadowRect.style.transform = `translate(0px, ${moveY}px)`;
+
+                          // move $botCard
+                          const moveYbot = -(rect.height + marginBottom) + (new DOMMatrix(win.getComputedStyle($botCard).transform)).f;
                           $botCard.style.transform = `translate(0px, ${moveYbot}px)`;
+
+                          $botCard.dataset.isAnimating = 1; // means true
+                          const $temp = $botCard;
+                          win.setTimeout(() => {
+                            $temp.dataset.isAnimating = 0; // means false
+                            console.log('set dataset isAnimating = false')
+                          }, transitionDuration)
+
+                          // get next $botCard and $topCard
+                          $thisIndex += 1;
+                          $botCard = $wrapper.querySelector(`.card-task[data-index='${$thisIndex + 1}']`);
+                          $topCard = $wrapper.querySelector(`.card-task[data-index='${$thisIndex - 1}']`);
+
                         }
-                      } else if (e.movementY < 0) { // UP
+                      } else if (e.movementY < 0) {
+                        // UP
                         console.log('up')
-
-                        const $nextTopWrapper = $wrapper.querySelector(`.card-task-wrapper[data-index='${$thisIndex - 1}']`);
-                        if ($nextTopWrapper === null) return
-                        
-                        if (e.clientY < $nextTopWrapper.getBoundingClientRect().bottom) {
-                          console.log('swap atas')
-                          console.log('$nextTopWrapper', $nextTopWrapper);
-                          console.log('$thisIndex', $thisIndex);
-                          $thisIndex = $thisIndex - 1;
-
-                          // move $this's $shadowRect
-                          const $topShadowRect = $nextTopWrapper.lastElementChild;
-                          const $shadowRectTopBefore = $shadowRect.getBoundingClientRect().top;
-                          const moveY = $topShadowRect.getBoundingClientRect().height + marginBottom;
-                          console.log('moveY', moveY)
-                          const currentY = new DOMMatrix(win.getComputedStyle($shadowRect).transform).f
-                          $shadowRect.style.transform = `translate(0px, ${currentY - moveY}px)`;
-
-                          // move $bot's $shadowRect
-                          const moveYtop = $shadowRect.getBoundingClientRect().height + marginBottom;
-                          $topShadowRect.style.transform = `translate(0px, ${moveYtop}px)`;
-                          const $topCard = $nextTopWrapper.firstElementChild;
-                          $topCard.style.transform = `translate(0px, ${moveYtop}px)`;
-                        }
                       }
                     }
-                    const cancelDrag = function() {
+                    const cancelDrag = function () {
                       console.log('cancel drag card')
+
                       if (!isDragged) {
                         console.log('OPEN MODAL')
                         boardStore.setColumnAndTaskIndex(colIndex, index)
@@ -675,15 +670,18 @@ const tasksWrapperRefs = ref([])
                       }
 
                       $this.classList.add('card-task-transition')
-                      $shadowRect.classList.add('border-red-300')
                       $this.classList.remove('z-[1000]');
                       $this.classList.add('z-50');
 
-                      // move $this to shadow rect 
-                      const moveX = $this.getBoundingClientRect().x - $shadowRect.getBoundingClientRect().x;
-                      const moveY = $this.getBoundingClientRect().y - $shadowRect.getBoundingClientRect().y;
-                      const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
-                      $this.style.transform = `translate(${matrix.e - moveX}px, ${matrix.f - moveY}px)`;
+                      
+                      // move $this to shadow rect
+                      // const moveX = $this.getBoundingClientRect().x - $shadowRect.getBoundingClientRect().x;
+                      // const moveY = $this.getBoundingClientRect().y - $shadowRect.getBoundingClientRect().y;
+                      // const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
+                      // $this.style.transform = `translate(${matrix.e - moveX}px, ${matrix.f - moveY}px)`;
+                      
+                      // remove $shadowRect
+                      $shadowRect.remove();
 
                       doc.removeEventListener('mousemove', dragCard)
                       doc.removeEventListener('mouseup', cancelDrag)
@@ -692,20 +690,14 @@ const tasksWrapperRefs = ref([])
                     doc.addEventListener('mousemove', dragCard)
                     doc.addEventListener('mouseup', cancelDrag)
                     e.stopPropagation()
-                  }"
-                >
-                  <div class="font-bold text-[15px] mb-3">{{ t.title }}</div>
-                  <div class="text-xs text-slate-400 font-semibold">
-                    {{ t.subtasks.filter((st) => st.isDone).length }} of
-                    {{ t.subtasks.length }} subtasks
-                  </div>
+                  }
+                "
+              >
+                <div class="font-bold text-[15px] mb-3">{{ t.title }}</div>
+                <div class="text-xs text-slate-400 font-semibold">
+                  {{ t.subtasks.filter((st) => st.isDone).length }} of
+                  {{ t.subtasks.length }} subtasks
                 </div>
-
-                <div class="absolute top-0 left-0 w-full h-full border border-red-300"></div>
-              </div>
-
-              <div class>
-
               </div>
             </div>
 
@@ -783,7 +775,11 @@ const tasksWrapperRefs = ref([])
                           >Columns</label
                         >
                       </div>
-                      <div v-for="(field, index) in fields" :key="index" class="flex items-center mb-2">
+                      <div
+                        v-for="(field, index) in fields"
+                        :key="index"
+                        class="flex items-center mb-2"
+                      >
                         <Input
                           :name="`columns[${index}].name`"
                           :value="field.value.name"
@@ -831,6 +827,6 @@ const tasksWrapperRefs = ref([])
   /* transition: transform cubic-bezier(.49,.79,.28,.96) .15s; */
   /* transition: transform linear 200ms; */
   /* transition: transform cubic-bezier(.32,.82,.4,.99) 200ms; */
-  transition: transform cubic-bezier(.32,.82,.4,.99) 1000ms;
+  transition: transform cubic-bezier(0.32, 0.82, 0.4, 0.99) 500ms;
 }
 </style>
