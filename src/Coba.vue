@@ -713,10 +713,10 @@ const tasksWrapperRefs = ref([])
 
                       
                       // move $this to shadow rect
-                      // const moveX = $this.getBoundingClientRect().x - $shadowRect.getBoundingClientRect().x;
-                      // const moveY = $this.getBoundingClientRect().y - $shadowRect.getBoundingClientRect().y;
-                      // const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
-                      // $this.style.transform = `translate(${matrix.e - moveX}px, ${matrix.f - moveY}px)`;
+                      const moveX = $this.getBoundingClientRect().x - $shadowRect.getBoundingClientRect().x;
+                      const moveY = $this.getBoundingClientRect().y - $shadowRect.getBoundingClientRect().y;
+                      const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
+                      $this.style.transform = `translate(${matrix.e - moveX}px, ${matrix.f - moveY}px)`;
                       
                       // remove $shadowRect
                       $shadowRect.remove();
