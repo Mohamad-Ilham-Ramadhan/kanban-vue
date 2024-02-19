@@ -215,7 +215,7 @@ export const useBoardStore = defineStore('board', {
                         subtasks: []
                      },{
                         id: uuid(),
-                        title: '(1) 2',
+                        title: "(1) 2. Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
                         description: 'asdf',
                         subtasks: []
                      },{

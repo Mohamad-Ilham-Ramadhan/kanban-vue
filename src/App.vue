@@ -1,5 +1,5 @@
 <script setup>
-import { ref, Teleport, Transition, VueElement, watch } from 'vue'
+import { ref, watch } from 'vue'
 import Logo from '@/components/Logo.vue'
 import Button from './components/Button.vue'
 import IconEllipsis from '@/components/icons/IconEllipsis.vue'
@@ -14,7 +14,7 @@ import Input from '@/components/VeeValidate/Input.vue'
 import Textarea from '@/components/VeeValidate/Textarea.vue'
 import SelectVee from '@/components/VeeValidate/Select.vue'
 import Select from '@/components/Select.vue'
-import { Form, FieldArray, Field } from 'vee-validate'
+import { Form, FieldArray } from 'vee-validate'
 import * as yup from 'yup'
 import { v4 as uuid } from 'uuid'
 
@@ -51,7 +51,7 @@ watch(modalTaskData, () => {
 })
 const refDragScroll = ref(null)
 const dragScroll = ref(false)
-const x = ref(0)
+// const x = ref(0)
 
 const doc = document
 const win = window
@@ -337,6 +337,7 @@ const tasksWrapperRefs = ref([])
           <nav class="flex flex-col justify-between pr-6 mb-2">
             <li
               v-for="(b, index) in boards"
+              :key="b.id"
               :class="[
                 'list-none font-bold flex items-center hover:bg-primary-light hover:text-white dark:hover:text-white hover:cursor-pointer pl-8 py-2.5 rounded-r-full mb-1',
                 boardStore.activeIndex === index
@@ -399,7 +400,7 @@ const tasksWrapperRefs = ref([])
                           >Columns</label
                         >
                       </div>
-                      <div v-for="(field, index) in fields" class="flex items-center mb-2">
+                      <div v-for="(field, index) in fields" :key="index" class="flex items-center mb-2">
                         <Input :name="`columns[${index}]`" type="text" />
                         <button
                           v-show="fields.length > 1"
@@ -558,6 +559,7 @@ const tasksWrapperRefs = ref([])
 
           <div
             v-for="(c, colIndex) in boardStore.board.columns"
+            :key="c.id"
             class="column shrink-0 w-[286px] mr-16 flex flex-col"
           >
             <div class="flex items-center mb-6">
@@ -576,6 +578,7 @@ const tasksWrapperRefs = ref([])
             >
               <div
                 v-for="(t, index) in c.tasks"
+                :key="t.id"
                 class="card-task card-task-transition bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 mb-4"
                 data-moveable="0"
                 :data-index="index"
@@ -884,8 +887,8 @@ const tasksWrapperRefs = ref([])
                       if (e.movementY < 0) { // ATAS
 
                         // TOP OUT 
-
                         if (typeof currentColumnIndex === 'number' && r.bottom < $wrapper.getBoundingClientRect().top) {
+                          // ISSUE: when card still animating
                           console.log('TOP OUT')
                           currentColumnIndex = null;
                           // move the rest card in $wrapper
@@ -1040,6 +1043,7 @@ const tasksWrapperRefs = ref([])
                         shadowRect.top - cr.top + matrix.f
                       }px)`;
                       $this.style.zIndex = '0'
+                      
                       doc.removeEventListener('mousemove', dragCard)
                       doc.removeEventListener('mouseup', cancelDragCard)
 
@@ -1217,7 +1221,7 @@ const tasksWrapperRefs = ref([])
 .card-task-transition {
   /* transition: transform cubic-bezier(.49,.79,.28,.96) .15s; */
   /* transition: transform linear 200ms; */
-  transition: transform cubic-bezier(.32,.82,.4,.99) 200ms;
+  /* transition: transform cubic-bezier(.32,.82,.4,.99) 200ms; */
   transition: transform cubic-bezier(.32,.82,.4,.99) 1000ms;
 }
 </style>

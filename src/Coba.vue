@@ -1,5 +1,5 @@
 <script setup>
-import { ref, Teleport, Transition, VueElement, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import Logo from '@/components/Logo.vue'
 import Button from './components/Button.vue'
 import IconEllipsis from '@/components/icons/IconEllipsis.vue'
@@ -14,7 +14,7 @@ import Input from '@/components/VeeValidate/Input.vue'
 import Textarea from '@/components/VeeValidate/Textarea.vue'
 import SelectVee from '@/components/VeeValidate/Select.vue'
 import Select from '@/components/Select.vue'
-import { Form, FieldArray, Field } from 'vee-validate'
+import { Form, FieldArray } from 'vee-validate'
 import * as yup from 'yup'
 import { v4 as uuid } from 'uuid'
 
@@ -51,7 +51,7 @@ watch(modalTaskData, () => {
 })
 const refDragScroll = ref(null)
 const dragScroll = ref(false)
-const x = ref(0)
+// const x = ref(0)
 
 const doc = document
 const win = window
@@ -69,7 +69,10 @@ function removeScrollHandler() {
 
 const tasksWrapperRefs = ref([])
 
-// let initialRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
+
+
+
+// let shadowRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
 </script>
 
 <template>
@@ -135,7 +138,7 @@ const tasksWrapperRefs = ref([])
                     >Subtasks</label
                   >
                 </div>
-                <div v-for="(field, index) in fields" class="flex items-center mb-2">
+                <div v-for="(field, index) in fields" :key="index" class="flex items-center mb-2">
                   <Input :name="`subtasks[${index}].text`" :value="field.value.text" type="text" />
                   <button @click="remove(index)" class="text-slate-400 p-2" type="button">
                     <IconClose />
@@ -288,7 +291,7 @@ const tasksWrapperRefs = ref([])
                       >Columns</label
                     >
                   </div>
-                  <div v-for="(field, index) in fields" class="flex items-center mb-2">
+                  <div v-for="(field, index) in fields" :key="index" class="flex items-center mb-2">
                     <Input :name="`columns[${index}].name`" :value="field.value.name" type="text" />
                     <button
                       v-show="fields.length > 1"
@@ -337,6 +340,7 @@ const tasksWrapperRefs = ref([])
           <nav class="flex flex-col justify-between pr-6 mb-2">
             <li
               v-for="(b, index) in boards"
+              :key="b.id"
               :class="[
                 'list-none font-bold flex items-center hover:bg-primary-light hover:text-white dark:hover:text-white hover:cursor-pointer pl-8 py-2.5 rounded-r-full mb-1',
                 boardStore.activeIndex === index
@@ -399,7 +403,7 @@ const tasksWrapperRefs = ref([])
                           >Columns</label
                         >
                       </div>
-                      <div v-for="(field, index) in fields" class="flex items-center mb-2">
+                      <div v-for="(field, index) in fields" :key="index" class="flex items-center mb-2">
                         <Input :name="`columns[${index}]`" type="text" />
                         <button
                           v-show="fields.length > 1"
@@ -482,7 +486,7 @@ const tasksWrapperRefs = ref([])
           ></div>
         </Teleport>
 
-        <div class="flex w-full h-full px-8 py-6">
+        <div class="relative flex w-full h-full px-8 py-6" ref="boardFrameRef">
           <!-- Modal Task-->
           <Modal :open="openModalTask" @close-modal="openModalTask = false" class="w-[480px]">
             <div class="relative mb-6">
@@ -505,6 +509,7 @@ const tasksWrapperRefs = ref([])
             <div class="mb-4">
               <div
                 v-for="(subtask, index) in boardStore.task.subtasks"
+                :key="subtask.id"
                 class="rounded bg-dark p-3 flex items-center hover:cursor-pointer mb-2"
                 @click="
                   () => {
@@ -558,6 +563,7 @@ const tasksWrapperRefs = ref([])
 
           <div
             v-for="(c, colIndex) in boardStore.board.columns"
+            :key="c.id"
             class="column shrink-0 w-[286px] mr-16 flex flex-col"
           >
             <div class="flex items-center mb-6">
@@ -574,202 +580,132 @@ const tasksWrapperRefs = ref([])
               :data-column-index="colIndex"
               class="wrapper-task flex flex-col"
             >
-              <div
-                v-for="(t, index) in c.tasks"
-                class="card-task card-task-transition bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 mb-4"
-                data-moveable="0"
-                :data-index="index"
-                :data-y="0"
-                @mousedown="
-                  (e) => {
-                    console.log('mousedown')
-                    const $this = e.currentTarget
-                    const startIndex = Number($this.dataset.index);
-                    const sColumnIndex = colIndex // start
-                    let cColumnIndex = colIndex // current
-                    let $wrapper = $this.parentElement
-                    let $leftWrapper = tasksWrapperRefs[colIndex - 1]
-                    let $rightWrapper = tasksWrapperRefs[colIndex + 1]
-                    const $rect = $this.getBoundingClientRect()
-                    const $clone = $this.cloneNode(true)
-                    $clone.style.position = 'absolute'
-                    $clone.style.width = `${$rect.width}px`
-                    $clone.style.height = `${$rect.height}px`
-                    $clone.style.top = `${$rect.top}px`
-                    $clone.style.left = `${$rect.left}px`
-                    $clone.classList.remove('card-task-transition')
-                    doc.body.appendChild($clone)
-                    $this.style.opacity = '.2'
+              <div v-for="(t, index) in c.tasks" :key="t.id" class="relative card-task-wrapper mb-4" :data-index="index">
+                <div
+                  class="card-task card-task-transition bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 relative z-50"
+                  data-moveable="0"
+                  :data-index="index"
+                  :data-y="0"
+                  :data-title="t.title"
+                  @mousedown="(e) => {
+                    const $this = e.currentTarget;
+                    const $shadowRect = $this.nextElementSibling;
+                    const $cardWrapper = $this.parentElement;
+                    const $wrapper = tasksWrapperRefs[colIndex];
+                    const marginBottom = win.parseInt(win.getComputedStyle($cardWrapper).marginBottom)
+                    console.log('marginBottom', marginBottom);
+                    
+                    $this.classList.remove('card-task-transition')
+                    $shadowRect.classList.remove('border-red-300')
+                    $this.classList.remove('z-50');
+                    $this.classList.add('z-[1000]');
 
-                    let gridMap
+                    let isDragged = false;
+                    let $thisIndex = Number($this.dataset.index);
+                    let startColumnIndex = Number(colIndex);
+                    let endColumnIndex = Number(colIndex);
 
-                    const dragCard = (e) => {
-                      isDragged = true
-                      let $cloneMatrix = new DOMMatrix(win.getComputedStyle($clone).transform)
-                      let $cloneRect = $clone.getBoundingClientRect()
-                      let $cloneMidX = $cloneRect.left + $cloneRect.width / 2
-                      let $cloneMidY = $cloneRect.top + $cloneRect.height / 2
-                      // console.log('$cloneMidX', $cloneMidX)
-                      $clone.style.transform = `translate(${$cloneMatrix.e + e.movementX}px, ${
-                        $cloneMatrix.f + e.movementY
-                      }px)`
+                    console.log('$thisIndex', $thisIndex);
 
-                      const removeDraggedCard = () => {
-                        let $next = $this.nextElementSibling
-                        while (!!$next) {
-                          $next.dataset.index = Number($next.dataset.index) - 1
-                          $next = $next.nextElementSibling
+                    const dragCard = function(e) {
+                      // console.log('drag card', e)
+                      isDragged = true;
+                      const matrix = new DOMMatrix(win.getComputedStyle($this).transform) // to get value of current transform translate(x,y)
+                      $this.style.transform = `translate(${matrix.e + e.movementX}px, ${matrix.f + e.movementY}px)`;
+
+                      if (e.movementY > 0) { // DOWN 
+                        console.log('bawah')
+                        
+                        const $nextBotWrapper = $wrapper.querySelector(`.card-task-wrapper[data-index='${$thisIndex + 1}']`);
+                        if ($nextBotWrapper === null) return
+                        
+                        if (e.clientY > $nextBotWrapper.getBoundingClientRect().top) {
+                          console.log('swap bawah')
+                          console.log('$nextBotWrapper', $nextBotWrapper);
+                          console.log('$thisIndex', $thisIndex);
+                          $thisIndex = $thisIndex + 1;
+                          // move $this's $shadowRect
+                          const $botShadowRect = $nextBotWrapper.lastElementChild;
+                          const $shadowRectTopBefore = $shadowRect.getBoundingClientRect().top;
+                          const moveY = $botShadowRect.getBoundingClientRect().height + marginBottom;
+                          console.log('moveY', moveY)
+                          const currentY = new DOMMatrix(win.getComputedStyle($shadowRect).transform).f
+                          $shadowRect.style.transform = `translate(0px, ${currentY + moveY}px)`;
+
+                          // move $bot's $shadowRect
+                          const moveYbot = $shadowRectTopBefore - $botShadowRect.getBoundingClientRect().top;
+                          $botShadowRect.style.transform = `translate(0px, ${moveYbot}px)`;
+                          const $botCard = $nextBotWrapper.firstElementChild;
+                          $botCard.style.transform = `translate(0px, ${moveYbot}px)`;
                         }
-                        $this.remove()
-                        $wrapper = null
-                        cColumnIndex = null
-                      }
+                      } else if (e.movementY < 0) { // UP
+                        console.log('up')
 
-                      const insertDraggedCard = ($wrapper) => {
-                        // dragged card === $this
-                        let i = 0
-                        let isInserted = false
-                        while (i < $wrapper.childNodes.length) {
-                          n = $wrapper.childNodes[i]
-                          if (n.classList === undefined) {
-                            i++
-                            continue
-                          }
-                          if (isInserted) {
-                            console.log('after inserted node', n)
-                            n.dataset.index = Number(n.dataset.index) + 1
-                            i++
-                            continue
-                          }
-                          const nRect = n.getBoundingClientRect()
-                          if (
-                            isInserted === false &&
-                            (($cloneMidY > nRect.top && $cloneMidY < nRect.bottom) ||
-                              $cloneMidY < nRect.top)
-                          ) {
-                            console.log('move', n)
-                            $wrapper.insertBefore($this, n)
-                            $this.dataset.index = n.dataset.index
-                            isInserted = true
-                            i++
-                            continue
-                          }
-                          i++
-                        }
-                      }
+                        const $nextTopWrapper = $wrapper.querySelector(`.card-task-wrapper[data-index='${$thisIndex - 1}']`);
+                        if ($nextTopWrapper === null) return
+                        
+                        if (e.clientY < $nextTopWrapper.getBoundingClientRect().bottom) {
+                          console.log('swap atas')
+                          console.log('$nextTopWrapper', $nextTopWrapper);
+                          console.log('$thisIndex', $thisIndex);
+                          $thisIndex = $thisIndex - 1;
 
-                      // VERTICAL
-                      if (e.movementY < 0) {
-                        //  ATAS
-                        const $topCard = $this.previousElementSibling
-                        if (!!$topCard === false) return
-                        const $topRect = $topCard.getBoundingClientRect()
-                        const swapThreshold = $topRect.top + $topRect.height / 2
-                        if ($cloneRect.top < swapThreshold) {
-                          console.log('top swap')
-                          $wrapper.insertBefore($this, $topCard)
-                          $this.dataset.index = $topCard.dataset.index
-                          $topCard.dataset.index = Number($topCard.dataset.index) + 1
-                        }
-                      } else if (e.movementY > 0) {
-                        // BAWAH
+                          // move $this's $shadowRect
+                          const $topShadowRect = $nextTopWrapper.lastElementChild;
+                          const $shadowRectTopBefore = $shadowRect.getBoundingClientRect().top;
+                          const moveY = $topShadowRect.getBoundingClientRect().height + marginBottom;
+                          console.log('moveY', moveY)
+                          const currentY = new DOMMatrix(win.getComputedStyle($shadowRect).transform).f
+                          $shadowRect.style.transform = `translate(0px, ${currentY - moveY}px)`;
 
-                        const $bottomCard = $this.nextElementSibling
-                        if (!!$bottomCard === false) return
-                        const $bottomRect = $bottomCard.getBoundingClientRect()
-                        const swapThreshold = $bottomRect.top + $bottomRect.height / 2
-                        if ($cloneRect.bottom > swapThreshold) {
-                          console.log('bottom swap')
-                          $wrapper.insertBefore($bottomCard, $this)
-                          $this.dataset.index = $bottomCard.dataset.index
-                          $bottomCard.dataset.index = Number($bottomCard.dataset.index) - 1
-                        }
-                      } else if (e.movementX > 0) {
-                        // KANAN
-                        console.log('KANAN')
-                        if (!!$wrapper && $cloneMidX > $wrapper.getBoundingClientRect().right) {
-                          // KANAN OUT
-                          console.log('KANAN OUT')
-                          $leftWrapper = $wrapper
-
-                          removeDraggedCard()
-                        } else if (
-                          !!$wrapper === false &&
-                          $cloneMidX > $rightWrapper.getBoundingClientRect().left
-                        ) {
-                          // KANAN IN
-                          console.log('KANAN IN')
-                          $wrapper = $rightWrapper
-                          cColumnIndex = Number($wrapper.dataset.columnIndex)
-                          $rightWrapper = tasksWrapperRefs[cColumnIndex + 1]
-
-                          // insert $this
-                          insertDraggedCard($wrapper)
-                        }
-                      } else if (e.movementX < 0) {
-                        // KIRI
-                        console.log('Kiri')
-                        if (!!$wrapper && $cloneMidX < $wrapper.getBoundingClientRect().left) {
-                          // KIRI OUT
-                          console.log('KIRI OUT')
-                          $rightWrapper = $wrapper
-
-                          removeDraggedCard()
-                          
-                        } else if (
-                          !!$wrapper === false &&
-                          $cloneMidX < $leftWrapper.getBoundingClientRect().right
-                        ) {
-                          // KIRI IN
-                          console.log('KIRI IN')
-                          cColumnIndex = Number($leftWrapper.dataset.columnIndex)
-                          $wrapper = $leftWrapper
-                          $leftWrapper = tasksWrapperRefs[cColumnIndex - 1]
-
-                          // insert $this
-                          insertDraggedCard($wrapper)
+                          // move $bot's $shadowRect
+                          const moveYtop = $shadowRect.getBoundingClientRect().height + marginBottom;
+                          $topShadowRect.style.transform = `translate(0px, ${moveYtop}px)`;
+                          const $topCard = $nextTopWrapper.firstElementChild;
+                          $topCard.style.transform = `translate(0px, ${moveYtop}px)`;
                         }
                       }
                     }
-
-                    const cancelDragCard = (e) => {
+                    const cancelDrag = function() {
                       console.log('cancel drag card')
-                      $clone.remove()
-                      $this.style.opacity = ''
-                      $clone.classList.add('card-task-transition')
-
-                      if (!isDragged) { // open modal task
+                      if (!isDragged) {
                         console.log('OPEN MODAL')
                         boardStore.setColumnAndTaskIndex(colIndex, index)
                         openModalTask = true
                       }
 
-                      const currentIndex = Number($this.dataset.index)
-                      console.log('start Index', startIndex)
-                      console.log('current Index', currentIndex)
-                      console.log('start column index', sColumnIndex)
-                      console.log('current column index', cColumnIndex)
+                      $this.classList.add('card-task-transition')
+                      $shadowRect.classList.add('border-red-300')
+                      $this.classList.remove('z-[1000]');
+                      $this.classList.add('z-50');
 
-                      win.setTimeout(() => {
-                        
-                        // boardStore.swapTask(sColumnIndex, cColumnIndex, startIndex, currentIndex)
-                        boardStore.coba(sColumnIndex, startIndex)
-                      }, 1000);
+                      // move $this to shadow rect 
+                      const moveX = $this.getBoundingClientRect().x - $shadowRect.getBoundingClientRect().x;
+                      const moveY = $this.getBoundingClientRect().y - $shadowRect.getBoundingClientRect().y;
+                      const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
+                      $this.style.transform = `translate(${matrix.e - moveX}px, ${matrix.f - moveY}px)`;
 
                       doc.removeEventListener('mousemove', dragCard)
-                      doc.removeEventListener('mouseup', cancelDragCard)
+                      doc.removeEventListener('mouseup', cancelDrag)
                     }
+
                     doc.addEventListener('mousemove', dragCard)
-                    doc.addEventListener('mouseup', cancelDragCard)
+                    doc.addEventListener('mouseup', cancelDrag)
                     e.stopPropagation()
-                  }
-                "
-              >
-                <div class="font-bold text-[15px] mb-3">{{ t.title }}</div>
-                <div class="text-xs text-slate-400 font-semibold">
-                  {{ t.subtasks.filter((st) => st.isDone).length }} of
-                  {{ t.subtasks.length }} subtasks
+                  }"
+                >
+                  <div class="font-bold text-[15px] mb-3">{{ t.title }}</div>
+                  <div class="text-xs text-slate-400 font-semibold">
+                    {{ t.subtasks.filter((st) => st.isDone).length }} of
+                    {{ t.subtasks.length }} subtasks
+                  </div>
                 </div>
+
+                <div class="absolute top-0 left-0 w-full h-full border border-red-300"></div>
+              </div>
+
+              <div class>
+
               </div>
             </div>
 
@@ -847,7 +783,7 @@ const tasksWrapperRefs = ref([])
                           >Columns</label
                         >
                       </div>
-                      <div v-for="(field, index) in fields" class="flex items-center mb-2">
+                      <div v-for="(field, index) in fields" :key="index" class="flex items-center mb-2">
                         <Input
                           :name="`columns[${index}].name`"
                           :value="field.value.name"
@@ -893,6 +829,8 @@ const tasksWrapperRefs = ref([])
 <style scoped>
 .card-task-transition {
   /* transition: transform cubic-bezier(.49,.79,.28,.96) .15s; */
-  transition: transform linear 1s;
+  /* transition: transform linear 200ms; */
+  /* transition: transform cubic-bezier(.32,.82,.4,.99) 200ms; */
+  transition: transform cubic-bezier(.32,.82,.4,.99) 1000ms;
 }
 </style>
