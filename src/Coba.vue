@@ -790,6 +790,75 @@ const tasksWrapperRefs = ref([])
                           $this.dataset.index = newIndex;
                         }
                       } else if (e.movementX < 0) { // LEFT 
+                        console.log('<-- LEFT')
+
+                        if ($wrapper !== null && e.clientX < $wrapper.getBoundingClientRect().left) {
+                          console.log('<-- OUT LEFT')
+                          $shadowRect.remove();
+                          isOut = true;
+                          $wrapper.querySelectorAll('.card-task').forEach(($c) => {
+                            if (Number($c.dataset.index) <= Number($this.dataset.index)) return 
+                            $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f - (rect.height + marginBottom)}px)`;
+                            $c.dataset.index = Number($c.dataset.index) - 1;
+                            $c.dataset.isAnimating = 1;
+                            win.setTimeout(() => {$c.dataset.isAnimating = 0;}, transitionDuration)
+                            movedCards.add($c);
+                          })
+                          $rightWrapper = $wrapper;
+                          $wrapper = null;
+                          console.log('$leftWrapper', $leftWrapper);
+                          console.log('$wrapper', $wrapper);
+                          console.log('$rightWrapper', $rightWrapper);
+                          return;
+                        }
+
+                        const leftWrapperRect = $leftWrapper?.getBoundingClientRect();
+                        if (leftWrapperRect !== undefined && e.clientX < leftWrapperRect.right && e.clientY >= leftWrapperRect.top && e.clientY <= leftWrapperRect.bottom) {
+
+                          // tyding up all cards position after cancelDrag
+
+                          console.log('<-- IN FROM RIGHT')
+                          $wrapper = $leftWrapper;
+                          const newWrapperIndex = Number($wrapper.dataset.columnIndex);
+                          $leftWrapper = doc.getElementById('column-wrapper').querySelector(`.task-wrapper[data-column-index='${newWrapperIndex-1}']`);
+                          endColumnIndex = Number($wrapper.dataset.columnIndex);
+                          
+                          // find new position for $this
+                          let newIndex = null;
+                          $wrapper.querySelectorAll('.card-task').forEach(($c) => {
+                            const $cRect = $c.getBoundingClientRect();
+                            const $prevCRect = $c.previousElementSibling?.getBoundingClientRect();
+                            if (newIndex === null && (e.clientY >= $cRect.top && e.clientY <= $cRect.bottom) || ($prevCRect !== undefined && e.clientY > $prevCRect.bottom && e.clientY < $cRect.top)) {
+                              console.log('== IN ==')
+                              isOut = false;
+                              newIndex = Number($c.dataset.index);
+                              $shadowRect.style.top = `${$cRect.top}px`;
+                              $shadowRect.style.left = `${$cRect.left}px`;
+                              doc.body.appendChild($shadowRect);
+                              
+                              $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f + (rect.height + marginBottom)}px)`;
+                              $c.dataset.index = Number($c.dataset.index) + 1;
+                              $c.dataset.isAnimating = 1;
+                              win.setTimeout(() => {$c.dataset.isAnimating = 0}, transitionDuration);
+
+                              $topCard = newIndex - 1 < 0 ? null : $wrapper.querySelector(`.card-task[data-index='${newIndex - 1}']`);
+                              $botCard = newIndex + 1 >= $wrapper.querySelectorAll('.card-task').length ? null : $wrapper.querySelector(`.card-task[data-index='${newIndex + 1}']`);
+
+                              movedCards.add($c)
+                              return;
+                            }
+                            if (newIndex !== null) { // trailing cards or next cards
+                              $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f + (rect.height + marginBottom)}px)`;
+                              $c.dataset.index = Number($c.dataset.index) + 1;
+                              $c.dataset.isAnimating = 1;
+                              win.setTimeout(() => {$c.dataset.isAnimating = 0}, transitionDuration);
+                              movedCards.add($c)
+                            }
+                          });
+                          console.log('newIndex', newIndex);
+                          console.log('$shadowRect', $shadowRect);
+                          $this.dataset.index = newIndex;
+                        }
                       }
                     } 
 
