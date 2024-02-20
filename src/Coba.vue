@@ -595,6 +595,9 @@ const tasksWrapperRefs = ref([])
                     const $this = e.currentTarget;
                     const marginBottom = win.parseInt(win.getComputedStyle($this).marginBottom);
                     let $wrapper = $this.parentElement;
+                    console.log('tasksWrapperRefs', tasksWrapperRefs.length);
+                    let $leftWrapper = colIndex <= 0 ? null : tasksWrapperRefs[colIndex - 1];
+                    let $rightWrapper = colIndex >= (tasksWrapperRefs.length - 1) ? null : tasksWrapperRefs[colIndex + 1];
                     const transitionDuration = parseFloat(win.getComputedStyle($this).transitionDuration) * 1000; // in ms
 
                     $this.classList.remove('card-task-transition')
@@ -635,7 +638,7 @@ const tasksWrapperRefs = ref([])
                         // DOWN
                         console.log('bawah')
                         // console.log('$botCard', $botCard);
-                        if (!!Number($botCard?.dataset?.isAnimating) == false && $botCard !== null && e.clientY > $botCard.getBoundingClientRect().top) {
+                        if ($wrapper !== null && !!Number($botCard?.dataset?.isAnimating) == false && $botCard !== null && e.clientY > $botCard.getBoundingClientRect().top) {
                           console.log('swap bawah')
 
                           // move $shadowRect 
@@ -689,7 +692,7 @@ const tasksWrapperRefs = ref([])
                           $wrapper = null;
                         }
 
-                        if (!!Number($topCard?.dataset?.isAnimating) == false && $topCard !== null && e.clientY < $topCard.getBoundingClientRect().bottom) {
+                        if ($wrapper !== null && !!Number($topCard?.dataset?.isAnimating) == false && $topCard !== null && e.clientY < $topCard.getBoundingClientRect().bottom) {
                           console.log('swap atas')
 
                           // move $shadowRect 
@@ -719,8 +722,23 @@ const tasksWrapperRefs = ref([])
                           $botCard = $wrapper.querySelector(`.card-task[data-index='${$thisIndex + 1}']`);
                           $topCard = $wrapper.querySelector(`.card-task[data-index='${$thisIndex - 1}']`);
                         }
+                      } else if (e.movementX > 0) { // RIGHT
+                        console.log('RIGHT ->')
+                        if ($wrapper !== null && e.clientX > $wrapper.getBoundingClientRect().right) {
+                          console.log('OUT RIGHT ->')
+                          $wrapper.querySelectorAll('.card-task').forEach(($c) => {
+                            if (Number($c.dataset.index) <= Number($this.dataset.index)) return 
+                            $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f - (rect.height + marginBottom)}px)`;
+                            $c.dataset.index = Number($c.dataset.index) - 1;
+                          })
+                          $leftWrapper = $wrapper;
+                          $wrapper = null;
+
+
+                        }
+                      } else if (e.movementX < 0) { // LEFT 
                       }
-                    }
+                    } 
 
                     const cancelDrag = function () {
                       console.log('cancel drag card')
@@ -788,7 +806,7 @@ const tasksWrapperRefs = ref([])
                           })
                         }, transitionDuration + 1)
                       } // <-- if not out of wrapper
-                      
+
                       // remove $shadowRect
                       $shadowRect.remove();
 
