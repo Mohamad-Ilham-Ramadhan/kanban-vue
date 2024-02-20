@@ -324,7 +324,7 @@ export const useBoardStore = defineStore('board', {
       },
       swapTask(fromColumnIndex, toColumnIndex, fromIndex, toIndex) { // drag/sort card task
          // this.board.columns[colIndex].tasks
-         console.log('SWAP TASK', fromColumnIndex, toColumnIndex, fromIndex, toIndex)
+         console.log('SWAP TASK (store)', fromColumnIndex, toColumnIndex, fromIndex, toIndex)
          if (toColumnIndex === null && fromIndex === toIndex) {
             console.log('not doing anything')
             

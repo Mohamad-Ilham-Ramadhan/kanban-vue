@@ -487,7 +487,7 @@ const tasksWrapperRefs = ref([])
           ></div>
         </Teleport>
 
-        <div class="relative flex w-full h-full px-8 py-6" ref="boardFrameRef">
+        <div class="relative flex w-full h-full px-8 py-6" ref="boardFrameRef" id="column-wrapper">
           <!-- Modal Task-->
           <Modal :open="openModalTask" @close-modal="openModalTask = false" class="w-[480px]">
             <div class="relative mb-6">
@@ -579,7 +579,7 @@ const tasksWrapperRefs = ref([])
               v-show="c.tasks.length > 0"
               ref="tasksWrapperRefs"
               :data-column-index="colIndex"
-              class="wrapper-task flex flex-col"
+              class="task-wrapper flex flex-col"
             >
               <div
                 v-for="(t, index) in c.tasks"
@@ -599,6 +599,7 @@ const tasksWrapperRefs = ref([])
                     let $leftWrapper = colIndex <= 0 ? null : tasksWrapperRefs[colIndex - 1];
                     let $rightWrapper = colIndex >= (tasksWrapperRefs.length - 1) ? null : tasksWrapperRefs[colIndex + 1];
                     const transitionDuration = parseFloat(win.getComputedStyle($this).transitionDuration) * 1000; // in ms
+                    let isOut = false; // when the dragged card doesn't belong in any position
 
                     $this.classList.remove('card-task-transition')
                     $this.classList.remove('z-50')
@@ -690,6 +691,8 @@ const tasksWrapperRefs = ref([])
                             $c.dataset.index = Number($c.dataset.index) - 1;
                           })
                           $wrapper = null;
+                          $shadowRect.remove();
+                          isOut = true;
                         }
 
                         if ($wrapper !== null && !!Number($topCard?.dataset?.isAnimating) == false && $topCard !== null && e.clientY < $topCard.getBoundingClientRect().bottom) {
@@ -708,9 +711,7 @@ const tasksWrapperRefs = ref([])
 
                           $topCard.dataset.isAnimating = 1; // means true
                           const $temp = $topCard;
-                          win.setTimeout(() => {
-                            $temp.dataset.isAnimating = 0; // means false
-                          }, transitionDuration)
+                          win.setTimeout(() => {$temp.dataset.isAnimating = 0;}, transitionDuration)
 
                           // swap index of both cards
                           const tempIndex = $thisIndex;
@@ -726,15 +727,67 @@ const tasksWrapperRefs = ref([])
                         console.log('RIGHT ->')
                         if ($wrapper !== null && e.clientX > $wrapper.getBoundingClientRect().right) {
                           console.log('OUT RIGHT ->')
+                          $shadowRect.remove();
+                          isOut = true;
                           $wrapper.querySelectorAll('.card-task').forEach(($c) => {
                             if (Number($c.dataset.index) <= Number($this.dataset.index)) return 
                             $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f - (rect.height + marginBottom)}px)`;
                             $c.dataset.index = Number($c.dataset.index) - 1;
+                            $c.dataset.isAnimating = 1;
+                            win.setTimeout(() => {$c.dataset.isAnimating = 0;}, transitionDuration)
+                            movedCards.add($c);
                           })
                           $leftWrapper = $wrapper;
                           $wrapper = null;
+                          return;
+                        }
 
+                        const rightWrapperRect = $rightWrapper?.getBoundingClientRect();
+                        if (rightWrapperRect !== undefined && e.clientX > rightWrapperRect.left && e.clientY >= rightWrapperRect.top && e.clientY <= rightWrapperRect.bottom) {
 
+                          // tyding up all cards position after cancelDrag
+
+                          console.log('--> IN FROM LEFT')
+                          $wrapper = $rightWrapper;
+                          const newWrapperIndex = Number($wrapper.dataset.columnIndex);
+                          $rightWrapper = doc.getElementById('column-wrapper').querySelector(`.task-wrapper[data-column-index='${newWrapperIndex+1}']`);
+                          endColumnIndex = Number($wrapper.dataset.columnIndex);
+                          
+                          // find new position for $this
+                          let newIndex = null;
+                          $wrapper.querySelectorAll('.card-task').forEach(($c) => {
+                            const $cRect = $c.getBoundingClientRect();
+                            const $prevCRect = $c.previousElementSibling?.getBoundingClientRect();
+                            if (newIndex === null && (e.clientY >= $cRect.top && e.clientY <= $cRect.bottom) || ($prevCRect !== undefined && e.clientY > $prevCRect.bottom && e.clientY < $cRect.top)) {
+                              console.log('== IN ==')
+                              isOut = false;
+                              newIndex = Number($c.dataset.index);
+                              $shadowRect.style.top = `${$cRect.top}px`;
+                              $shadowRect.style.left = `${$cRect.left}px`;
+                              doc.body.appendChild($shadowRect);
+                              
+                              $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f + (rect.height + marginBottom)}px)`;
+                              $c.dataset.index = Number($c.dataset.index) + 1;
+                              $c.dataset.isAnimating = 1;
+                              win.setTimeout(() => {$c.dataset.isAnimating = 0}, transitionDuration);
+
+                              $topCard = newIndex - 1 < 0 ? null : $wrapper.querySelector(`.card-task[data-index='${newIndex - 1}']`);
+                              $botCard = newIndex + 1 >= $wrapper.querySelectorAll('.card-task').length ? null : $wrapper.querySelector(`.card-task[data-index='${newIndex + 1}']`);
+
+                              movedCards.add($c)
+                              return;
+                            }
+                            if (newIndex !== null) { // trailing cards or next cards
+                              $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f + (rect.height + marginBottom)}px)`;
+                              $c.dataset.index = Number($c.dataset.index) + 1;
+                              $c.dataset.isAnimating = 1;
+                              win.setTimeout(() => {$c.dataset.isAnimating = 0}, transitionDuration);
+                              movedCards.add($c)
+                            }
+                          });
+                          console.log('newIndex', newIndex);
+                          console.log('$shadowRect', $shadowRect);
+                          $this.dataset.index = newIndex;
                         }
                       } else if (e.movementX < 0) { // LEFT 
                       }
@@ -750,13 +803,15 @@ const tasksWrapperRefs = ref([])
                       }
 
                       $this.classList.add('card-task-transition')
-                      $this.classList.remove('z-[1000]');
+                      $this.style.zIndex = '';
                       $this.classList.add('z-50');
 
                       
 
                       // If out of wrapper when cancel/release drag card
-                      if ($wrapper === null) {
+                      // (to be edit: if isOut then do this:)
+                      console.log('isOut: ', isOut)
+                      if (isOut) {
                         console.log('OUT OF wrapper')
                         // start index
                         // start column or start wrapper
@@ -770,16 +825,24 @@ const tasksWrapperRefs = ref([])
                         const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
                         $this.style.transform = `translate(${matrix.e - moveX}px, ${matrix.f - moveY}px)`;
 
-                        tasksWrapperRefs[startColumnIndex].querySelectorAll('.card-task').forEach(($c) => {
+                        // tasksWrapperRefs[startColumnIndex].querySelectorAll('.card-task').forEach(($c) => {
+                        //   if (Number($c.dataset.index) < fromIndex || $c === $this) return;
+                        //   console.log('moving card', $c)
+                        //   $c.style.transform = 'translate(0px, 0px)';
+                        //   $c.dataset.index = Number($c.dataset.index) + 1;
+                        // });
+
+                        doc.getElementById('column-wrapper').querySelector(`.task-wrapper[data-column-index='${startColumnIndex}']`).querySelectorAll('.card-task').forEach(($c) => {
                           if (Number($c.dataset.index) < fromIndex || $c === $this) return;
                           console.log('moving card', $c)
                           $c.style.transform = 'translate(0px, 0px)';
                           $c.dataset.index = Number($c.dataset.index) + 1;
-                        });
+                        })
 
                         $this.dataset.index = fromIndex;
 
                       } else {
+
                         // move $this to shadow rect
                         const moveX = $this.getBoundingClientRect().x - $shadowRect.getBoundingClientRect().x;
                         const moveY = $this.getBoundingClientRect().y - $shadowRect.getBoundingClientRect().y;
@@ -790,21 +853,23 @@ const tasksWrapperRefs = ref([])
                         win.setTimeout(() => {
                           // set translateY 0 to all moved cards
                           console.log('UPDATE STORE & TYDING MOVED CARDS')
+                          
+                          movedCards.forEach(($c) => {
+                            console.log('movedCards.forEach', $c)
+                            $c.classList.remove('card-task-transition')
+                            $c.style.transform = 'translate(0px, 0px)';
+                            win.setTimeout(() => {
+                              $c.classList.add('card-task-transition')
+                              console.log('add transition class')
+                            }, 10)
+                          })
                           boardStore.swapTask(
                             startColumnIndex,
                             endColumnIndex,
                             fromIndex,
                             Number($this.dataset.index),
                           )
-                          movedCards.forEach(($c) => {
-                            $c.classList.remove('card-task-transition')
-                            $c.style.transform = 'translate(0px, 0px)';
-                            win.setTimeout(() => {
-                              $c.classList.add('card-task-transition')
-                              console.log('add transition class')
-                            }, 1)
-                          })
-                        }, transitionDuration + 1)
+                        }, transitionDuration) // this setTimeout needs for dragged card get back to the position using transition
                       } // <-- if not out of wrapper
 
                       // remove $shadowRect
@@ -951,9 +1016,6 @@ const tasksWrapperRefs = ref([])
 
 <style scoped>
 .card-task-transition {
-  /* transition: transform cubic-bezier(.49,.79,.28,.96) .15s; */
-  /* transition: transform linear 200ms; */
-  /* transition: transform cubic-bezier(.32,.82,.4,.99) 200ms; */
   transition: transform cubic-bezier(0.32, 0.82, 0.4, 0.99) 200ms;
 }
 </style>
