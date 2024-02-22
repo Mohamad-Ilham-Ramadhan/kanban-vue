@@ -805,7 +805,6 @@ const tasksWrapperRefs = ref([])
                             // $topCard & $bottomCard
                             $topCard = newIndex - 1 < 0 ? null : $wrapper.querySelector(`.card-task[data-index='${newIndex - 1}']`);
                             $botCard = newIndex + 1 >= $wrapper.querySelectorAll('.card-task').length ? null : $wrapper.querySelector(`.card-task[data-index='${newIndex + 1}']`);
-
                           }
                           console.log('newIndex', newIndex);
                           console.log('$shadowRect', $shadowRect);
@@ -881,6 +880,24 @@ const tasksWrapperRefs = ref([])
                               movedCards.add($c)
                             }
                           });
+
+                          if (newIndex === null) {
+                            // it means the dragged card are in the last position(most bottom)
+                            console.log('Paling bawah')
+                            isOut = false;
+
+                            // index
+                            newIndex = Number($wrapper.lastElementChild.dataset.index) + 1;
+                            $this.dataset.index = newIndex;
+                            // $shadowRect position
+                            $shadowRect.style.left = `${$wrapper.getBoundingClientRect().left}px`;
+                            $shadowRect.style.top = `${$wrapper.lastElementChild.getBoundingClientRect().bottom + marginBottom}px`;
+                            doc.body.appendChild($shadowRect);
+
+                            // $topCard & $bottomCard
+                            $topCard = newIndex - 1 < 0 ? null : $wrapper.querySelector(`.card-task[data-index='${newIndex - 1}']`);
+                            $botCard = newIndex + 1 >= $wrapper.querySelectorAll('.card-task').length ? null : $wrapper.querySelector(`.card-task[data-index='${newIndex + 1}']`);
+                          }
                           console.log('newIndex', newIndex);
                           console.log('$shadowRect', $shadowRect);
                           $this.dataset.index = newIndex;
