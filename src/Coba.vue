@@ -579,7 +579,7 @@ const tasksWrapperRefs = ref([])
               v-show="c.tasks.length > 0"
               ref="tasksWrapperRefs"
               :data-column-index="colIndex"
-              class="task-wrapper flex flex-col"
+              class="task-wrapper flex flex-col h-full border border-red-300"
             >
               <div
                 v-for="(t, index) in c.tasks"
@@ -692,6 +692,7 @@ const tasksWrapperRefs = ref([])
                           })
                           $wrapper = null;
                           $shadowRect.remove();
+                          $shadowRect.style.transform = 'translate(0px, 0px)';
                           isOut = true;
                         }
 
@@ -728,6 +729,7 @@ const tasksWrapperRefs = ref([])
                         if ($wrapper !== null && e.clientX > $wrapper.getBoundingClientRect().right) {
                           console.log('OUT RIGHT ->')
                           $shadowRect.remove();
+                          $shadowRect.style.transform = 'translate(0px, 0px)';
                           isOut = true;
                           $wrapper.querySelectorAll('.card-task').forEach(($c) => {
                             if (Number($c.dataset.index) <= Number($this.dataset.index)) return 
@@ -756,6 +758,7 @@ const tasksWrapperRefs = ref([])
                           // find new position for $this
                           let newIndex = null;
                           $wrapper.querySelectorAll('.card-task').forEach(($c) => {
+                            if ($c === $this) return;
                             const $cRect = $c.getBoundingClientRect();
                             const $prevCRect = $c.previousElementSibling?.getBoundingClientRect();
                             if (newIndex === null && (e.clientY >= $cRect.top && e.clientY <= $cRect.bottom) || ($prevCRect !== undefined && e.clientY > $prevCRect.bottom && e.clientY < $cRect.top)) {
@@ -777,7 +780,7 @@ const tasksWrapperRefs = ref([])
                               movedCards.add($c)
                               return;
                             }
-                            if (newIndex !== null) { // trailing cards or next cards
+                            if (newIndex !== null) { // next cards
                               $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f + (rect.height + marginBottom)}px)`;
                               $c.dataset.index = Number($c.dataset.index) + 1;
                               $c.dataset.isAnimating = 1;
@@ -785,6 +788,25 @@ const tasksWrapperRefs = ref([])
                               movedCards.add($c)
                             }
                           });
+
+                          if (newIndex === null) {
+                            // it means the dragged card are in the last position(most bottom)
+                            console.log('Paling bawah')
+                            isOut = false;
+
+                            // index
+                            newIndex = Number($wrapper.lastElementChild.dataset.index) + 1;
+                            $this.dataset.index = newIndex;
+                            // $shadowRect position
+                            $shadowRect.style.left = `${$wrapper.getBoundingClientRect().left}px`;
+                            $shadowRect.style.top = `${$wrapper.lastElementChild.getBoundingClientRect().bottom + marginBottom}px`;
+                            doc.body.appendChild($shadowRect);
+
+                            // $topCard & $bottomCard
+                            $topCard = newIndex - 1 < 0 ? null : $wrapper.querySelector(`.card-task[data-index='${newIndex - 1}']`);
+                            $botCard = newIndex + 1 >= $wrapper.querySelectorAll('.card-task').length ? null : $wrapper.querySelector(`.card-task[data-index='${newIndex + 1}']`);
+
+                          }
                           console.log('newIndex', newIndex);
                           console.log('$shadowRect', $shadowRect);
                           $this.dataset.index = newIndex;
@@ -795,6 +817,7 @@ const tasksWrapperRefs = ref([])
                         if ($wrapper !== null && e.clientX < $wrapper.getBoundingClientRect().left) {
                           console.log('<-- OUT LEFT')
                           $shadowRect.remove();
+                          $shadowRect.style.transform = 'translate(0px, 0px)';
                           isOut = true;
                           $wrapper.querySelectorAll('.card-task').forEach(($c) => {
                             if (Number($c.dataset.index) <= Number($this.dataset.index)) return 
@@ -812,6 +835,8 @@ const tasksWrapperRefs = ref([])
                           return;
                         }
 
+                        // after in left/right wrapper then back to the initial wrapper, the dragged card get translateY
+
                         const leftWrapperRect = $leftWrapper?.getBoundingClientRect();
                         if (leftWrapperRect !== undefined && e.clientX < leftWrapperRect.right && e.clientY >= leftWrapperRect.top && e.clientY <= leftWrapperRect.bottom) {
 
@@ -826,6 +851,7 @@ const tasksWrapperRefs = ref([])
                           // find new position for $this
                           let newIndex = null;
                           $wrapper.querySelectorAll('.card-task').forEach(($c) => {
+                            if ($c === $this) return;
                             const $cRect = $c.getBoundingClientRect();
                             const $prevCRect = $c.previousElementSibling?.getBoundingClientRect();
                             if (newIndex === null && (e.clientY >= $cRect.top && e.clientY <= $cRect.bottom) || ($prevCRect !== undefined && e.clientY > $prevCRect.bottom && e.clientY < $cRect.top)) {
@@ -894,12 +920,6 @@ const tasksWrapperRefs = ref([])
                         const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
                         $this.style.transform = `translate(${matrix.e - moveX}px, ${matrix.f - moveY}px)`;
 
-                        // tasksWrapperRefs[startColumnIndex].querySelectorAll('.card-task').forEach(($c) => {
-                        //   if (Number($c.dataset.index) < fromIndex || $c === $this) return;
-                        //   console.log('moving card', $c)
-                        //   $c.style.transform = 'translate(0px, 0px)';
-                        //   $c.dataset.index = Number($c.dataset.index) + 1;
-                        // });
 
                         doc.getElementById('column-wrapper').querySelector(`.task-wrapper[data-column-index='${startColumnIndex}']`).querySelectorAll('.card-task').forEach(($c) => {
                           if (Number($c.dataset.index) < fromIndex || $c === $this) return;
