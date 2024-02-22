@@ -583,7 +583,7 @@ const tasksWrapperRefs = ref([])
             >
               <div
                 v-for="(t, index) in c.tasks"
-                class="card-task card-task-transition bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 mb-4 relative z-50"
+                class="card-task card-task-transition bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 mb-10 relative z-50"
                 :key="t.id"
                 data-moveable="0"
                 :data-index="index"
@@ -662,14 +662,12 @@ const tasksWrapperRefs = ref([])
                           }, transitionDuration)
 
                           // swap index of both cards
-                          const tempIndex = $thisIndex;
-                          $thisIndex += 1;
-                          $botCard.dataset.index = tempIndex;
-                          $this.dataset.index = $thisIndex;
+                          $this.dataset.index = Number($this.dataset.index) + 1;
+                          $botCard.dataset.index = Number($botCard.dataset.index) - 1;
 
                           // get next $botCard and $topCard
-                          $botCard = $wrapper.querySelector(`.card-task[data-index='${$thisIndex + 1}']`);
-                          $topCard = $wrapper.querySelector(`.card-task[data-index='${$thisIndex - 1}']`);
+                          $botCard = $wrapper.querySelector(`.card-task[data-index='${Number($this.dataset.index) + 1}']`);
+                          $topCard = $wrapper.querySelector(`.card-task[data-index='${Number($this.dataset.index) - 1}']`);
 
                         }
                       } else if (e.movementY < 0) {
@@ -715,14 +713,15 @@ const tasksWrapperRefs = ref([])
                           win.setTimeout(() => {$temp.dataset.isAnimating = 0;}, transitionDuration)
 
                           // swap index of both cards
-                          const tempIndex = $thisIndex;
-                          $thisIndex -= 1;
-                          $topCard.dataset.index = tempIndex;
-                          $this.dataset.index = $thisIndex;
+                          $this.dataset.index = Number($this.dataset.index) - 1;
+                          $topCard.dataset.index = Number($topCard.dataset.index) + 1;
 
                           // get next $topCard and $topCard
-                          $botCard = $wrapper.querySelector(`.card-task[data-index='${$thisIndex + 1}']`);
-                          $topCard = $wrapper.querySelector(`.card-task[data-index='${$thisIndex - 1}']`);
+                          $botCard = $wrapper.querySelector(`.card-task[data-index='${Number($this.dataset.index) + 1}']`);
+                          $topCard = $wrapper.querySelector(`.card-task[data-index='${Number($this.dataset.index) - 1}']`);
+                          console.log('$wrapper', $wrapper);
+                          console.log('$topCard', $topCard);
+                          console.log('$bottomCard', $bottomCard);
                         }
                       } else if (e.movementX > 0) { // RIGHT
                         console.log('RIGHT ->')
@@ -897,6 +896,8 @@ const tasksWrapperRefs = ref([])
                             // $topCard & $bottomCard
                             $topCard = newIndex - 1 < 0 ? null : $wrapper.querySelector(`.card-task[data-index='${newIndex - 1}']`);
                             $botCard = newIndex + 1 >= $wrapper.querySelectorAll('.card-task').length ? null : $wrapper.querySelector(`.card-task[data-index='${newIndex + 1}']`);
+                            console.log('$topCard',  $topCard)
+                            console.log('$bottomCard',  $bottomCard)
                           }
                           console.log('newIndex', newIndex);
                           console.log('$shadowRect', $shadowRect);
