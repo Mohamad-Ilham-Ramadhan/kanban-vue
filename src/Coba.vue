@@ -583,7 +583,7 @@ const tasksWrapperRefs = ref([])
             >
               <div
                 v-for="(t, index) in c.tasks"
-                class="card-task card-task-transition bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 mb-10 relative z-50"
+                class="card-task card-task-transition bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 mb-4 relative z-50"
                 :key="t.id"
                 data-moveable="0"
                 :data-index="index"
@@ -615,7 +615,18 @@ const tasksWrapperRefs = ref([])
                     $shadowRect.style.left = `${rect.left}px`;
                     $shadowRect.style.border = '1px solid white';
                     doc.body.appendChild($shadowRect);
-                    
+
+                    // $wrappers bouding rect
+                    // const $wrappersRect = Array.from(doc.getElementById('column-wrapper').querySelectorAll('.column')).map( ($col) => {
+                    //   return $col.querySelector('.task-wrapper').getBoundingClientRect();
+                    // });
+                    // console.log('$wrappersRect', $wrappersRect);
+                    const $wrappers = Array.from(doc.getElementById('column-wrapper').querySelectorAll('.column')).map( ($col) => {
+                      return $col.querySelector('.task-wrapper');
+                    });
+                    // In from Bottom
+                    // In from Top
+                    // In to empty $wrapper
 
                     let isDragged = false
                     let fromIndex = Number($this.dataset.index);
@@ -629,6 +640,7 @@ const tasksWrapperRefs = ref([])
                     
                     const dragCard = function (e) {
                       // console.log('drag card', e)
+
                       isDragged = true
                       const matrix = new DOMMatrix(win.getComputedStyle($this).transform) // to get value of current transform translate(x,y)
                       $this.style.transform = `translate(${matrix.e + e.movementX}px, ${
@@ -638,10 +650,52 @@ const tasksWrapperRefs = ref([])
                       if (e.movementY > 0) {
                         // DOWN
                         console.log('bawah')
-                        // console.log('$botCard', $botCard);
-                        if ($wrapper !== null && !!Number($botCard?.dataset?.isAnimating) == false && $botCard !== null && e.clientY > $botCard.getBoundingClientRect().top) {
-                          console.log('swap bawah')
+                        
+                        if (isOut == true) {
+                          const $neoWrapper = doc.elementsFromPoint(e.clientX, e.clientY).find( ($el) => {
+                            return $el.classList.contains('task-wrapper')
+                          });
 
+                          if ($neoWrapper !== undefined) {
+                            console.log('IN FROM TOP')
+                            console.log('first $card in the $neoWrapper', $neoWrapper.querySelector(`.card-task[data-index='${0}']`))
+                            
+
+                            $botCard = $neoWrapper.firstElementChild === $this ? $neoWrapper.children[1] : $neoWrapper.firstElementChild;
+                            $topCard = null;
+
+                            $shadowRect.style.top = `${$neoWrapper.getBoundingClientRect().top}px`;
+                            $shadowRect.style.left = `${$neoWrapper.getBoundingClientRect().left}px`;
+                            console.log('$neoWrapper', $neoWrapper.getBoundingClientRect());
+                            console.log('$shadowRect', $shadowRect);
+                            doc.body.appendChild($shadowRect);
+                            
+                            $neoWrapper.querySelectorAll('.card-task').forEach(($el) => {
+                              if ($el === $this) return;
+                              console.log('$el', $el, ((new DOMMatrix(win.getComputedStyle($el).transform))).f, ((new DOMMatrix(win.getComputedStyle($el).transform))).f + (marginBottomm + $this.getBoundingClientRect().height))
+
+                              $el.style.transform = `translate(0px, ${((new DOMMatrix(win.getComputedStyle($el).transform))).f + (marginBottom + $this.getBoundingClientRect().height)}px)`;
+
+                              movedCards.add($el);
+                              
+                              $el.dataset.index = Number($el.dataset.index) + 1;
+                              $el.dataset.isAnimating = 1;
+
+                              win.setTimeout(() => {
+                                $el.dataset.isAnimating = 0;
+                              }, transitionDuration + 1)
+                            });
+
+                            $wrapper = $neoWrapper;
+                            isOut = false;
+                            endColumnIndex = Number($wrapper.dataset.columnIndex);
+                          }
+
+                          return;
+                        }
+
+                        if (isOut == false && Number($botCard.dataset.isAnimating) == 0 && !!Number($botCard?.dataset?.isAnimating) == false && $botCard !== null && e.clientY > $botCard.getBoundingClientRect().top) {
+                          console.log('swap bawah')
                           // move $shadowRect 
                           const moveY = ($botCard.getBoundingClientRect().height + marginBottom) + (new DOMMatrix(win.getComputedStyle($shadowRect).transform)).f;
                           $shadowRect.style.transform = `translate(0px, ${moveY}px)`;
@@ -675,7 +729,7 @@ const tasksWrapperRefs = ref([])
                         console.log('up')
 
                         // OUT FROM TOP
-                        if ($wrapper !== null && e.clientY < $wrapper.getBoundingClientRect().top) {
+                        if (isOut == false && e.clientY < $wrapper.getBoundingClientRect().top) {
                           console.log('OUT FROM TOP');
                           $wrapper.querySelectorAll('.card-task').forEach(($c, index) => {
                             if ( Number($c.dataset.index) === 0) return; 
@@ -692,6 +746,9 @@ const tasksWrapperRefs = ref([])
                           $shadowRect.remove();
                           $shadowRect.style.transform = 'translate(0px, 0px)';
                           isOut = true;
+                          console.log('$leftWrapper', $leftWrapper);
+                          console.log('$wrapper', $wrapper);
+                          console.log('$rightWrapper', $rightWrapper);
                         }
 
                         if ($wrapper !== null && !!Number($topCard?.dataset?.isAnimating) == false && $topCard !== null && e.clientY < $topCard.getBoundingClientRect().bottom) {
@@ -725,6 +782,29 @@ const tasksWrapperRefs = ref([])
                         }
                       } else if (e.movementX > 0) { // RIGHT
                         console.log('RIGHT ->')
+
+                        // Changing $leftWrapper, $wrapper, $rightWrapper 
+                        
+                        // if ($rightWrapper !== undefined && isOut == true && $wrapper === null && e.clientX >= $rightWrapper.getBoundingClientRect().left) {
+                        //   console.log('$rightWrapper', $rightWrapper);
+                        //   // $wrapper = $rightWrapper;
+                        //   $rightWrapper = $wrappers[Number($rightWrapper.dataset.columnIndex) + 1];
+                        //   console.log('$wrapper', $wrapper)
+                        //   console.log('$neoRightWrapper', $rightWrapper)
+                        //   return;
+                        // }
+
+                        if ($rightWrapper !== undefined && isOut == true && e.clientX >= $rightWrapper.getBoundingClientRect().left) {
+                          console.log('Wrapper changing outside the box (wrapper)');
+                          $wrapper = $rightWrapper;
+                          $leftWrapper = $wrappers[Number($rightWrapper.dataset.columnIndex) - 1];
+                          $rightWrapper = $wrappers[Number($rightWrapper.dataset.columnIndex) + 1];
+                          console.log('$leftWrapper', $leftWrapper)
+                          console.log('$wrapper', $wrapper)
+                          console.log('$neoRightWrapper', $rightWrapper)
+                          return;
+                        }
+
                         if ($wrapper !== null && e.clientX > $wrapper.getBoundingClientRect().right) {
                           console.log('OUT RIGHT ->')
                           $shadowRect.remove();
@@ -812,7 +892,18 @@ const tasksWrapperRefs = ref([])
                       } else if (e.movementX < 0) { // LEFT 
                         console.log('<-- LEFT')
 
-                        if ($wrapper !== null && e.clientX < $wrapper.getBoundingClientRect().left) {
+                        if ($leftWrapper !== undefined && isOut == true && e.clientX >= $leftWrapper.getBoundingClientRect().right) {
+                          console.log('Wrapper changing outside the box (wrapper)');
+                          $wrapper = $leftWrapper;
+                          $rightWrapper = $wrappers[Number($leftWrapper.dataset.columnIndex) + 1];
+                          $leftWrapper = $wrappers[Number($leftWrapper.dataset.columnIndex) - 1];
+                          console.log('$neoleftWrapper', $leftWrapper)
+                          console.log('$wrapper', $wrapper)
+                          console.log('$rightWrapper', $rightWrapper)
+                          return;
+                        }
+
+                        if (isOut == false && $wrapper !== null && e.clientX < $wrapper.getBoundingClientRect().left) {
                           console.log('<-- OUT LEFT')
                           $shadowRect.remove();
                           $shadowRect.style.transform = 'translate(0px, 0px)';
@@ -962,7 +1053,7 @@ const tasksWrapperRefs = ref([])
                           console.log('UPDATE STORE & TYDING MOVED CARDS')
                           
                           movedCards.forEach(($c) => {
-                            console.log('movedCards.forEach', $c)
+                            // console.log('movedCards.forEach', $c)
                             $c.classList.remove('card-task-transition')
                             $c.style.transform = 'translate(0px, 0px)';
                             win.setTimeout(() => {
