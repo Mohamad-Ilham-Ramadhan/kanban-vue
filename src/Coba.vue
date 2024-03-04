@@ -703,15 +703,16 @@ const tasksWrapperRefs = ref([])
                           return;
                         }
 
-                        if (isOut == false && $botCard !== null && Number($botCard.dataset.isAnimating) == 0 && !!Number($botCard?.dataset?.isAnimating) == false && $botCard !== null && e.clientY > $botCard.getBoundingClientRect().top) {
-                          console.log('swap bawah')
+                        if (isOut == false && $botCard !== null && Number($botCard.dataset.isAnimating) == 0 && !!$botCard?.getAnimations().length == false && $botCard !== null && e.clientY > $botCard.getBoundingClientRect().top) {
+                          console.log('SWAP BAWAH')
                           // move $shadowRect 
                           const moveY = ($botCard.getBoundingClientRect().height + marginBottom) + (new DOMMatrix(win.getComputedStyle($shadowRect).transform)).f;
                           $shadowRect.style.transform = `translate(0px, ${moveY}px)`;
 
                           // move $botCard
-                          const moveYbot = -(rect.height + marginBottom) + (new DOMMatrix(win.getComputedStyle($botCard).transform)).f;
+                          const moveYbot = Number($botCard.dataset.destinationY) - (rect.height + marginBottom);
                           $botCard.style.transform = `translate(0px, ${moveYbot}px)`;
+                          $botCard.dataset.destinationY = moveYbot;
 
                           // add to movedCards
                           movedCards.add($botCard)
@@ -747,20 +748,6 @@ const tasksWrapperRefs = ref([])
                             if ( Number($c.dataset.index) === 0) return; 
                             // console.log('$c isAnimation', $c.dataset.isAnimating, (new DOMMatrix(win.getComputedStyle($c).transform)).f)
 
-                            // if (Number(!!$c.getAnimations().length)) {
-                            //   console.log('is animating');
-                            //   console.log('dataset.destinationY', $c.dataset.destinationY);
-                            //   const destinationY = Number($c.dataset.destinationY) - ($this.getBoundingClientRect().height + marginBottom);
-                            //   $c.style.transform = `translate(0px, ${destinationY}px)`;
-                            //   $c.dataset.destinationY = destinationY;
-                            // } else {
-                            //   const destinationY = (new DOMMatrix(win.getComputedStyle($c).transform)).f - ($this.getBoundingClientRect().height + marginBottom);
-                            //   $c.style.transform = `translate(0px, ${destinationY}px)`;
-                            //   $c.dataset.destinationY = destinationY;
-                            //   console.log('$c.getAnimations()', $c.getAnimations(), typeof $c.getAnimations())
-                            // }
-
-
                             const destinationY = Number($c.dataset.destinationY) - ($this.getBoundingClientRect().height + marginBottom);
                             console.log('$c.dataset.destinationY', $c.dataset.destinationY);
                             console.log('destinationY', destinationY);
@@ -778,7 +765,7 @@ const tasksWrapperRefs = ref([])
                           console.log('$rightWrapper', $rightWrapper);
                         }
 
-                        if ($wrapper !== null && !!Number($topCard?.dataset?.isAnimating) == false && $topCard !== null && e.clientY < $topCard.getBoundingClientRect().bottom) {
+                        if ($wrapper !== null && !!$topCard?.getAnimations().length == false && $topCard !== null && e.clientY < $topCard.getBoundingClientRect().bottom) {
                           console.log('swap atas')
 
                           // move $shadowRect 
@@ -803,9 +790,6 @@ const tasksWrapperRefs = ref([])
                           // get next $topCard and $topCard
                           $botCard = $wrapper.querySelector(`.card-task[data-index='${Number($this.dataset.index) + 1}']`);
                           $topCard = $wrapper.querySelector(`.card-task[data-index='${Number($this.dataset.index) - 1}']`);
-                          console.log('$wrapper', $wrapper);
-                          console.log('$topCard', $topCard);
-                          console.log('$bottomCard', $bottomCard);
                         }
                       } else if (e.movementX > 0) { // RIGHT
                         console.log('RIGHT ->')
