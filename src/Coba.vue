@@ -630,6 +630,7 @@ const tasksWrapperRefs = ref([])
                     // In from Top
                     // In to empty $wrapper
                     // Pencatatan di .dataset nilai destinasi translateY, sehingga yang isAnimating = 1, bisa dikalkulate dengan benar
+                    // ketika $this dilepas dan sedang transitioning lalu di drag kembali, ada problem.
 
                     let isDragged = false
                     let fromIndex = Number($this.dataset.index);
@@ -773,8 +774,10 @@ const tasksWrapperRefs = ref([])
                           $shadowRect.style.transform = `translate(0px, ${moveY}px)`;
 
                           // move $topCard
-                          const moveYbot = (rect.height + marginBottom) + (new DOMMatrix(win.getComputedStyle($topCard).transform)).f;
-                          $topCard.style.transform = `translate(0px, ${moveYbot}px)`;
+                          // const moveYtop = (rect.height + marginBottom) + (new DOMMatrix(win.getComputedStyle($topCard).transform)).f;
+                          const moveYtop = Number($topCard.dataset.destinationY) + (rect.height + marginBottom);
+                          $topCard.style.transform = `translate(0px, ${moveYtop}px)`;
+                          $topCard.dataset.destinationY = moveYtop
 
                           // add to movedCards
                           movedCards.add($topCard)
@@ -796,15 +799,6 @@ const tasksWrapperRefs = ref([])
 
                         // Changing $leftWrapper, $wrapper, $rightWrapper 
                         
-                        // if ($rightWrapper !== undefined && isOut == true && $wrapper === null && e.clientX >= $rightWrapper.getBoundingClientRect().left) {
-                        //   console.log('$rightWrapper', $rightWrapper);
-                        //   // $wrapper = $rightWrapper;
-                        //   $rightWrapper = $wrappers[Number($rightWrapper.dataset.columnIndex) + 1];
-                        //   console.log('$wrapper', $wrapper)
-                        //   console.log('$neoRightWrapper', $rightWrapper)
-                        //   return;
-                        // }
-
                         const $rightWrapperRect = !!$rightWrapper !== false ? $rightWrapper.getBoundingClientRect() : null;
 
                         if ($rightWrapper !== undefined && isOut == true && e.clientX >= $rightWrapperRect.left && (e.clientY < $rightWrapperRect.top || e.clientY > $rightWrapperRect.bottom)) {
@@ -1228,6 +1222,6 @@ const tasksWrapperRefs = ref([])
 
 <style scoped>
 .card-task-transition {
-  transition: transform cubic-bezier(0.32, 0.82, 0.4, 0.99) 200ms;
+  transition: transform cubic-bezier(0.32, 0.82, 0.4, 0.99) 1200ms;
 }
 </style>
