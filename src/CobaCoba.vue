@@ -645,11 +645,25 @@ const tasksWrapperRefs = ref([])
                       if (isOut == false) {
                         console.log('INSIDE')
                         const $wrapperRect = $wrapper.getBoundingClientRect();
+
                         if (e.clientX > $wrapperRect.right || e.clientX < $wrapperRect.left || e.clientY < $wrapperRect.top || e.clientY > $wrapperRect.bottom) {
                           console.log('OUT OF WRAPPER')
+                          Array.from($wrapper.children).forEach($el => {
+                            if (Number($el.dataset.index) <= Number($this.dataset.index)) return;
+                            console.log('$el', $el);
+                            
+                            $el.dataset.index = Number($el.dataset.index) - 1;
+
+                            const destinationY = Number($el.dataset.destinationY) - (marginBottom + $thisRect.height);
+                            $el.style.transform = `translate(0px, ${destinationY}px)`;
+                          });
+                          
+                          $shadowRect.remove();
                           isOut = true;
                           $wrapper = null;
+                          
                         }
+
                         const $swapCards = doc.elementsFromPoint(e.clientX, e.clientY).filter( ($el) => {
                           if ($el === $this) return false;
                           return $el.classList.contains('card-task')
@@ -685,18 +699,23 @@ const tasksWrapperRefs = ref([])
 
                             const min = Math.min(Number($this.dataset.index), Number($swapCard.dataset.index));
                             const max = Math.max(Number($this.dataset.index), Number($swapCard.dataset.index));
+                            let isFirst = false;
                             Array.from($wrapper.children).forEach($el => {
                               console.log('min', min, 'max', max);
                               if ($el === $this || Number($el.dataset.index) > max || Number($el.dataset.index) < min) return;
 
                               console.log('$el', $el);
 
+                              // swap vertical fix $shadowRect
 
                               $this.dataset.index = Number($this.dataset.index) - 1;
                               $el.dataset.index = Number($el.dataset.index) + 1;
                               
-                              $shadowRect.style.top = `${$el.getBoundingClientRect().top}px`;
-                              $shadowRect.style.left = `${$el.getBoundingClientRect().left}px`;
+                              if (isFirst == false) {
+                                $shadowRect.style.top = `${$el.getBoundingClientRect().top}px`;
+                                $shadowRect.style.left = `${$el.getBoundingClientRect().left}px`;
+                                isFirst = true;
+                              }
                               
                               console.log('$el.dataset.destinationY', Number($el.dataset.destinationY))
                               const destinationY = Number($el.dataset.destinationY) + (marginBottom + $thisRect.height);
@@ -715,6 +734,7 @@ const tasksWrapperRefs = ref([])
                         }); 
                         if (!!$neoWrapper) {
                           console.log('INTO NEW WRAPPER');
+                          console.log('$neoWrapper', $neoWrapper);
                           isOut = false
                           $wrapper = $neoWrapper;
                         }
@@ -873,6 +893,6 @@ const tasksWrapperRefs = ref([])
 
 <style scoped>
 .card-task-transition {
-  transition: transform cubic-bezier(0.32, 0.82, 0.4, 0.99) 1200ms;
+  transition: transform cubic-bezier(0.32, 0.82, 0.4, 0.99) 200ms;
 }
 </style>
