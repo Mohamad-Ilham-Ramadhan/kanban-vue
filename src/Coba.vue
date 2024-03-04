@@ -661,9 +661,9 @@ const tasksWrapperRefs = ref([])
                           });
 
                           if ($neoWrapper !== undefined) {
+                            // Ada bug. Terdeteksi ketika sedang isAnimating out of wrapper lalu in from right di palin bawah
                             console.log('IN FROM TOP')
-                            console.log('first $card in the $neoWrapper', $neoWrapper.querySelector(`.card-task[data-index='${0}']`))
-                            
+                            console.log('e.movement', e.movementX, e.movementY);
 
                             $botCard = $neoWrapper.firstElementChild === $this ? $neoWrapper.children[1] : $neoWrapper.firstElementChild;
                             $topCard = null;
@@ -675,6 +675,7 @@ const tasksWrapperRefs = ref([])
                             doc.body.appendChild($shadowRect);
                             
                             $neoWrapper.querySelectorAll('.card-task').forEach(($el) => {
+                              console.log('IN FROM TOP translate cards')
                               if ($el === $this) return;
                               if (!!$el.getAnimations().length) {
                                 console.log('IN FROM TOP $el still animating', $el.dataset.destinationY)
@@ -818,8 +819,11 @@ const tasksWrapperRefs = ref([])
                           $shadowRect.style.transform = 'translate(0px, 0px)';
                           isOut = true;
                           $wrapper.querySelectorAll('.card-task').forEach(($c) => {
-                            if (Number($c.dataset.index) <= Number($this.dataset.index)) return 
-                            $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f - (rect.height + marginBottom)}px)`;
+                            if (Number($c.dataset.index) <= Number($this.dataset.index)) return;
+                            const destinationY = Number($c.dataset.destinationY) - (rect.height + marginBottom)
+                            // $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f - (rect.height + marginBottom)}px)`;
+                            $c.style.transform = `translate(0px, ${destinationY}px)`;
+                            $c.dataset.destinationY = destinationY;
                             $c.dataset.index = Number($c.dataset.index) - 1;
                             $c.dataset.isAnimating = 1;
                             win.setTimeout(() => {$c.dataset.isAnimating = 0;}, transitionDuration)
@@ -855,7 +859,10 @@ const tasksWrapperRefs = ref([])
                               $shadowRect.style.left = `${$cRect.left}px`;
                               doc.body.appendChild($shadowRect);
                               
-                              $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f + (rect.height + marginBottom)}px)`;
+                              const destinationY = Number($c.dataset.destinationY) + (rect.height + marginBottom);
+                              // $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f + (rect.height + marginBottom)}px)`;
+                              $c.style.transform = `translate(0px, ${destinationY}px)`;
+                              $c.dataset.destinationY = destinationY;
                               $c.dataset.index = Number($c.dataset.index) + 1;
                               $c.dataset.isAnimating = 1;
                               win.setTimeout(() => {$c.dataset.isAnimating = 0}, transitionDuration);
@@ -867,7 +874,10 @@ const tasksWrapperRefs = ref([])
                               return;
                             }
                             if (newIndex !== null) { // next cards
-                              $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f + (rect.height + marginBottom)}px)`;
+                              const destinationY = Number($c.dataset.destinationY) + (rect.height + marginBottom);
+                              // $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f + (rect.height + marginBottom)}px)`;
+                              $c.style.transform = `translate(0px, ${destinationY}px)`;
+                              $c.dataset.destinationY = destinationY;
                               $c.dataset.index = Number($c.dataset.index) + 1;
                               $c.dataset.isAnimating = 1;
                               win.setTimeout(() => {$c.dataset.isAnimating = 0}, transitionDuration);
@@ -944,22 +954,40 @@ const tasksWrapperRefs = ref([])
                           const newWrapperIndex = Number($wrapper.dataset.columnIndex);
                           $leftWrapper = doc.getElementById('column-wrapper').querySelector(`.task-wrapper[data-column-index='${newWrapperIndex-1}']`);
                           endColumnIndex = Number($wrapper.dataset.columnIndex);
-                          
+
+                          const $firstCard = $wrapper.firstElementChild === $this ? $wrapper.firstElementChild.nextElementSibling : $wrapper.firstElementChild;
+                          $firstCard.style.backgroundColor = 'red'; // 'first card' in the wrapper
+
                           // find new position for $this
                           let newIndex = null;
                           $wrapper.querySelectorAll('.card-task').forEach(($c) => {
                             if ($c === $this) return;
                             const $cRect = $c.getBoundingClientRect();
                             const $prevCRect = $c.previousElementSibling?.getBoundingClientRect();
-                            if (newIndex === null && (e.clientY >= $cRect.top && e.clientY <= $cRect.bottom) || ($prevCRect !== undefined && e.clientY > $prevCRect.bottom && e.clientY < $cRect.top)) {
+
+                            console.log('newIndex', newIndex);
+                            if (newIndex === null && (e.clientY < $firstCard.getBoundingClientRect().top)) {
+                              console.log('FIRST POSITION');
+                            }
+                            if (newIndex === null && (e.clientY < $firstCard.getBoundingClientRect().top) || (e.clientY >= $cRect.top && e.clientY <= $cRect.bottom) || ($prevCRect !== undefined && e.clientY > $prevCRect.bottom && e.clientY < $cRect.top)) {
+                              // First card
                               console.log('== IN ==')
+                              console.log('First Card (wrong)')
+
                               isOut = false;
                               newIndex = Number($c.dataset.index);
-                              $shadowRect.style.top = `${$cRect.top}px`;
+                              $shadowRect.style.top = `${$cRect.top + (Number($c.dataset.destinationY) - (new DOMMatrix(win.getComputedStyle($c).transform)).f )}px`;
                               $shadowRect.style.left = `${$cRect.left}px`;
                               doc.body.appendChild($shadowRect);
+
+                              console.log('destinationY before', $c.dataset.destinationY);
                               
-                              $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f + (rect.height + marginBottom)}px)`;
+                              const destinationY = Number($c.dataset.destinationY) + (rect.height + marginBottom);
+                              console.log('destinationY', destinationY);
+                              console.log('translateY', (new DOMMatrix(win.getComputedStyle($c).transform)).f );
+                              // $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f + (rect.height + marginBottom)}px)`;
+                              $c.style.transform = `translate(0px, ${destinationY}px)`;
+                              $c.dataset.destinationY = destinationY;
                               $c.dataset.index = Number($c.dataset.index) + 1;
                               $c.dataset.isAnimating = 1;
                               win.setTimeout(() => {$c.dataset.isAnimating = 0}, transitionDuration);
@@ -971,7 +999,13 @@ const tasksWrapperRefs = ref([])
                               return;
                             }
                             if (newIndex !== null) { // trailing cards or next cards
-                              $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f + (rect.height + marginBottom)}px)`;
+
+                              console.log('Next Cards')
+
+                              const destinationY = Number($c.dataset.destinationY) + (rect.height + marginBottom);
+                              // $c.style.transform = `translate(0px, ${(new DOMMatrix(win.getComputedStyle($c).transform)).f + (rect.height + marginBottom)}px)`;
+                              $c.style.transform = `translate(0px, ${destinationY}px)`;
+                              $c.dataset.destinationY = destinationY;
                               $c.dataset.index = Number($c.dataset.index) + 1;
                               $c.dataset.isAnimating = 1;
                               win.setTimeout(() => {$c.dataset.isAnimating = 0}, transitionDuration);
