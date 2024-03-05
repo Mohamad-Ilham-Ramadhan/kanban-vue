@@ -629,8 +629,8 @@ const tasksWrapperRefs = ref([])
                     let isDragged = false
                     let fromIndex = Number($this.dataset.index)
                     let $thisIndex = Number($this.dataset.index)
-                    let startColumnIndex = Number(colIndex)
-                    let endColumnIndex = Number(colIndex)
+                    let fromColumnIndex = Number(colIndex)
+                    let toColumnIndex = Number(colIndex)
                     let movedCards = new Set([$this]);
 
                     let $botCard = $wrapper.querySelector(
@@ -754,6 +754,7 @@ const tasksWrapperRefs = ref([])
                           console.log('INTO NEW WRAPPER');
                           console.log('$neoWrapper', $neoWrapper);
 
+                          toColumnIndex = Number($neoWrapper.dataset.columnIndex);
                           $wrapper = $neoWrapper;
                           let isFirst = false;
                           let isMoved = false;
@@ -839,29 +840,43 @@ const tasksWrapperRefs = ref([])
                       
                       $shadowRect.remove();
 
+                      console.log('fromIndex', fromIndex);
+                      console.log('toIndex', $this.dataset.index);
+                      console.log('fromColumnIndex', fromColumnIndex);
+                      console.log('toColumnIndex', toColumnIndex);
+
 
                       // update store 
-                      // win.setTimeout(() => {
-                      //     // set translateY 0 to all moved cards
-                      //     console.log('UPDATE STORE & TYDING MOVED CARDS')
+                      win.setTimeout(() => {
+                          // set translateY 0 to all moved cards
+                          console.log('UPDATE STORE & TYDING MOVED CARDS')
                           
-                      //     movedCards.forEach(($c) => {
-                      //       // console.log('movedCards.forEach', $c)
-                      //       $c.classList.remove('card-task-transition')
-                      //       $c.style.transform = 'translate(0px, 0px)';
-                      //       win.setTimeout(() => {
-                      //         $c.classList.add('card-task-transition')
-                      //         console.log('add transition class')
-                      //       }, 10)
-                      //     });
-
-                      //     boardStore.swapTask(
-                      //       startColumnIndex,
-                      //       endColumnIndex,
-                      //       fromIndex,
-                      //       Number($this.dataset.index),
-                      //     )
-                      // }, transitionDuration) // this setTimeout needs for dragged card get back to the position using transition
+                          
+                          const unsubscribe = boardStore.$onAction(({name, store, args, after, onError}) => {
+                            after(() => { // after swapTask
+                              if (name == 'swapTask') {
+                                console.log('after $this', $this)  
+                                movedCards.forEach(($c) => {
+                                  // console.log('movedCards.forEach', $c)
+                                  $c.classList.remove('card-task-transition')
+                                  $c.style.transform = 'translate(0px, 0px)';
+                                  $c.dataset.destinationY = 0;
+                                  win.setTimeout(() => {
+                                    $c.classList.add('card-task-transition')
+                                    console.log('add transition class')
+                                  }, 10) // needed so no transition
+                                });
+                              }
+                            });
+                          });
+                          boardStore.swapTask(
+                            fromColumnIndex,
+                            toColumnIndex,
+                            fromIndex,
+                            Number($this.dataset.index),
+                          )
+                          unsubscribe();
+                      }, transitionDuration) // this setTimeout needs for dragged card get back to the position using transition
                     }
                     doc.addEventListener('mousemove', dragCard)
                     doc.addEventListener('mouseup', cancelDrag)

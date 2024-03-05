@@ -354,6 +354,7 @@ export const useBoardStore = defineStore('board', {
             const theTask = this.board.columns[fromColumnIndex].tasks.splice(fromIndex, 1)[0];
             this.board.columns[toColumnIndex].tasks.splice(toIndex, 0, theTask)
          }
+         return 'ahay';
       },
       coba(columnIndex, index) {
          console.log('index', index)
