@@ -596,7 +596,8 @@ const tasksWrapperRefs = ref([])
                   (e) => {
                     const $this = e.currentTarget
                     const marginBottom = win.parseInt(win.getComputedStyle($this).marginBottom)
-                    let $wrapper = $this.parentElement
+                    let $wrapper = $this.parentElement;
+                    const $initialWrapper = $this.parentElement;
                     console.log('tasksWrapperRefs', tasksWrapperRefs.length)
                     let $leftWrapper = colIndex <= 0 ? null : tasksWrapperRefs[colIndex - 1]
                     let $rightWrapper = colIndex >= tasksWrapperRefs.length - 1 ? null : tasksWrapperRefs[colIndex + 1]
@@ -630,7 +631,7 @@ const tasksWrapperRefs = ref([])
                     let $thisIndex = Number($this.dataset.index)
                     let startColumnIndex = Number(colIndex)
                     let endColumnIndex = Number(colIndex)
-                    let movedCards = new Set([$this])
+                    let movedCards = new Set([$this]);
 
                     let $botCard = $wrapper.querySelector(
                       `.card-task[data-index='${$thisIndex + 1}']`
@@ -658,6 +659,8 @@ const tasksWrapperRefs = ref([])
                             const destinationY = Number($el.dataset.destinationY) - (marginBottom + $thisRect.height);
                             $el.style.transform = `translate(0px, ${destinationY}px)`;
                             $el.dataset.destinationY = destinationY;
+
+                            movedCards.add($el);
                           });
 
                           const $temp = $wrapper;
@@ -699,6 +702,8 @@ const tasksWrapperRefs = ref([])
                               console.log('destinationY', destinationY);
                               $el.style.transform = `translate(0px, ${destinationY}px)`;
                               $el.dataset.destinationY = destinationY;
+
+                              movedCards.add($el);
                             });
 
                             
@@ -732,6 +737,8 @@ const tasksWrapperRefs = ref([])
                               console.log('destinationY', destinationY);
                               $el.style.transform = `translate(0px, ${destinationY}px)`;
                               $el.dataset.destinationY = destinationY;
+
+                              movedCards.add($el);
                             });
                           }
                         }
@@ -775,6 +782,8 @@ const tasksWrapperRefs = ref([])
                               const destinationY = Number($el.dataset.destinationY) + (marginBottom + $thisRect.height)
                               $el.style.transform = `translate(0px, ${destinationY}px)`;
                               $el.dataset.destinationY = destinationY;
+
+                              movedCards.add($el);
                             }
 
                             $lastEl = $el;
@@ -802,16 +811,57 @@ const tasksWrapperRefs = ref([])
                       console.log('cancelDrag')
                       doc.removeEventListener('mousemove', dragCard)
                       doc.removeEventListener('mouseup', cancelDrag)
+                      console.log('END $wrapper', $wrapper);
 
-                      $this.classList.remove('card-task-transition');
-                      $this.classList.remove('z-50');
-                      $this.style.zIndex = '100';
+                      if ($wrapper == null) {
+                        // if outside of wrapper when cancelDrag
+                        movedCards.forEach(($el) => {
+                          if ($this === $el) return;
+                          $el.style.transform = 'translate(0px, 0px)';
+                        });
 
+                        $shadowRect.style.top = `${$thisRect.top}px`;
+                        $shadowRect.style.left = `${$thisRect.left}px`;
+                        doc.body.appendChild($shadowRect);
+
+                      }
+                      
+                      $this.classList.add('card-task-transition');
+                      
                       // back to $shadowRect or back to initial position
                       const moveX = $this.getBoundingClientRect().x - $shadowRect.getBoundingClientRect().x;
                       const moveY = $this.getBoundingClientRect().y - $shadowRect.getBoundingClientRect().y;
                       const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
                       $this.style.transform = `translate(${matrix.e - moveX}px, ${matrix.f - moveY}px)`;
+                      
+                      $this.classList.remove('z-50');
+                      $this.style.zIndex = '100';
+                      
+                      $shadowRect.remove();
+
+
+                      // update store 
+                      // win.setTimeout(() => {
+                      //     // set translateY 0 to all moved cards
+                      //     console.log('UPDATE STORE & TYDING MOVED CARDS')
+                          
+                      //     movedCards.forEach(($c) => {
+                      //       // console.log('movedCards.forEach', $c)
+                      //       $c.classList.remove('card-task-transition')
+                      //       $c.style.transform = 'translate(0px, 0px)';
+                      //       win.setTimeout(() => {
+                      //         $c.classList.add('card-task-transition')
+                      //         console.log('add transition class')
+                      //       }, 10)
+                      //     });
+
+                      //     boardStore.swapTask(
+                      //       startColumnIndex,
+                      //       endColumnIndex,
+                      //       fromIndex,
+                      //       Number($this.dataset.index),
+                      //     )
+                      // }, transitionDuration) // this setTimeout needs for dragged card get back to the position using transition
                     }
                     doc.addEventListener('mousemove', dragCard)
                     doc.addEventListener('mouseup', cancelDrag)
