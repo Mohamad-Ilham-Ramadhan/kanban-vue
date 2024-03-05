@@ -579,6 +579,7 @@ const tasksWrapperRefs = ref([])
               v-show="c.tasks.length > 0"
               ref="tasksWrapperRefs"
               :data-column-index="colIndex"
+              data-is-animating="0"
               class="task-wrapper flex flex-col h-full border border-red-300"
             >
               <div
@@ -659,6 +660,12 @@ const tasksWrapperRefs = ref([])
                             $el.dataset.destinationY = destinationY;
                           });
 
+                          const $temp = $wrapper;
+                          $temp.dataset.isAnimating = 1;
+                          win.setTimeout(() => {
+                            $temp.dataset.isAnimating = 0;
+                          }, transitionDuration)
+
                           $shadowRect.remove();
                           isOut = true;
                           $wrapper = null;
@@ -701,6 +708,8 @@ const tasksWrapperRefs = ref([])
                             const min = Math.min(Number($this.dataset.index), Number($swapCard.dataset.index));
                             const max = Math.max(Number($this.dataset.index), Number($swapCard.dataset.index));
                             let isFirst = false;
+                            console.log('$this.index', $this.dataset.index);
+                            console.log('$swapCard.index', $swapCard.dataset.index);
                             Array.from($wrapper.children).forEach($el => {
                               console.log('min', min, 'max', max);
                               if ($el === $this || Number($el.dataset.index) > max || Number($el.dataset.index) < min) return;
@@ -734,7 +743,7 @@ const tasksWrapperRefs = ref([])
                           return $el.classList.contains('task-wrapper')
                         }); 
 
-                        if (!!$neoWrapper) {
+                        if (!!$neoWrapper && Number($neoWrapper.dataset.isAnimating) == 0) {
                           console.log('INTO NEW WRAPPER');
                           console.log('$neoWrapper', $neoWrapper);
 
@@ -747,7 +756,8 @@ const tasksWrapperRefs = ref([])
                             // console.log('$el loco', $el)
                             if ($el === $this) return;
                             const $elRect = $el.getBoundingClientRect();
-                            if (e.clientY <= $elRect.bottom && !!$el.getAnimations().length == false) {
+                            // if (e.clientY <= $elRect.bottom && !!$el.getAnimations().length == false) {
+                            if (e.clientY <= $elRect.bottom) {
                               isOut = false;
                               isMoved = true;
                               console.log('isOut = false');
@@ -776,6 +786,7 @@ const tasksWrapperRefs = ref([])
                             console.log('LAST POSITION', $lastEl);
                             isOut = false;
                             isMoved = true;
+                            $this.dataset.index = Number($lastEl.dataset.index) + 1;
 
                             $shadowRect.style.left = `${$wrapper.getBoundingClientRect().left}px`;
                             console.log('Number($lastEl.dataset.destinationY) + marginBottom', Number($lastEl.dataset.destinationY) + marginBottom);
@@ -939,6 +950,6 @@ const tasksWrapperRefs = ref([])
 
 <style scoped>
 .card-task-transition {
-  transition: transform cubic-bezier(0.32, 0.82, 0.4, 0.99) 1200ms;
+  transition: transform cubic-bezier(0.32, 0.82, 0.4, 0.99) 200ms;
 }
 </style>
