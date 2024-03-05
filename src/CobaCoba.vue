@@ -656,8 +656,9 @@ const tasksWrapperRefs = ref([])
 
                             const destinationY = Number($el.dataset.destinationY) - (marginBottom + $thisRect.height);
                             $el.style.transform = `translate(0px, ${destinationY}px)`;
+                            $el.dataset.destinationY = destinationY;
                           });
-                          
+
                           $shadowRect.remove();
                           isOut = true;
                           $wrapper = null;
@@ -727,16 +728,61 @@ const tasksWrapperRefs = ref([])
                         }
                         return;
                       }
-                      if (isOut) {
+                      if (isOut) { // and
                         console.log('OUTSIDE');
                         const $neoWrapper = doc.elementsFromPoint(e.clientX, e.clientY).find( ($el) => {
                           return $el.classList.contains('task-wrapper')
                         }); 
+
                         if (!!$neoWrapper) {
                           console.log('INTO NEW WRAPPER');
                           console.log('$neoWrapper', $neoWrapper);
-                          isOut = false
+
                           $wrapper = $neoWrapper;
+                          let isFirst = false;
+                          let isMoved = false;
+                          let $lastEl = null;
+
+                          Array.from($wrapper.children).forEach($el => {
+                            // console.log('$el loco', $el)
+                            if ($el === $this) return;
+                            const $elRect = $el.getBoundingClientRect();
+                            if (e.clientY <= $elRect.bottom && !!$el.getAnimations().length == false) {
+                              isOut = false;
+                              isMoved = true;
+                              console.log('isOut = false');
+                              if (isFirst == false) {
+                                isFirst = true;
+                                const diff = (new DOMMatrix(win.getComputedStyle($el).transform)).f - Number($el.dataset.destinationY);
+                                $this.dataset.index = $el.dataset.index;
+                                $shadowRect.style.top = `${$elRect.top - diff}px`;
+                                $shadowRect.style.left = `${$elRect.left}px`;
+                                doc.body.appendChild($shadowRect);
+                              }
+
+                              $el.dataset.index = Number($el.dataset.index) + 1;
+
+                              const destinationY = Number($el.dataset.destinationY) + (marginBottom + $thisRect.height)
+                              $el.style.transform = `translate(0px, ${destinationY}px)`;
+                              $el.dataset.destinationY = destinationY;
+                            }
+
+                            $lastEl = $el;
+                          });
+
+                          console.log('$lastEl', $lastEl);
+                          
+                          if (isMoved == false) {
+                            console.log('LAST POSITION', $lastEl);
+                            isOut = false;
+                            isMoved = true;
+
+                            $shadowRect.style.left = `${$wrapper.getBoundingClientRect().left}px`;
+                            console.log('Number($lastEl.dataset.destinationY) + marginBottom', Number($lastEl.dataset.destinationY) + marginBottom);
+                            const top = $lastEl.getBoundingClientRect().bottom + Number($lastEl.dataset.destinationY) - new DOMMatrix(win.getComputedStyle($lastEl).transform).f
+                            $shadowRect.style.top = `${top + marginBottom}px`;
+                            doc.body.appendChild($shadowRect);
+                          }
                         }
                         return;
                       }
@@ -893,6 +939,6 @@ const tasksWrapperRefs = ref([])
 
 <style scoped>
 .card-task-transition {
-  transition: transform cubic-bezier(0.32, 0.82, 0.4, 0.99) 200ms;
+  transition: transform cubic-bezier(0.32, 0.82, 0.4, 0.99) 1200ms;
 }
 </style>
