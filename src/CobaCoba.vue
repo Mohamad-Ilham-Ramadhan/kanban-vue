@@ -579,7 +579,7 @@ const tasksWrapperRefs = ref([])
               ref="tasksWrapperRefs"
               :data-column-index="colIndex"
               data-is-animating="0"
-              class="task-wrapper border"
+              class="task-wrapper"
               :class="c.tasks.length > 0 ? 'flex flex-col h-full' : 'border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg h-full'"
             >
               <div
@@ -597,6 +597,7 @@ const tasksWrapperRefs = ref([])
                     const $this = e.currentTarget
                     const marginBottom = win.parseInt(win.getComputedStyle($this).marginBottom)
                     let $wrapper = $this.parentElement;
+                    const $initialWrapper = $this.parentElement;
                     console.log('tasksWrapperRefs', tasksWrapperRefs.length)
                     const transitionDuration = parseFloat(win.getComputedStyle($this).transitionDuration) * 1000 // in ms
                     let isOut = false // when the dragged card doesn't belong in any position
@@ -623,8 +624,6 @@ const tasksWrapperRefs = ref([])
                     let toColumnIndex = Number(colIndex)
                     let movedCards = new Set([$this]);
                     let $prevSwap = {card: null, direction: null}; // direction { null | 1 = swap bottom, -1 = swap top}
-
-                    // fix card.dataset.index when cancel dragged card outside wrapper 
 
                     const dragCard = (e) => {
                       isDragged = true;
@@ -816,10 +815,19 @@ const tasksWrapperRefs = ref([])
 
                       if ($wrapper == null) {
                         // if outside of wrapper when cancelDrag
+                        console.log('CANCEL DRAG OUTSIDE WRAPPER')
                         movedCards.forEach(($el) => {
+                          console.log('moved $el', $el)
                           if ($this === $el) return;
                           $el.style.transform = 'translate(0px, 0px)';
                         });
+
+                        // reset cards.dataset.index 
+                        Array.from($initialWrapper.children).reduce((curIndex, $el) => {
+                          if ($el === $this || Number($el.dataset.index) < fromIndex) return curIndex;
+                          $el.dataset.index = curIndex + 1;
+                          return curIndex + 1;
+                        }, fromIndex);
 
                         $shadowRect.style.top = `${$thisRect.top}px`;
                         $shadowRect.style.left = `${$thisRect.left}px`;
@@ -836,7 +844,7 @@ const tasksWrapperRefs = ref([])
                       $this.style.transform = `translate(${matrix.e - moveX}px, ${matrix.f - moveY}px)`;
                       
                       $this.classList.remove('z-50');
-                      $this.style.zIndex = '100';
+                      $this.style.zIndex = '';
                       
                       $shadowRect.remove();
 
