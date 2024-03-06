@@ -576,11 +576,11 @@ const tasksWrapperRefs = ref([])
 
             <!-- card (tasks) -->
             <div
-              v-show="c.tasks.length > 0"
               ref="tasksWrapperRefs"
               :data-column-index="colIndex"
               data-is-animating="0"
-              class="task-wrapper flex flex-col h-full"
+              class="task-wrapper border"
+              :class="c.tasks.length > 0 ? 'flex flex-col h-full' : 'border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg h-full'"
             >
               <div
                 v-for="(t, index) in c.tasks"
@@ -624,8 +624,7 @@ const tasksWrapperRefs = ref([])
                     let movedCards = new Set([$this]);
                     let $prevSwap = {card: null, direction: null}; // direction { null | 1 = swap bottom, -1 = swap top}
 
-                    // make task-wrapper height as long as it can
-
+                    // fix card.dataset.index when cancel dragged card outside wrapper 
 
                     const dragCard = (e) => {
                       isDragged = true;
@@ -732,6 +731,19 @@ const tasksWrapperRefs = ref([])
                           return $el.classList.contains('task-wrapper')
                         }); 
 
+                        if (!!$neoWrapper && $neoWrapper.childElementCount === 0) {
+                          console.log('EMPTY $wrapper');
+                          $wrapper = $neoWrapper;
+                          isOut = false;
+                          $shadowRect.style.top = `${$wrapper.getBoundingClientRect().top}px`;
+                          $shadowRect.style.left = `${$wrapper.getBoundingClientRect().left}px`;
+                          doc.body.appendChild($shadowRect)
+
+                          $this.dataset.index = 0;
+                          toColumnIndex = Number($wrapper.dataset.columnIndex);
+                          return;
+                        }
+
                         if (!!$neoWrapper && Number($neoWrapper.dataset.isAnimating) == 0) {
                           console.log('INTO NEW WRAPPER');
                           console.log('$neoWrapper', $neoWrapper);
@@ -743,7 +755,8 @@ const tasksWrapperRefs = ref([])
                           let $lastEl = null;
 
                           Array.from($wrapper.children).forEach($el => {
-                            // console.log('$el loco', $el)
+                            console.log('$neoWrapper.chidren.forEach')
+                            console.log('$el loco', $el)
                             if ($el === $this) return;
                             const $elRect = $el.getBoundingClientRect();
                             // if (e.clientY <= $elRect.bottom && !!$el.getAnimations().length == false) {
@@ -775,7 +788,7 @@ const tasksWrapperRefs = ref([])
                           // console.log('$lastEl', $lastEl);
                           
                           if (isMoved == false) {
-                            // console.log('LAST POSITION', $lastEl);
+                            console.log('LAST POSITION', $lastEl);
                             isOut = false;
                             isMoved = true;
                             $this.dataset.index = Number($lastEl.dataset.index) + 1;
@@ -878,10 +891,6 @@ const tasksWrapperRefs = ref([])
               </div>
             </div>
 
-            <div
-              v-show="c.tasks.length === 0"
-              class="border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg h-full"
-            ></div>
           </div>
 
           <div class="shrink-0 w-[286px] flex flex-col">
