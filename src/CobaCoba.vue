@@ -580,7 +580,7 @@ const tasksWrapperRefs = ref([])
               ref="tasksWrapperRefs"
               :data-column-index="colIndex"
               data-is-animating="0"
-              class="task-wrapper flex flex-col h-full border border-red-300"
+              class="task-wrapper flex flex-col h-fit"
             >
               <div
                 v-for="(t, index) in c.tasks"
@@ -597,10 +597,7 @@ const tasksWrapperRefs = ref([])
                     const $this = e.currentTarget
                     const marginBottom = win.parseInt(win.getComputedStyle($this).marginBottom)
                     let $wrapper = $this.parentElement;
-                    const $initialWrapper = $this.parentElement;
                     console.log('tasksWrapperRefs', tasksWrapperRefs.length)
-                    let $leftWrapper = colIndex <= 0 ? null : tasksWrapperRefs[colIndex - 1]
-                    let $rightWrapper = colIndex >= tasksWrapperRefs.length - 1 ? null : tasksWrapperRefs[colIndex + 1]
                     const transitionDuration = parseFloat(win.getComputedStyle($this).transitionDuration) * 1000 // in ms
                     let isOut = false // when the dragged card doesn't belong in any position
 
@@ -620,12 +617,6 @@ const tasksWrapperRefs = ref([])
                     $shadowRect.style.border = '1px solid white'
                     doc.body.appendChild($shadowRect)
 
-                    const $wrappers = Array.from(
-                      doc.getElementById('column-wrapper').querySelectorAll('.column')
-                    ).map(($col) => {
-                      return $col.querySelector('.task-wrapper')
-                    })
-
                     let isDragged = false
                     let fromIndex = Number($this.dataset.index)
                     let $thisIndex = Number($this.dataset.index)
@@ -634,30 +625,11 @@ const tasksWrapperRefs = ref([])
                     let movedCards = new Set([$this]);
                     let $prevSwap = {card: null, direction: null}; // direction { null | 1 = swap bottom, -1 = swap top}
 
-                    let $botCard = $wrapper.querySelector(
-                      `.card-task[data-index='${$thisIndex + 1}']`
-                    )
-                    let $topCard = $wrapper.querySelector(
-                      `.card-task[data-index='${$thisIndex - 1}']`
-                    )
-
-                    // fix when dragCard cursor still above previous swaped card: swap between top/bottom alternately previous swaped card
 
                     const dragCard = (e) => {
+                      isDragged = true;
                       const matrix = (new DOMMatrix(win.getComputedStyle($this).transform));
                       $this.style.transform = `translate(${matrix.e + e.movementX}px, ${matrix.f + e.movementY}px)`;
-
-                      // if (e.movementY > 0) {
-                      //   console.log('bawah')
-                      // } else if (e.movementY < 0) {
-                      //   console.log('atas')
-                      // } else if (e.movementX > 0) {
-                      //   console.log('kanan')
-                      // } else if (e.movementX < 0) {
-                      //   console.log('kiri')
-                      // } else if (e.movementX == 0 || e.movementY == 0) {
-                      //   console.log('diam');
-                      // }
 
                       if (isOut == false) {
                         // console.log('INSIDE')
@@ -820,7 +792,13 @@ const tasksWrapperRefs = ref([])
                       console.log('cancelDrag')
                       doc.removeEventListener('mousemove', dragCard)
                       doc.removeEventListener('mouseup', cancelDrag)
-                      // console.log('END $wrapper', $wrapper);
+
+                      if (isDragged == false) {
+                        // open modal card
+                        boardStore.setColumnAndTaskIndex(colIndex, index)
+                        openModalTask = true
+                        return;
+                      }
 
                       if ($wrapper == null) {
                         // if outside of wrapper when cancelDrag
