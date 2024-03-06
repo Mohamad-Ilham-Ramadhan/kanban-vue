@@ -614,7 +614,7 @@ const tasksWrapperRefs = ref([])
                     $shadowRect.style.position = 'absolute'
                     $shadowRect.style.top = `${$thisRect.top}px`
                     $shadowRect.style.left = `${$thisRect.left}px`
-                    $shadowRect.style.border = '1px solid white'
+                    // $shadowRect.style.border = '1px solid white'
                     doc.body.appendChild($shadowRect)
 
                     let isDragged = false
