@@ -601,7 +601,7 @@ const tasksWrapperRefs = ref([])
                     const marginBottom = win.parseInt(win.getComputedStyle($this).marginBottom)
                     let $wrapper = $this.parentElement;
                     const $initialWrapper = $this.parentElement;
-                    console.log('tasksWrapperRefs', tasksWrapperRefs.length)
+                    // console.log('tasksWrapperRefs', tasksWrapperRefs.length)
                     const transitionDuration = parseFloat(win.getComputedStyle($this).transitionDuration) * 1000 // in ms
                     let isOut = false // when the dragged card doesn't belong in any position
 
@@ -611,7 +611,7 @@ const tasksWrapperRefs = ref([])
 
                     // create shadowRect
                     const $thisRect = $this.getBoundingClientRect()
-                    console.log('$thisRect', $thisRect);
+                    // console.log('$thisRect', $thisRect);
                     const $shadowRect = doc.createElement('div')
                     $shadowRect.style.height = `${$thisRect.height}px`
                     $shadowRect.style.width = `${$thisRect.width}px`
@@ -638,7 +638,7 @@ const tasksWrapperRefs = ref([])
                         const $wrapperRect = $wrapper.getBoundingClientRect();
 
                         if (e.clientX > $wrapperRect.right || e.clientX < $wrapperRect.left || e.clientY < $wrapperRect.top || e.clientY > $wrapperRect.bottom) {
-                          console.log('OUT OF WRAPPER')
+                          // console.log('OUT OF WRAPPER')
                           Array.from($wrapper.children).forEach($el => {
                             if (Number($el.dataset.index) <= Number($this.dataset.index)) return;
                             
@@ -669,15 +669,15 @@ const tasksWrapperRefs = ref([])
                         }); 
                         // console.log('$swapCard', $swapCard);
                         if (!!$swapCards.length && !!$swapCards[0].getAnimations().length == false) {
-                          console.log('SWAP', $prevSwap);
+                          // console.log('SWAP', $prevSwap);
                           const $swapCard = $swapCards[0];
                           if (Number($this.dataset.index) < Number($swapCard.dataset.index) && e.movementY > 0) {
-                            console.log('SWAP BOTTOM')
+                            // console.log('SWAP BOTTOM')
 
                             const min = Math.min(Number($this.dataset.index), Number($swapCard.dataset.index));
                             const max = Math.max(Number($this.dataset.index), Number($swapCard.dataset.index));
                             Array.from($wrapper.children).forEach($el => {
-                              console.log('min', min, 'max', max);
+                              // console.log('min', min, 'max', max);
                               if ($el === $this || Number($el.dataset.index) > max || Number($el.dataset.index) < min) return;
                               $this.dataset.index = Number($this.dataset.index) + 1;
                               $el.dataset.index = Number($el.dataset.index) - 1;
@@ -694,15 +694,15 @@ const tasksWrapperRefs = ref([])
 
                             
                           } else if (Number($this.dataset.index) > Number($swapCard.dataset.index) && e.movementY < 0) {
-                            console.log('SWAP TOP');
+                            // console.log('SWAP TOP');
 
                             const min = Math.min(Number($this.dataset.index), Number($swapCard.dataset.index));
                             const max = Math.max(Number($this.dataset.index), Number($swapCard.dataset.index));
                             let isFirst = false;
-                            console.log('$this.index', $this.dataset.index);
-                            console.log('$swapCard.index', $swapCard.dataset.index);
+                            // console.log('$this.index', $this.dataset.index);
+                            // console.log('$swapCard.index', $swapCard.dataset.index);
                             Array.from($wrapper.children).forEach($el => {
-                              console.log('min', min, 'max', max);
+                              // console.log('min', min, 'max', max);
                               if ($el === $this || Number($el.dataset.index) > max || Number($el.dataset.index) < min) return;
 
 
@@ -728,13 +728,13 @@ const tasksWrapperRefs = ref([])
                         return;
                       }
                       if (isOut) { // and
-                        console.log('OUTSIDE');
+                        // console.log('OUTSIDE');
                         const $neoWrapper = doc.elementsFromPoint(e.clientX, e.clientY).find( ($el) => {
                           return $el.classList.contains('task-wrapper')
                         }); 
 
                         if (!!$neoWrapper && $neoWrapper.childElementCount === 0) {
-                          console.log('EMPTY $wrapper');
+                          // console.log('EMPTY $wrapper');
                           $wrapper = $neoWrapper;
                           isOut = false;
                           $shadowRect.style.top = `${$wrapper.getBoundingClientRect().top}px`;
@@ -747,8 +747,8 @@ const tasksWrapperRefs = ref([])
                         }
 
                         if (!!$neoWrapper && Number($neoWrapper.dataset.isAnimating) == 0) {
-                          console.log('INTO NEW WRAPPER');
-                          console.log('$neoWrapper', $neoWrapper);
+                          // console.log('INTO NEW WRAPPER');
+                          // console.log('$neoWrapper', $neoWrapper);
 
                           toColumnIndex = Number($neoWrapper.dataset.columnIndex);
                           $wrapper = $neoWrapper;
@@ -757,15 +757,15 @@ const tasksWrapperRefs = ref([])
                           let $lastEl = null;
 
                           Array.from($wrapper.children).forEach($el => {
-                            console.log('$neoWrapper.chidren.forEach')
-                            console.log('$el loco', $el)
+                            // console.log('$neoWrapper.chidren.forEach')
+                            // console.log('$el loco', $el)
                             if ($el === $this) return;
                             const $elRect = $el.getBoundingClientRect();
                             // if (e.clientY <= $elRect.bottom && !!$el.getAnimations().length == false) {
                             if (e.clientY <= $elRect.bottom) {
                               isOut = false;
                               isMoved = true;
-                              console.log('isOut = false');
+                              // console.log('isOut = false');
                               if (isFirst == false) {
                                 isFirst = true;
                                 const diff = (new DOMMatrix(win.getComputedStyle($el).transform)).f - Number($el.dataset.destinationY);
@@ -790,7 +790,7 @@ const tasksWrapperRefs = ref([])
                           // console.log('$lastEl', $lastEl);
                           
                           if (isMoved == false) {
-                            console.log('LAST POSITION', $lastEl);
+                            // console.log('LAST POSITION', $lastEl);
                             isOut = false;
                             isMoved = true;
                             $this.dataset.index = Number($lastEl.dataset.index) + 1;
@@ -805,7 +805,7 @@ const tasksWrapperRefs = ref([])
                       }
                     } 
                     const cancelDrag = (e) => {
-                      console.log('cancelDrag')
+                      // console.log('cancelDrag')
 
                       preventDrag = true;
                       win.setTimeout(() => {preventDrag = false}, transitionDuration)
@@ -822,9 +822,9 @@ const tasksWrapperRefs = ref([])
 
                       if ($wrapper == null) {
                         // if outside of wrapper when cancelDrag
-                        console.log('CANCEL DRAG OUTSIDE WRAPPER')
+                        // console.log('CANCEL DRAG OUTSIDE WRAPPER')
                         movedCards.forEach(($el) => {
-                          console.log('moved $el', $el)
+                          // console.log('moved $el', $el)
                           if ($this === $el) return;
                           $el.style.transform = 'translate(0px, 0px)';
                         });
@@ -855,16 +855,16 @@ const tasksWrapperRefs = ref([])
                       
                       $shadowRect.remove();
 
-                      console.log('fromIndex', fromIndex);
-                      console.log('toIndex', $this.dataset.index);
-                      console.log('fromColumnIndex', fromColumnIndex);
-                      console.log('toColumnIndex', toColumnIndex);
+                      // console.log('fromIndex', fromIndex);
+                      // console.log('toIndex', $this.dataset.index);
+                      // console.log('fromColumnIndex', fromColumnIndex);
+                      // console.log('toColumnIndex', toColumnIndex);
 
 
                       // update store 
                       win.setTimeout(() => {
                           // set translateY 0 to all moved cards
-                          console.log('UPDATE STORE & TYDING MOVED CARDS')
+                          // console.log('UPDATE STORE & TYDING MOVED CARDS')
                           
                           
                           const unsubscribe = boardStore.$onAction(({name, store, args, after, onError}) => {
@@ -877,7 +877,7 @@ const tasksWrapperRefs = ref([])
                                   $c.dataset.destinationY = 0;
                                   win.setTimeout(() => {
                                     $c.classList.add('card-task-transition')
-                                    console.log('add transition class')
+                                    // console.log('add transition class')
                                   }, 10) // needed so no transition
                                 });
                               }

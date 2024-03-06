@@ -324,12 +324,12 @@ export const useBoardStore = defineStore('board', {
       },
       swapTask(fromColumnIndex, toColumnIndex, fromIndex, toIndex) { // drag/sort card task
          // this.board.columns[colIndex].tasks
-         console.log('SWAP TASK (store)', fromColumnIndex, toColumnIndex, fromIndex, toIndex)
+         // console.log('SWAP TASK (store)', fromColumnIndex, toColumnIndex, fromIndex, toIndex)
          if (toColumnIndex === null && fromIndex === toIndex) {
-            console.log('not doing anything')
+            // console.log('not doing anything')
             
          } else if (fromColumnIndex === toColumnIndex || toColumnIndex === null) {
-            console.log('SAME COLUMN')
+            // console.log('SAME COLUMN')
 
             if (toIndex > fromIndex) { // drag ke bawah
                const newTasks = this.board.columns[fromColumnIndex].tasks.map((t, index) => {
@@ -337,10 +337,10 @@ export const useBoardStore = defineStore('board', {
                   if (index == toIndex) return this.board.columns[fromColumnIndex].tasks[fromIndex] 
                   if (index >= fromIndex) return this.board.columns[fromColumnIndex].tasks[index + 1]
                })
-               console.log('newTasks', newTasks)
+               // console.log('newTasks', newTasks)
                this.boards[this.activeBoardIndex].columns[fromColumnIndex].tasks = newTasks;
             } else if (toIndex < fromIndex) { // drag ke atas
-               console.log('swap task atas')
+               // console.log('swap task atas')
                const newTasks = this.board.columns[fromColumnIndex].tasks.map((t, index) => {
                   if (index < toIndex || index > fromIndex) return t
                   if (index == toIndex) return this.board.columns[fromColumnIndex].tasks[fromIndex] 
@@ -349,12 +349,11 @@ export const useBoardStore = defineStore('board', {
                this.boards[this.activeBoardIndex].columns[fromColumnIndex].tasks = newTasks
             }
          } else {
-            console.log('DIFFERENT COLUMN')
+            // console.log('DIFFERENT COLUMN')
             // oldColumn
             const theTask = this.board.columns[fromColumnIndex].tasks.splice(fromIndex, 1)[0];
             this.board.columns[toColumnIndex].tasks.splice(toIndex, 0, theTask)
          }
-         return 'ahay';
       },
       coba(columnIndex, index) {
          console.log('index', index)
