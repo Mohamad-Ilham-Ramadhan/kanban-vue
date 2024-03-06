@@ -487,7 +487,7 @@ const tasksWrapperRefs = ref([])
           ></div>
         </Teleport>
 
-        <div class="relative flex w-full h-full px-8 py-6" ref="boardFrameRef" id="column-wrapper">
+        <div class="relative flex w-full h-fit px-8 py-6" ref="boardFrameRef" id="column-wrapper">
           <!-- Modal Task-->
           <Modal :open="openModalTask" @close-modal="openModalTask = false" class="w-[480px]">
             <div class="relative mb-6">
@@ -580,7 +580,7 @@ const tasksWrapperRefs = ref([])
               ref="tasksWrapperRefs"
               :data-column-index="colIndex"
               data-is-animating="0"
-              class="task-wrapper flex flex-col h-fit"
+              class="task-wrapper flex flex-col h-full"
             >
               <div
                 v-for="(t, index) in c.tasks"
@@ -614,7 +614,6 @@ const tasksWrapperRefs = ref([])
                     $shadowRect.style.position = 'absolute'
                     $shadowRect.style.top = `${$thisRect.top}px`
                     $shadowRect.style.left = `${$thisRect.left}px`
-                    // $shadowRect.style.border = '1px solid white'
                     doc.body.appendChild($shadowRect)
 
                     let isDragged = false
@@ -624,6 +623,8 @@ const tasksWrapperRefs = ref([])
                     let toColumnIndex = Number(colIndex)
                     let movedCards = new Set([$this]);
                     let $prevSwap = {card: null, direction: null}; // direction { null | 1 = swap bottom, -1 = swap top}
+
+                    // make task-wrapper height as long as it can
 
 
                     const dragCard = (e) => {
