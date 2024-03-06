@@ -51,7 +51,7 @@ watch(modalTaskData, () => {
 })
 const refDragScroll = ref(null)
 const dragScroll = ref(false)
-// const x = ref(0)
+const preventDrag = ref(false)
 
 const doc = document
 const win = window
@@ -594,6 +594,9 @@ const tasksWrapperRefs = ref([])
                 data-destination-y="0"
                 @mousedown="
                   (e) => {
+
+                    if (preventDrag) return;
+                    
                     const $this = e.currentTarget
                     const marginBottom = win.parseInt(win.getComputedStyle($this).marginBottom)
                     let $wrapper = $this.parentElement;
@@ -803,6 +806,10 @@ const tasksWrapperRefs = ref([])
                     } 
                     const cancelDrag = (e) => {
                       console.log('cancelDrag')
+
+                      preventDrag = true;
+                      win.setTimeout(() => {preventDrag = false}, transitionDuration)
+
                       doc.removeEventListener('mousemove', dragCard)
                       doc.removeEventListener('mouseup', cancelDrag)
 
