@@ -1,5 +1,4 @@
 <script setup>
-import clsx from 'clsx'
 import { defineProps } from 'vue'
 const props = defineProps(['class', 'backgroundColor', 'color', 'text', 'type', 'size', 'disabled'])
 console.log(props.text, props.backgroundColor, props.color)

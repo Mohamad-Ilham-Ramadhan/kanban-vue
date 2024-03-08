@@ -14,6 +14,7 @@ import Input from '@/components/VeeValidate/Input.vue'
 import Textarea from '@/components/VeeValidate/Textarea.vue'
 import SelectVee from '@/components/VeeValidate/Select.vue'
 import Select from '@/components/Select.vue'
+import DropdownMenu from './components/DropdownMenu.vue';
 import { Form, FieldArray } from 'vee-validate'
 import * as yup from 'yup'
 import { v4 as uuid } from 'uuid'
@@ -46,6 +47,7 @@ const modalTaskData = ref({
   description: '',
   subtasks: []
 })
+const openDropdownTask = ref(false);
 watch(modalTaskData, () => {
   console.log('modal task data', modalTaskData)
 })
@@ -492,9 +494,24 @@ const tasksWrapperRefs = ref([])
           <Modal :open="openModalTask" @close-modal="openModalTask = false" class="w-[480px]">
             <div class="relative mb-6">
               <div class="font-bold">{{ boardStore.task.title }}</div>
-              <button class="absolute top-0 right-0 text-slate-400 p-2 hover:cursor-pointer">
-                <IconEllipsis class="" />
-              </button>
+              <div class="absolute top-0 right-0">
+                <button 
+                  class="text-slate-400 p-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-dark transition-colors hover:cursor-pointer"
+                  @click="openDropdownTask = true"
+                >
+                  <IconEllipsis class="" />
+                </button>
+                <!-- disini -->
+                <DropdownMenu
+                  left="left-1/2 -translate-x-1/2"
+                  editText="Edit Task"
+                  deleteText="Delete Task"
+                  :open="openDropdownTask"
+                  @edit-on-click="() => console.log('edit on click')"
+                  @delete-on-click="() => console.log('delete on click')"
+                  @overlay-on-click="openDropdownTask = false"
+                />
+              </div>
             </div>
             <div class="text-xs font-semibold text-slate-400 mb-6">
               {{
@@ -855,18 +872,10 @@ const tasksWrapperRefs = ref([])
                       
                       $shadowRect.remove();
 
-                      // console.log('fromIndex', fromIndex);
-                      // console.log('toIndex', $this.dataset.index);
-                      // console.log('fromColumnIndex', fromColumnIndex);
-                      // console.log('toColumnIndex', toColumnIndex);
-
-
                       // update store 
                       win.setTimeout(() => {
                           // set translateY 0 to all moved cards
                           // console.log('UPDATE STORE & TYDING MOVED CARDS')
-                          
-                          
                           const unsubscribe = boardStore.$onAction(({name, store, args, after, onError}) => {
                             after(() => { // after swapTask
                               if (name == 'swapTask') {
