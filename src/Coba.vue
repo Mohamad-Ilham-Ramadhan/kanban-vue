@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import Logo from '@/components/Logo.vue'
 import Button from './components/Button.vue'
 import IconEllipsis from '@/components/icons/IconEllipsis.vue'

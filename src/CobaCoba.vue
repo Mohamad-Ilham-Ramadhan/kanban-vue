@@ -491,7 +491,7 @@ const tasksWrapperRefs = ref([])
 
         <div class="relative flex w-full h-fit px-8 py-6" ref="boardFrameRef" id="column-wrapper">
           <!-- Modal Task-->
-          <Modal :open="openModalTask" @close-modal="openModalTask = false" class="w-[480px]">
+          <Modal :open="openModalTask" @close-modal="() => {openModalTask = false; openDropdownTask = false}" class="w-[480px]">
             <div class="relative mb-6">
               <div class="font-bold">{{ boardStore.task.title }}</div>
               <div class="absolute top-0 right-0">
@@ -509,7 +509,7 @@ const tasksWrapperRefs = ref([])
                   :open="openDropdownTask"
                   @edit-on-click="() => console.log('edit on click')"
                   @delete-on-click="() => console.log('delete on click')"
-                  @overlay-on-click="openDropdownTask = false"
+                  @overlay-on-click="() => {openDropdownTask = false; openModalTask = false}"
                 />
               </div>
             </div>
@@ -832,8 +832,9 @@ const tasksWrapperRefs = ref([])
 
                       if (isDragged == false) {
                         // open modal card
-                        boardStore.setColumnAndTaskIndex(colIndex, index)
-                        openModalTask = true
+                        boardStore.setColumnAndTaskIndex(colIndex, index);
+                        openModalTask = true;
+                        $shadowRect.remove();
                         return;
                       }
 

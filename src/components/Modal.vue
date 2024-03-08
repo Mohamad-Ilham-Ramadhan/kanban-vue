@@ -1,5 +1,5 @@
 <script setup >
-import { ref, Teleport, Transition, defineProps, defineEmits } from 'vue'
+import { ref, defineProps, defineEmits } from 'vue'
 const emit = defineEmits(['close-modal'])
 const props = defineProps(['open', 'class'])
 const modalRef = ref(null)
@@ -17,7 +17,7 @@ const modalRef = ref(null)
       </Transition>
       <!-- overlay -->
       <Transition>
-        <div v-if="props.open" @click="$emit('close-modal')" class="bg-black opacity-60 fixed inset-0 z-[100]"></div>
+        <div v-if="props.open" @click="emit('close-modal')" class="bg-black opacity-60 fixed inset-0 z-[100]"></div>
       </Transition>
     </div>
   </Teleport>
