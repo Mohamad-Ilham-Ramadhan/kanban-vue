@@ -601,7 +601,7 @@ const tasksWrapperRefs = ref([])
             >
               <div
                 v-for="(t, index) in c.tasks"
-                class="card-task card-task-transition bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 mb-4 relative z-50"
+                class="card-task card-task-transition bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 mb-4 relative"
                 :key="t.id"
                 data-moveable="0"
                 :data-index="index"
