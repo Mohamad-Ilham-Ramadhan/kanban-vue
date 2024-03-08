@@ -39,6 +39,7 @@ const openModalEdit = ref(false)
 const openModalAddTask = ref(false)
 const openSelectStatus = ref(false) // select status in add new task form
 const openModalTask = ref(false)
+const openModalDeleteTask = ref(false);
 const modalTaskData = ref({
   id: '',
   columnIndex: null,
@@ -48,6 +49,8 @@ const modalTaskData = ref({
   subtasks: []
 })
 const openDropdownTask = ref(false);
+const deleteColumnIndex = ref(null);
+const deleteTaskIndex = ref(null);
 watch(modalTaskData, () => {
   console.log('modal task data', modalTaskData)
 })
@@ -500,9 +503,14 @@ const tasksWrapperRefs = ref([])
                   deleteText="Delete Task"
                   :open="openDropdownTask"
                   @on-click-editk="() => console.log('edit on click')"
-                  @on-click-delete="() => console.log('delete on click')"
+                  @on-click-delete="() => {
+                    openModalTask = false;
+                    openDropdownTask = false;
+                    openModalDeleteTask = true;
+                  }"
                   @on-click-overlay="openDropdownTask = false"
                 />
+                
               </div>
             </div>
             <div class="text-xs font-semibold text-slate-400 mb-6">
@@ -570,6 +578,47 @@ const tasksWrapperRefs = ref([])
             />
           </Modal>
           <!-- Modal Task-->
+
+          <!-- Modal Delete Task -->
+          <Modal
+            class="w-[480px]"
+            :open="openModalDeleteTask"
+            @close-modal="openModalDeleteTask = false"
+          >
+            <div class="text-red-450 font-bold text-lg mb-4">Delete this Task?</div>
+            <div class="text-[.8rem] text-slate-400 font-semibold leading-6 mb-6">
+              Are you sure you want to delete the '{{ boardStore.board.columns[deleteColumnIndex].tasks[deleteTaskIndex].title }}' task? This action
+              will remove all columns and tasks and cannot be reversed.
+            </div>
+            <div class="flex justify-between">
+              <Button
+                @click="
+                  () => {
+                    boardStore.deleteTask(deleteColumnIndex, deleteTaskIndex);
+                    openModalDeleteTask = false;
+                    boardStore.$persist(); // because if deletes the last item, I don't know why the store is not persisted.
+                  }
+                "
+                size="small"
+                text="Delete"
+                class="w-full mr-2"
+                background-color="bg-red-450 hover:opacity-60"
+                color="text-white"
+              />
+              <Button
+                @click="() => {
+                  openModalDeleteTask = false;
+                  deleteColumnIndex = null;
+                  deleteTaskIndex = null;
+                }"
+                size="small"
+                text="Cancel"
+                class="w-full ml-2"
+                background-color="bg-white hover:opacity-60"
+                color="text-primary"
+              />
+            </div>
+          </Modal> <!-- Modal Delete Task-->
 
           <div
             v-for="(c, colIndex) in boardStore.board.columns"
@@ -826,6 +875,8 @@ const tasksWrapperRefs = ref([])
                         // open modal card
                         boardStore.setColumnAndTaskIndex(colIndex, index);
                         openModalTask = true;
+                        deleteTaskIndex = Number($this.dataset.index);
+                        deleteColumnIndex = fromColumnIndex;
                         $shadowRect.remove();
                         return;
                       }

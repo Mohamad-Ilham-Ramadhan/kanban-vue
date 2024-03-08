@@ -35,30 +35,3 @@ const modalRef = ref(null)
   opacity: 0;
 }
 </style>
-<!-- <div
-            v-show="openOption"
-            class="absolute z-[1000] right-0 top-[130%] w-[196px] px-6 py-4 rounded-lg font-semibold bg-dark drop-shadow-md"
-          >
-            <div
-              class="hover:cursor-pointer hover:opacity-60 text-slate-400 mb-3 transition-opacity"
-              @click="
-                () => {
-                  openModalEdit = true
-                  openOption = false
-                }
-              "
-            >
-              Edit Board
-            </div>
-            <div
-              class="hover:cursor-pointer hover:opacity-60 text-red-450 transition-opacity"
-              @click="
-                () => {
-                  openModalDelete = true
-                  openOption = false
-                }
-              "
-            >
-              Delete Board
-            </div>
-          </div> -->

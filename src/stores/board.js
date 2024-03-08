@@ -355,13 +355,10 @@ export const useBoardStore = defineStore('board', {
             this.board.columns[toColumnIndex].tasks.splice(toIndex, 0, theTask)
          }
       },
-      coba(columnIndex, index) {
-         console.log('index', index)
-         const temp = this.board.columns[columnIndex].tasks[index].title
-         this.board.columns[columnIndex].tasks[index].title = 666
-         setTimeout(() => 
-            this.board.columns[columnIndex].tasks[index].title = temp
-         ,1000)
+      deleteTask(columnIndex, taskIndex) {
+         console.log('deleteTask')
+         // this.boards[this.activeBoardIndex].columns[columnIndex].tasks.splice(taskIndex, 1)
+         this.boards[this.activeBoardIndex].columns[columnIndex].tasks = this.boards[this.activeBoardIndex].columns[columnIndex].tasks.filter((t,id) => id !== taskIndex )
       },
       toggleSubtask(columnIndex, taskIndex, subtaskIndex) {
          this.board.columns[columnIndex].tasks[taskIndex].subtasks[subtaskIndex].isDone = !this.board.columns[columnIndex].tasks[taskIndex].subtasks[subtaskIndex].isDone
