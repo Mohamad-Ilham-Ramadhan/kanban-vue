@@ -1,7 +1,6 @@
 <script setup>
-   import { Teleport } from 'vue';
-
    const props = defineProps(['open', 'editText', 'deleteText','top', 'right', 'left', 'bottom']);
+   defineEmits(['editOnClick', 'deleteOnClick', 'overlayOnClick'])
    console.log('open', props.open)
    console.log('editText', props.editText)
    console.log('deleteText', props.deleteText)
