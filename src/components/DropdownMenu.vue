@@ -1,4 +1,6 @@
 <script setup>
+   import { Teleport } from 'vue';
+
    const props = defineProps(['open', 'editText', 'deleteText','top', 'right', 'left', 'bottom']);
    console.log('open', props.open)
    console.log('editText', props.editText)
@@ -23,7 +25,9 @@
       {{ props.deleteText }}
     </div>
   </div>
-  <div v-show="props.open" @click="$emit('overlayOnClick')" class="fixed z-[100] inset-0"></div>
+  <Teleport to="body">
+     <div v-show="props.open" @click="$emit('overlayOnClick')" class="dropdown-overlay fixed z-[100] inset-0"></div>
+  </Teleport>
 </template>
 
 <style>
