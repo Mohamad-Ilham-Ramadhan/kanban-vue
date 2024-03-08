@@ -1,6 +1,6 @@
 <script setup>
    const props = defineProps(['open', 'editText', 'deleteText','top', 'right', 'left', 'bottom']);
-   defineEmits(['editOnClick', 'deleteOnClick', 'overlayOnClick'])
+   defineEmits(['onClickEdit', 'onClickDelete', 'onClickOverlay'])
    console.log('open', props.open)
    console.log('editText', props.editText)
    console.log('deleteText', props.deleteText)
@@ -13,18 +13,18 @@
   >
     <div
       class="hover:cursor-pointer hover:opacity-60 text-slate-400 mb-3 transition-opacity"
-      @click="$emit('editOnClick')"
+      @click="$emit('onClickEdit')"
     >
       {{ props.editText }}
     </div>
     <div
       class="hover:cursor-pointer hover:opacity-60 text-red-450 transition-opacity"
-      @click="$emit('deleteOnClick')"
+      @click="$emit('onClickDelete')"
     >
       {{ props.deleteText }}
     </div>
   </div>
-   <div v-show="props.open" @click="$emit('overlayOnClick')" class="dropdown-overlay fixed z-[100] inset-0"></div>
+   <div v-show="props.open" @click="$emit('onClickOverlay')" class="dropdown-overlay fixed z-[100] inset-0"></div>
 </template>
 
 <style>

@@ -187,35 +187,27 @@ const tasksWrapperRefs = ref([])
             <IconEllipsis />
           </button>
 
-          <div
-            v-show="openOption"
-            class="absolute z-[1000] right-0 top-[130%] w-[196px] px-6 py-4 rounded-lg font-semibold bg-dark drop-shadow-md"
-          >
-            <div
-              class="hover:cursor-pointer hover:opacity-60 text-slate-400 mb-3 transition-opacity"
-              @click="
-                () => {
-                  openModalEdit = true
-                  openOption = false
-                }
-              "
-            >
-              Edit Board
-            </div>
-            <div
-              class="hover:cursor-pointer hover:opacity-60 text-red-450 transition-opacity"
-              @click="
-                () => {
-                  openModalDelete = true
-                  openOption = false
-                }
-              "
-            >
-              Delete Board
-            </div>
-          </div>
+          <DropdownMenu
+            right="right-0"
+            :open="openOption"
+            editText="Edit Board"
+            deleteText="Delete Board"
+            @on-click-edit="() => {
+              openModalEdit = true;
+              openOption = false;
+            }"
+            @on-click-delete="() => {
+              openModalDelete = true;
+              openOption = false;
+            }"
+            @on-click-overlay="openOption = true;" 
+          />
+
+          
           <div v-show="openOption" @click="openOption = false" class="fixed z-[100] inset-0"></div>
         </div>
+
+
         <!-- Modal Delete Board -->
         <Modal :open="openModalDelete" @close-modal="openModalDelete = false" class="w-[480px]">
           <div class="text-red-450 font-bold text-lg mb-4">Delete this board?</div>
@@ -507,9 +499,9 @@ const tasksWrapperRefs = ref([])
                   editText="Edit Task"
                   deleteText="Delete Task"
                   :open="openDropdownTask"
-                  @edit-on-click="() => console.log('edit on click')"
-                  @delete-on-click="() => console.log('delete on click')"
-                  @overlay-on-click="openDropdownTask = false"
+                  @on-click-editk="() => console.log('edit on click')"
+                  @on-click-delete="() => console.log('delete on click')"
+                  @on-click-overlay="openDropdownTask = false"
                 />
               </div>
             </div>
