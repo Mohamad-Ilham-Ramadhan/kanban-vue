@@ -509,7 +509,7 @@ const tasksWrapperRefs = ref([])
                   :open="openDropdownTask"
                   @edit-on-click="() => console.log('edit on click')"
                   @delete-on-click="() => console.log('delete on click')"
-                  @overlay-on-click="() => {openDropdownTask = false; openModalTask = false}"
+                  @overlay-on-click="openDropdownTask = false"
                 />
               </div>
             </div>

@@ -24,9 +24,7 @@
       {{ props.deleteText }}
     </div>
   </div>
-  <Teleport to="body">
-     <div v-show="props.open" @click="$emit('overlayOnClick')" class="dropdown-overlay fixed z-[100] inset-0"></div>
-  </Teleport>
+   <div v-show="props.open" @click="$emit('overlayOnClick')" class="dropdown-overlay fixed z-[100] inset-0"></div>
 </template>
 
 <style>
