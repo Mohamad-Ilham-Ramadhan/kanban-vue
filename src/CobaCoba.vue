@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import Logo from '@/components/Logo.vue'
 import Button from './components/Button.vue'
 import IconEllipsis from '@/components/icons/IconEllipsis.vue'
@@ -24,12 +24,17 @@ import { useBoardStore } from '@/stores/board.js'
 const boardStore = useBoardStore()
 const boards = boardStore.boards
 
-const theme = ref('dark')
 function toggleTheme() {
   document.documentElement.classList.toggle('dark')
-  if (theme.value === 'dark') theme.value = 'light'
-  else theme.value = 'dark'
+  if (boardStore.theme === 0) boardStore.setTheme(1)
+  else boardStore.setTheme(0)
 }
+
+onMounted(() => {
+  console.log('onMounted', boardStore.theme)
+  if (boardStore.theme === 0) document.documentElement.classList.add('dark')
+  else document.documentElement.classList.remove('dark')
+})
 
 const openCreateNewBoard = ref(false)
 const openOption = ref(false)
@@ -50,8 +55,6 @@ const modalTaskData = ref({
   subtasks: []
 })
 const openDropdownTask = ref(false);
-const activeColumnIndex = ref(null);
-const activeTaskIndex = ref(null);
 watch(modalTaskData, () => {
   console.log('modal task data', modalTaskData)
 })
@@ -446,7 +449,7 @@ const tasksWrapperRefs = ref([])
                   <div
                     :class="[
                       'w-[14px] h-[14px] rounded-full bg-white transition-all relative',
-                      theme === 'dark' ? 'left-0' : 'left-[calc(100%-14px)]'
+                      boardStore.theme === 0 ? 'left-0' : 'left-[calc(100%-14px)]'
                     ]"
                   ></div>
                 </div>

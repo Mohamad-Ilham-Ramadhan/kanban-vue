@@ -6,6 +6,7 @@ export const useBoardStore = defineStore('board', {
       activeBoardIndex: 0, // active board index
       activeColumnIndex: 0, // for modal task
       activeTaskIndex: 0, // for modal task
+      theme: 0, // 0 = dark, 1 = light
       boards: [
          {
             id: uuid(),
@@ -287,6 +288,10 @@ export const useBoardStore = defineStore('board', {
       task: (state) => state.boards[state.activeBoardIndex].columns[state.activeColumnIndex].tasks[state.activeTaskIndex]
    },
    actions: {
+      setTheme(value) {
+         console.log('setTheme', value)
+         this.theme = value;
+      },
       setActiveBoardIndex(index) {
          console.log('set active board index')
          this.activeBoardIndex = index
