@@ -355,10 +355,19 @@ export const useBoardStore = defineStore('board', {
             this.board.columns[toColumnIndex].tasks.splice(toIndex, 0, theTask)
          }
       },
-      deleteTask(columnIndex, taskIndex) {
+      editTask(values) {
+         this.board.columns[values.status.index].tasks[this.activeTaskIndex].title = values.title; 
+         this.board.columns[values.status.index].tasks[this.activeTaskIndex].description = values.description; 
+         this.board.columns[values.status.index].tasks[this.activeTaskIndex].subtasks = values.subtasks; 
+         if (this.activeColumnIndex !== values.status.index) {
+            const newTask = this.board.columns[this.activeColumnIndex].tasks.splice(this.activeTaskIndex, 1)
+            this.baord.columns[values.status.index].tasks.push(newTask)
+         }
+      },
+      deleteTask() {
          console.log('deleteTask')
-         // this.boards[this.activeBoardIndex].columns[columnIndex].tasks.splice(taskIndex, 1)
-         this.boards[this.activeBoardIndex].columns[columnIndex].tasks = this.boards[this.activeBoardIndex].columns[columnIndex].tasks.filter((t,id) => id !== taskIndex )
+         this.boards[this.activeBoardIndex].columns[this.activeColumnIndex].tasks.splice(this.activeTaskIndex, 1)
+         // this.boards[this.activeBoardIndex].columns[this.activeColumnIndex].tasks = this.boards[this.activeBoardIndex].columns[this.activeColumnIndex].tasks.filter((t,id) => id !== this.activeTaskIndex )
       },
       toggleSubtask(columnIndex, taskIndex, subtaskIndex) {
          this.board.columns[columnIndex].tasks[taskIndex].subtasks[subtaskIndex].isDone = !this.board.columns[columnIndex].tasks[taskIndex].subtasks[subtaskIndex].isDone

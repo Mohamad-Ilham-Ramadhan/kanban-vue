@@ -40,6 +40,7 @@ const openModalAddTask = ref(false)
 const openSelectStatus = ref(false) // select status in add new task form
 const openModalTask = ref(false)
 const openModalDeleteTask = ref(false);
+const openModalEditTask = ref(false);
 const modalTaskData = ref({
   id: '',
   columnIndex: null,
@@ -49,8 +50,8 @@ const modalTaskData = ref({
   subtasks: []
 })
 const openDropdownTask = ref(false);
-const deleteColumnIndex = ref(null);
-const deleteTaskIndex = ref(null);
+const activeColumnIndex = ref(null);
+const activeTaskIndex = ref(null);
 watch(modalTaskData, () => {
   console.log('modal task data', modalTaskData)
 })
@@ -502,7 +503,12 @@ const tasksWrapperRefs = ref([])
                   editText="Edit Task"
                   deleteText="Delete Task"
                   :open="openDropdownTask"
-                  @on-click-editk="() => console.log('edit on click')"
+                  @on-click-edit="() => {
+                    openModalTask = false;
+                    openDropdownTask = false;
+                    openModalEditTask = true;
+                    console.log('active task', boardStore.task)
+                  }"
                   @on-click-delete="() => {
                     openModalTask = false;
                     openDropdownTask = false;
@@ -587,14 +593,14 @@ const tasksWrapperRefs = ref([])
           >
             <div class="text-red-450 font-bold text-lg mb-4">Delete this Task?</div>
             <div class="text-[.8rem] text-slate-400 font-semibold leading-6 mb-6">
-              Are you sure you want to delete the '{{ boardStore.board.columns[deleteColumnIndex].tasks[deleteTaskIndex].title }}' task? This action
+              Are you sure you want to delete the '{{ boardStore.task.title }}' task? This action
               will remove all columns and tasks and cannot be reversed.
             </div>
             <div class="flex justify-between">
               <Button
                 @click="
                   () => {
-                    boardStore.deleteTask(deleteColumnIndex, deleteTaskIndex);
+                    boardStore.deleteTask(this.activeColumnIndex, this.activeTaskIndex);
                     openModalDeleteTask = false;
                     boardStore.$persist(); // because if deletes the last item, I don't know why the store is not persisted.
                   }
@@ -619,6 +625,97 @@ const tasksWrapperRefs = ref([])
               />
             </div>
           </Modal> <!-- Modal Delete Task-->
+
+          <!-- Modal Edit Task -->
+          <Modal :open="openModalEditTask" @close-modal="openModalEditTask = false" class="w-[480px]">
+            <Form
+              @submit="
+                (values) => {
+                  boardStore.editTask(values)
+                  openModalEditTask = false
+                }
+              "
+              :validation-schema="
+                yup.object().shape({
+                  title: yup.string().required(),
+                  description: yup.string().required(),
+                  subtasks: yup.array().of(
+                    yup.object().shape({
+                      id: yup.string().required(),
+                      text: yup.string().required(),
+                      isDone: yup.boolean().required()
+                    })
+                  )
+                })
+              "
+              :initial-values="{
+                title: boardStore.task.title,
+                description: boardStore.task.description,
+                subtasks: boardStore.task.subtasks,
+                status: boardStore.task.status
+              }"
+            >
+              <div class="text-lg font-bold mb-6">Edit Task</div>
+              <div class="mb-4">
+                <label for="title" class="block text-xs font-bold mb-2">Title</label>
+                <Input type="text" name="title" id="title" />
+              </div>
+
+              <div class="mb-4">
+                <label for="title" class="block text-xs font-bold mb-2">Description</label>
+                <Textarea name="description" id="description" />
+              </div>
+
+              <FieldArray name="subtasks" v-slot="{ fields, push, remove }">
+                <div class="mb-4">
+                  <div class="mb-2">
+                    <label
+                      for="name"
+                      class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
+                      >Subtasks</label
+                    >
+                  </div>
+                  <div v-for="(field, index) in fields" :key="index" class="flex items-center mb-2">
+                    <Input :name="`subtasks[${index}].text`" :value="field.value.text" type="text" />
+                    <button @click="remove(index)" class="text-slate-400 p-2" type="button">
+                      <IconClose />
+                    </button>
+                  </div>
+                </div>
+                <Button
+                  v-show="fields.length < 6"
+                  @click="push({ id: uuid(), text: '', isDone: false })"
+                  text="+ Add New Subtask"
+                  type="button"
+                  class="block w-full mb-4"
+                  size="small"
+                  background-color="bg-white hover:bg-indigo-50"
+                  color="text-primary"
+                />
+              </FieldArray>
+
+              <div class="mb-4">
+                <label
+                  for="status"
+                  class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
+                  >Status</label
+                >
+                <SelectVee
+                  :open="openSelectStatus"
+                  @open-select="openSelectStatus = true"
+                  @close-select="openSelectStatus = false"
+                  :items="boardStore.board.columns.map((c, i) => ({ name: c.name, index: i }))"
+                  name="status"
+                  renderValueProp="name"
+                  realValueProp="index"
+                />
+              </div>
+
+              <div>
+                <Button text="Save Changes" type="submit" />
+              </div>
+            </Form>
+          </Modal> <!-- Modal Edit Task -->
 
           <div
             v-for="(c, colIndex) in boardStore.board.columns"
@@ -875,8 +972,7 @@ const tasksWrapperRefs = ref([])
                         // open modal card
                         boardStore.setColumnAndTaskIndex(colIndex, index);
                         openModalTask = true;
-                        deleteTaskIndex = Number($this.dataset.index);
-                        deleteColumnIndex = fromColumnIndex;
+                        boardStore.setColumnAndTaskIndex(fromColumnIndex, Number($this.dataset.index));
                         $shadowRect.remove();
                         return;
                       }
