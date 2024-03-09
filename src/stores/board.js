@@ -7,6 +7,7 @@ export const useBoardStore = defineStore('board', {
       activeColumnIndex: 0, // for modal task
       activeTaskIndex: 0, // for modal task
       theme: 0, // 0 = dark, 1 = light
+      sidebar: true, // true = show, false = hidden
       boards: [
          {
             id: uuid(),
@@ -289,8 +290,10 @@ export const useBoardStore = defineStore('board', {
    },
    actions: {
       setTheme(value) {
-         console.log('setTheme', value)
          this.theme = value;
+      },
+      setSidebar() {
+         this.sidebar = !this.sidebar;
       },
       setActiveBoardIndex(index) {
          console.log('set active board index')

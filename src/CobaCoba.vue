@@ -9,6 +9,7 @@ import IconSun from '@/components/icons/IconSun.vue'
 import IconHide from '@/components/icons/IconHide.vue'
 import IconClose from '@/components/icons/IconClose.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
+import IconEye from '@/components/icons/IconEye.vue'
 import Modal from '@/components/Modal.vue'
 import Input from '@/components/VeeValidate/Input.vue'
 import Textarea from '@/components/VeeValidate/Textarea.vue'
@@ -326,7 +327,7 @@ const tasksWrapperRefs = ref([])
 
   <div class="flex flex-row">
     <aside
-      class="shrink-0 w-[300px] h-[100vh] fixed left-0 top-0 z-40 dark:bg-dark-light bg-white border-r border-r-slate-200 dark:border-r-slate-700 pt-[96px]"
+      :class="['shrink-0 w-[300px] h-[100vh] fixed left-0 top-0 z-40 dark:bg-dark-light bg-white border-r border-r-slate-200 dark:border-r-slate-700 pt-[96px] transition-transform', boardStore.sidebar === false && '-translate-x-[300px]']"
     >
       <div class="flex flex-col justify-between h-full pt-4 beautify-scrollbar overflow-auto">
         <div class="shrink-0">
@@ -457,16 +458,28 @@ const tasksWrapperRefs = ref([])
               <IconSun />
             </div>
           </div>
-          <div
+          <button
             class="flex items-center font-bold text-[15px] text-slate-400 hover:opacity-70 hover:cursor-pointer transition-colors pl-10"
+            @click="() => {
+              boardStore.setSidebar()
+            }"
           >
             <span> <IconHide /> </span><span>Hide Sidebar</span>
-          </div>
+          </button>
+          <Teleport to="body">
+            <button
+              :class="['fixed left-0 bottom-[30px] h-[48px] w-[56px] flex justify-center items-center rounded-r-full hover:cursor-pointer bg-primary transition-opacity duration-500', boardStore.sidebar === false ? 'opacity-1' : 'opacity-0']"
+              @click="boardStore.setSidebar()"
+              title="Show sidebar"
+            >
+               <IconEye /> 
+            </button>
+          </Teleport>
         </div>
       </div>
     </aside>
 
-    <main class="pl-[300px] pt-[96px] pb-[40px] flex w-full h-[100vh] overflow-hidden">
+    <main :class="['pl-[300px] pt-[96px] pb-[40px] flex w-full h-[100vh] overflow-hidden transition-all', !boardStore.sidebar && 'pl-[0px]']">
       <div
         class="beautify-scrollbar w-[100vw] h-[calc(100vh-96px)] overflow-auto hover:cursor-col-resize"
         ref="refDragScroll"
