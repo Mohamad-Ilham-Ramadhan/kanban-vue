@@ -1,5 +1,5 @@
 <script setup>
-import { ref, Teleport, Transition, defineProps, defineEmits, onUpdated, toRef } from 'vue'
+import { ref, defineProps, defineEmits, onUpdated, toRef } from 'vue'
 import IconArrow from '@/components/icons/IconArrowDown.vue'
 
 const paperRef = ref(null)
@@ -10,7 +10,7 @@ const emit = defineEmits(['open-select', 'close-select', 'select-value'])
 onUpdated(() => {
   if (paperRef.value !== null) {
     // @ts-ignore
-    const { top, bottom, left, right, width, height } =
+    const {  bottom, left,  width} =
       selectButtonRef.value.getBoundingClientRect()
     setTimeout(() => {
       // @ts-ignore
@@ -43,20 +43,22 @@ onUpdated(() => {
 
 const name = toRef(props, 'name')
 
+console.log('Select props.items', props.items);
+
 </script>
 
 <template>
   <div class="relative">
     <button
       ref="selectButtonRef"
-      class="block relative w-full text-left border-2 border-slate-400 dark:border-gray-600 focus:border-primary dark:focus:border-primary rounded text-sm py-2 px-4"
+      class="block relative w-full text-left border-2 border-slate-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary rounded text-sm py-2 px-4"
       @click="$emit('open-select')"
       type="button"
     >
       <div>{{ props.value[props.renderValueProp] }}</div>
       <IconArrow :class="['text-primary w-[18px] h-[18px] absolute right-[12px] top-[10px] transition-transform', props.open && 'rotate-180']"/>
     </button>
-    <input class="invisible" aria-hidden="true" :value="inputValue" :name="name" />
+    <input class="invisible" aria-hidden="true" :value="value" :name="name" />
   </div>
   <Teleport to="body">
     <Transition name="overlay">
@@ -69,7 +71,8 @@ const name = toRef(props, 'name')
           v-if="props.open"
         >
           <div
-            v-for="(item, index) in props.items"
+            v-for="(item) in props.items"
+            :key="item.name"
             @click="
               () => {
                 handleChange(item)

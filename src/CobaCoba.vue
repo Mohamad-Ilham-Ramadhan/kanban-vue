@@ -524,7 +524,7 @@ const tasksWrapperRefs = ref([])
                 boardStore.task.description === '' ? 'No description' : boardStore.task.description
               }}
             </div>
-            <label class="block text-xs font-bold mb-2"
+            <label class="block text-xs dark:text-white text-slate-400 font-bold mb-2"
               >Subtasks ({{
                 boardStore.task.subtasks.reduce((acc, cv) => (cv.isDone ? acc + 1 : acc), 0)
               }}
@@ -534,7 +534,7 @@ const tasksWrapperRefs = ref([])
               <div
                 v-for="(subtask, index) in boardStore.task.subtasks"
                 :key="subtask.id"
-                class="rounded bg-dark p-3 flex items-center hover:cursor-pointer mb-2"
+                class="rounded dark:bg-dark bg-light-theme-bg p-3 flex items-center hover:cursor-pointer mb-2"
                 @click="
                   () => {
                     boardStore.toggleSubtask(
@@ -547,11 +547,11 @@ const tasksWrapperRefs = ref([])
               >
                 <div
                   :class="[
-                    'flex justify-center items-center w-[17px] h-[17px] border border-slate-600 rounded-sm mr-2',
-                    subtask.isDone ? 'bg-primary' : 'bg-dark-light'
+                    'flex justify-center items-center w-[17px] h-[17px] border dark:border-slate-600 border-slate-300 rounded-sm mr-2',
+                    subtask.isDone ? 'bg-primary' : 'dark:bg-dark-light bg-white'
                   ]"
                 >
-                  <IconCheck v-if="subtask.isDone" class="w-[10px] h-[10px]" />
+                  <IconCheck v-if="subtask.isDone" class="text-white w-[10px] h-[10px]" />
                 </div>
                 <div
                   :class="['font-semibold text-xs', subtask.isDone && 'line-through text-gray-400']"
@@ -561,19 +561,18 @@ const tasksWrapperRefs = ref([])
               </div>
             </div>
 
-            <label class="block font-bold text-xs mb-2">Current Status</label>
+            <label class="block font-bold text-xs dark:text-white text-slate-400 mb-2">Current Status</label>
             <Select
               :open="openSelectStatus"
               @open-select="openSelectStatus = true"
               @close-select="openSelectStatus = false"
               :items="boardStore.board.columns.map((c, i) => ({ name: c.name, index: i }))"
               name="status"
-              renderValueProp="name"
+              renderValueProp="name" 
               realValueProp="index"
               :value="boardStore.board.columns[boardStore.activeColumnIndex]"
               :handleChange="
                 (item) => {
-                  console.log('selected item', item)
                   boardStore.changeTaskColumn(
                     boardStore.activeColumnIndex,
                     item.index,
