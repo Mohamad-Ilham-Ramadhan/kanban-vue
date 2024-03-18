@@ -18,12 +18,6 @@ const props = defineProps({
          return  'bg-primary hover:bg-primary-light'
       }
    },
-   text: {
-      type: String,
-      default() {
-         return '';
-      }
-   },
    color: {
       type: String,
       default() {
@@ -33,16 +27,16 @@ const props = defineProps({
    type: {
       type: String,
       default() {
-         return ''
+         return null
       }
    },
    size: {
-      type: String,
+      type: String, // small, custom
       default() {
          return 'medium'
       }
    },
-   disable: {
+   disabled: {
       type: Boolean,
       default() {
          return false;
@@ -51,17 +45,14 @@ const props = defineProps({
 });
 console.log('buttons props', props)
 
-const {isMobile} = useIsMobile();
 console.log('button props', props.backgroundColor)
 let padding = {
    medium: 'py-3 px-5',
    small: 'py-[.55rem] px-5',
-   mobile: 'py-2 px-4',
 };
 let textSize = {
    medium: 'text-[15px]',
    small: 'text-[13px]',
-   mobile: 'text-[13px]',
 }
 // let sizeVar = 'medium'; // medium
 // if (props.size === 'small') sizeVar = 'py-[.55rem] px-5 text-[13px]'
@@ -69,11 +60,9 @@ let textSize = {
 </script>
 <template>
    <button
-      :class="['rounded-full font-bold transition-colors transition-opacity', padding[isMobile ?  'mobile' : props.size], textSize[isMobile ? 'mobile': props.size], props.backgroundColor, props.color, props.class, isMobile && 'py-0 px-3']"
+      :class="['rounded-full font-bold transition-colors transition-opacity', size === 'custom' ? '' : padding[props.size], size === 'custom' ? '' : textSize[props.size], props.backgroundColor, props.color, props.class]"
       :type="props.type" :disabled="props.disabled">
-      {{ !isMobile ? props.text : null }}
-      <svg v-show="isMobile" width="12" height="12" xmlns="http://www.w3.org/2000/svg"><path fill="#FFF" d="M7.368 12V7.344H12V4.632H7.368V0H4.656v4.632H0v2.712h4.656V12z"></path>
-      </svg>
+      <slot></slot>
    </button>
 </template>
 

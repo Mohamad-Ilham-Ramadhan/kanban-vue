@@ -193,10 +193,13 @@ const tasksWrapperRefs = ref([])
 
       <div class="flex items-center">
         <Button
-          :text="isMobile ? '+' : '+ Add New Task'"
-          class="mr-4"
+          :class="['mr-4', isMobile && 'px-4 py-2']"
           @click="openModalAddTask = true"
-        />
+          :size="isMobile ? 'custom' : 'medium'"
+        >
+          <svg v-show="isMobile" width="12" height="12" xmlns="http://www.w3.org/2000/svg"><path fill="#FFF" d="M7.368 12V7.344H12V4.632H7.368V0H4.656v4.632H0v2.712h4.656V12z"></path></svg>
+          {{ !isMobile ? '+ Add New Task' : '' }}
+        </Button>
         <!-- Modal add new task -->
         <Modal
           :open="openModalAddTask"
@@ -478,6 +481,7 @@ const tasksWrapperRefs = ref([])
               :open="openCreateNewBoard"
               @close-modal="openCreateNewBoard = false"
               class="w-[480px] p-8"
+              :isFullscreen="isMobile"
             >
               <div class="font-bold text-lg mb-4">Add New Board</div>
               <Form
