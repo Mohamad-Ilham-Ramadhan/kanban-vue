@@ -98,8 +98,8 @@ const tasksWrapperRefs = ref([])
       <!-- <img src="@/assets/logo.svg" alt="logo"> -->
       <Logo />
     </div>
-    <div class="flex flex-row w-full justify-between items-center px-8">
-      <div class="mobile:block hidden mr-4">
+    <div class="flex flex-row w-full justify-between items-center px-4 md:px-8">
+      <div class="mobile:block hidden shrink-0 mr-4">
         <img src="@/assets/logoMobile.svg" alt="logo" />
       </div>
 
@@ -109,11 +109,11 @@ const tasksWrapperRefs = ref([])
 
       <button
         v-show="isMobile"
-        class="mr-auto flex items-center"
+        class="mr-auto flex items-center pr-4"
         @click="openModalMobile = !openModalMobile"
       >
-        <div class="font-bold text-2xl mr-0 text-[20px]">{{ boardStore.board.name }}</div>
-        <IconArrowDown class="w-[18px] h-[18px] text-primary translate-y-1" />
+        <div class="font-bold max-w-[50vw]  overflow-hidden whitespace-nowrap md:text-2xl text-[18px] mr-0 ">{{ boardStore.board.name }}</div>
+        <IconArrowDown class="w-[18px] h-[18px] shrink-0 text-primary translate-y-1" />
       </button>
 
       <!-- Modal mobile menu -->
@@ -133,7 +133,7 @@ const tasksWrapperRefs = ref([])
             v-for="(b, index) in boards"
             :key="b.id"
             :class="[
-              'list-none font-bold flex items-center hover:bg-primary-light hover:text-white dark:hover:text-white hover:cursor-pointer pl-8 py-2.5 rounded-r-full mb-1',
+              'list-none font-bold flex items-center hover:bg-primary-light hover:text-white dark:hover:text-white hover:cursor-pointer pl-8 py-2.5 rounded-r-[30px] mb-1',
               boardStore.activeBoardIndex === index
                 ? 'bg-primary text-white'
                 : 'dark:text-slate-400 text-slate-500'
@@ -145,7 +145,7 @@ const tasksWrapperRefs = ref([])
               }
             "
           >
-            <IconBoard class="mr-4" />
+            <IconBoard class="mr-4 shrink-0" />
             <div>{{ b.name }}</div>
           </li>
 
@@ -193,7 +193,7 @@ const tasksWrapperRefs = ref([])
 
       <div class="flex items-center">
         <Button
-          :class="['mr-4', isMobile && 'px-4 py-2']"
+          :class="['md:mr-4 mr-1', isMobile && 'px-4 py-2']"
           @click="openModalAddTask = true"
           :size="isMobile ? 'custom' : 'medium'"
         >
@@ -301,7 +301,7 @@ const tasksWrapperRefs = ref([])
         <div class="relative">
           <button
             @click="openOption = !openOption"
-            class="block p-2.5 rounded-xl text-slate-400 hover:bg-slate-200 dark:hover:bg-dark transition-colors"
+            class="block md:p-2.5 mobile:pl-2 rounded-xl text-slate-400 hover:bg-slate-200 dark:hover:bg-dark transition-colors"
           >
             <IconEllipsis />
           </button>
@@ -627,7 +627,7 @@ const tasksWrapperRefs = ref([])
           ></div>
         </Teleport>
 
-        <div class="relative flex w-full h-fit px-8 py-6" ref="boardFrameRef" id="column-wrapper">
+        <div class="relative flex w-full h-fit px-4 md:px-8 py-6" ref="boardFrameRef" id="column-wrapper">
           <!-- Modal Task-->
           <Modal
             :open="openModalTask"
