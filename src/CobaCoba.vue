@@ -16,7 +16,7 @@ import Input from '@/components/VeeValidate/Input.vue'
 import Textarea from '@/components/VeeValidate/Textarea.vue'
 import SelectVee from '@/components/VeeValidate/Select.vue'
 import Select from '@/components/Select.vue'
-import DropdownMenu from './components/DropdownMenu.vue';
+import DropdownMenu from './components/DropdownMenu.vue'
 import { Form, FieldArray } from 'vee-validate'
 import * as yup from 'yup'
 import { v4 as uuid } from 'uuid'
@@ -25,9 +25,9 @@ import { v4 as uuid } from 'uuid'
 import { useIsMobile } from './composables/isMobile'
 
 // store
-import { useBoardStore } from '@/stores/board.js';
-const boardStore = useBoardStore();
-const boards = boardStore.boards;
+import { useBoardStore } from '@/stores/board.js'
+const boardStore = useBoardStore()
+const boards = boardStore.boards
 
 function toggleTheme() {
   document.documentElement.classList.toggle('dark')
@@ -49,9 +49,9 @@ const openModalEdit = ref(false)
 const openModalAddTask = ref(false)
 const openSelectStatus = ref(false) // select status in add new task form
 const openModalTask = ref(false)
-const openModalDeleteTask = ref(false);
-const openModalEditTask = ref(false);
-const openModalMobile = ref(false);
+const openModalDeleteTask = ref(false)
+const openModalEditTask = ref(false)
+const openModalMobile = ref(false)
 const modalTaskData = ref({
   id: '',
   columnIndex: null,
@@ -60,7 +60,7 @@ const modalTaskData = ref({
   description: '',
   subtasks: []
 })
-const openDropdownTask = ref(false);
+const openDropdownTask = ref(false)
 watch(modalTaskData, () => {
   console.log('modal task data', modalTaskData)
 })
@@ -68,9 +68,9 @@ const refDragScroll = ref(null)
 const dragScroll = ref(false)
 const preventDrag = ref(false)
 
-const {isMobile} = useIsMobile();
+const { isMobile } = useIsMobile()
 
-// === === === 
+// === === ===
 const doc = document
 const win = window
 const DOMMatrix = window.DOMMatrix
@@ -86,7 +86,6 @@ function removeScrollHandler() {
 }
 
 const tasksWrapperRefs = ref([])
-
 </script>
 
 <template>
@@ -101,10 +100,16 @@ const tasksWrapperRefs = ref([])
     </div>
     <div class="flex flex-row w-full justify-between items-center px-8">
       <div class="mobile:block hidden mr-4">
-        <img src="@/assets/logoMobile.svg" alt="logo">
+        <img src="@/assets/logoMobile.svg" alt="logo" />
       </div>
-      <div v-show="!isMobile" class="font-bold text-2xl mobile:mr-0 mobile:text-[20px]">{{ boardStore.board.name }}</div>
-      <button v-show="isMobile" class="mr-auto flex items-center"
+
+      <div v-show="!isMobile" class="font-bold text-2xl mobile:mr-0 mobile:text-[20px]">
+        {{ boardStore.board.name }}
+      </div>
+
+      <button
+        v-show="isMobile"
+        class="mr-auto flex items-center"
         @click="openModalMobile = !openModalMobile"
       >
         <div class="font-bold text-2xl mr-0 text-[20px]">{{ boardStore.board.name }}</div>
@@ -115,113 +120,89 @@ const tasksWrapperRefs = ref([])
       <Modal
         :open="openModalMobile"
         @close-modal="openModalMobile = !openModalMobile"
+        class="w-[300px] py-6"
       >
-        <div class="uppercase text-[.7rem] text-slate-500 dark:text-slate-400 font-bold tracking-[.175rem] mb-4">all boards ({{ boardStore.boards.length }})</div>
-        <nav class="flex flex-col justify-between mb-2">
-            <li
-              v-for="(b, index) in boards"
-              :key="b.id"
-              :class="[
-                'list-none font-bold flex items-center hover:bg-primary-light hover:text-white dark:hover:text-white hover:cursor-pointer py-2.5 rounded-r-full mb-1',
-                boardStore.activeIndex === index
-                  ? 'bg-primary text-white'
-                  : 'dark:text-slate-400 text-slate-500'
-              ]"
-              @click="boardStore.setActiveBoardIndex(index)"
-            >
-              <IconBoard class="mr-4" />
-              <div>{{ b.name }}</div>
-            </li>
+        <div
+          class="uppercase text-[.725rem] text-slate-500 dark:text-slate-400 font-bold tracking-[.175rem] pl-8 mb-4"
+        >
+          all boards ({{ boardStore.boards.length }})
+        </div>
 
-            <li
+        <nav class="flex flex-col justify-between pr-8 mb-2">
+          <li
+            v-for="(b, index) in boards"
+            :key="b.id"
+            :class="[
+              'list-none font-bold flex items-center hover:bg-primary-light hover:text-white dark:hover:text-white hover:cursor-pointer pl-8 py-2.5 rounded-r-full mb-1',
+              boardStore.activeBoardIndex === index
+                ? 'bg-primary text-white'
+                : 'dark:text-slate-400 text-slate-500'
+            ]"
+            @click="
+              () => {
+                boardStore.setActiveBoardIndex(index)
+                openModalMobile = false
+              }
+            "
+          >
+            <IconBoard class="mr-4" />
+            <div>{{ b.name }}</div>
+          </li>
+
+          <li class="list-none">
+            <button
               class="flex items-center font-bold pl-8 py-2.5 list-none text-primary hover:opacity-60 hover:cursor-pointer transition-opacity"
-              @click="openCreateNewBoard = true"
+              @click="
+                () => {
+                  openCreateNewBoard = true
+                  openModalMobile = false
+                }
+              "
             >
               <span class="mr-4">
                 <IconBoard />
               </span>
               <span>+ Create New Board</span>
-            </li>
-            <Modal
-              :open="openCreateNewBoard"
-              @close-modal="openCreateNewBoard = false"
-              class="w-[480px]"
+            </button>
+          </li>
+        </nav>
+
+        <div class="px-8 mb-4">
+          <div
+            class="flex items-center justify-center rounded-lg py-3.5 bg-indigo-50 dark:bg-dark text-slate-500 dark:text-slate-400"
+          >
+            <IconMoonStar />
+            <div
+              class="p-[3px] rounded-full bg-primary w-[40px] h-[20px] flex hover:cursor-pointer mx-6"
+              @click="toggleTheme()"
             >
-              <div class="font-bold text-lg mb-4">Add New Board</div>
-              <Form
-                @submit="
-                  (values) => {
-                    boardStore.createNewBoard(values)
-                    openCreateNewBoard = false
-                    boardStore.setActiveIndex(boardStore.boards.length - 1)
-                  }
-                "
-                @invalid-submit="() => {}"
-                :validation-schema="
-                  yup.object().shape({
-                    name: yup.string().required(),
-                    columns: yup.array().of(yup.string().required())
-                  })
-                "
-                :initial-values="{ name: '', columns: [''] }"
-              >
-                <div class="mb-4">
-                  <label
-                    for="name"
-                    class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
-                    >Name</label
-                  >
-                  <Input name="name" type="text" />
-                </div>
-                <div class="mb-4">
-                  <FieldArray name="columns" v-slot="{ fields, push, remove }">
-                    <div class="mb-4">
-                      <div class="mb-2">
-                        <label
-                          for="name"
-                          class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
-                          >Columns</label
-                        >
-                      </div>
-                      <div
-                        v-for="(field, index) in fields"
-                        :key="index"
-                        class="flex items-center mb-2"
-                      >
-                        <Input :name="`columns[${index}]`" type="text" />
-                        <button
-                          v-show="fields.length > 1"
-                          @click="remove(index)"
-                          class="text-slate-400 p-2"
-                          type="button"
-                        >
-                          <IconClose />
-                        </button>
-                      </div>
-                    </div>
-                    <Button
-                      v-show="fields.length < 6"
-                      @click="push('')"
-                      text="+ Add New Column"
-                      type="button"
-                      class="block w-full"
-                      size="small"
-                      background-color="bg-white hover:bg-indigo-50"
-                      color="text-primary"
-                    />
-                  </FieldArray>
-                </div>
-                <Button class="w-full" type="submit" text="Create New Board" size="small" />
-              </Form>
-            </Modal>
-          </nav>
+              <div class="rounded-full w-full h-full relative">
+                <div
+                  :class="[
+                    'w-[14px] h-[14px] rounded-full bg-white transition-all relative',
+                    boardStore.theme === 0 ? 'left-0' : 'left-[calc(100%-14px)]'
+                  ]"
+                ></div>
+              </div>
+            </div>
+            <IconSun />
+          </div>
+        </div>
       </Modal>
-      <!-- Modal mobile menu -->
+      <!-- Modal mobile menu (end) -->
 
       <div class="flex items-center">
-        <Button :text="isMobile ? '+' : '+ Add New Task'" class="mr-4" @click="openModalAddTask = true" />
+        <Button
+          :text="isMobile ? '+' : '+ Add New Task'"
+          class="mr-4"
+          @click="openModalAddTask = true"
+        />
         <!-- Modal add new task -->
-        <Modal :open="openModalAddTask" @close-modal="openModalAddTask = false" class="w-[480px] p-8">
+        <Modal
+          :open="openModalAddTask"
+          @close-modal="openModalAddTask = false"
+          class="w-[480px] p-8"
+        >
           <Form
             @submit="
               (values) => {
@@ -325,21 +306,23 @@ const tasksWrapperRefs = ref([])
             :open="openOption"
             editText="Edit Board"
             deleteText="Delete Board"
-            @on-click-edit="() => {
-              openModalEdit = true;
-              openOption = false;
-            }"
-            @on-click-delete="() => {
-              openModalDelete = true;
-              openOption = false;
-            }"
-            @on-click-overlay="openOption = true;" 
+            @on-click-edit="
+              () => {
+                openModalEdit = true
+                openOption = false
+              }
+            "
+            @on-click-delete="
+              () => {
+                openModalDelete = true
+                openOption = false
+              }
+            "
+            @on-click-overlay="openOption = true"
           />
 
-          
           <div v-show="openOption" @click="openOption = false" class="fixed z-[100] inset-0"></div>
         </div>
-
 
         <!-- Modal Delete Board -->
         <Modal :open="openModalDelete" @close-modal="openModalDelete = false" class="w-[480px]">
@@ -452,7 +435,10 @@ const tasksWrapperRefs = ref([])
 
   <div class="flex flex-row">
     <aside
-      :class="['shrink-0 w-[300px] h-[100vh] fixed left-0 top-0 z-40 dark:bg-dark-light bg-white border-r border-r-slate-200 dark:border-r-slate-700 pt-[96px] transition-transform mobile:hidden', boardStore.sidebar === false && '-translate-x-[300px]']"
+      :class="[
+        'shrink-0 w-[300px] h-[100vh] fixed left-0 top-0 z-40 dark:bg-dark-light bg-white border-r border-r-slate-200 dark:border-r-slate-700 pt-[96px] transition-transform mobile:hidden',
+        boardStore.sidebar === false && '-translate-x-[300px]'
+      ]"
     >
       <div class="flex flex-col justify-between h-full pt-4 beautify-scrollbar overflow-auto">
         <div class="shrink-0">
@@ -467,7 +453,7 @@ const tasksWrapperRefs = ref([])
               :key="b.id"
               :class="[
                 'list-none font-bold flex items-center hover:bg-primary-light hover:text-white dark:hover:text-white hover:cursor-pointer pl-8 py-2.5 rounded-r-full mb-1',
-                boardStore.activeIndex === index
+                boardStore.activeBoardIndex === index
                   ? 'bg-primary text-white'
                   : 'dark:text-slate-400 text-slate-500'
               ]"
@@ -584,28 +570,39 @@ const tasksWrapperRefs = ref([])
               <IconSun />
             </div>
           </div>
+
           <button
             class="flex items-center font-bold text-[15px] text-slate-400 hover:opacity-70 hover:cursor-pointer transition-colors pl-10"
-            @click="() => {
-              boardStore.setSidebar()
-            }"
+            @click="
+              () => {
+                boardStore.setSidebar()
+              }
+            "
           >
             <span> <IconHide /> </span><span>Hide Sidebar</span>
           </button>
           <Teleport to="body">
             <button
-              :class="['fixed left-0 bottom-[30px] h-[48px] w-[56px] flex justify-center items-center rounded-r-full hover:cursor-pointer bg-primary transition-opacity duration-500', boardStore.sidebar === false ? 'opacity-1' : 'opacity-0']"
+              :class="[
+                'fixed left-0 bottom-[30px] h-[48px] w-[56px] flex justify-center items-center rounded-r-full hover:cursor-pointer bg-primary transition-opacity duration-500',
+                boardStore.sidebar === false ? 'opacity-1' : 'opacity-0'
+              ]"
               @click="boardStore.setSidebar()"
               title="Show sidebar"
             >
-               <IconEye /> 
+              <IconEye />
             </button>
           </Teleport>
         </div>
       </div>
     </aside>
 
-    <main :class="['pl-[300px] mobile:pl-0 pt-[96px] pb-[40px] flex w-full h-[100vh] overflow-hidden transition-all', !boardStore.sidebar && 'pl-[0px]']">
+    <main
+      :class="[
+        'pl-[300px] mobile:pl-0 pt-[96px] pb-[40px] flex w-full h-[100vh] overflow-hidden transition-all',
+        !boardStore.sidebar && 'pl-[0px]'
+      ]"
+    >
       <div
         class="beautify-scrollbar w-[100vw] h-[calc(100vh-96px)] overflow-auto hover:cursor-col-resize"
         ref="refDragScroll"
@@ -629,11 +626,20 @@ const tasksWrapperRefs = ref([])
 
         <div class="relative flex w-full h-fit px-8 py-6" ref="boardFrameRef" id="column-wrapper">
           <!-- Modal Task-->
-          <Modal :open="openModalTask" @close-modal="() => {openModalTask = false; openDropdownTask = false}" class="w-[480px] p-8">
+          <Modal
+            :open="openModalTask"
+            @close-modal="
+              () => {
+                openModalTask = false
+                openDropdownTask = false
+              }
+            "
+            class="w-[480px] p-8"
+          >
             <div class="relative mb-6">
               <div class="font-bold">{{ boardStore.task.title }}</div>
               <div class="absolute top-0 right-0">
-                <button 
+                <button
                   class="text-slate-400 p-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-dark transition-colors hover:cursor-pointer"
                   @click="openDropdownTask = true"
                 >
@@ -645,20 +651,23 @@ const tasksWrapperRefs = ref([])
                   editText="Edit Task"
                   deleteText="Delete Task"
                   :open="openDropdownTask"
-                  @on-click-edit="() => {
-                    openModalTask = false;
-                    openDropdownTask = false;
-                    openModalEditTask = true;
-                    console.log('active task', boardStore.task)
-                  }"
-                  @on-click-delete="() => {
-                    openModalTask = false;
-                    openDropdownTask = false;
-                    openModalDeleteTask = true;
-                  }"
+                  @on-click-edit="
+                    () => {
+                      openModalTask = false
+                      openDropdownTask = false
+                      openModalEditTask = true
+                      console.log('active task', boardStore.task)
+                    }
+                  "
+                  @on-click-delete="
+                    () => {
+                      openModalTask = false
+                      openDropdownTask = false
+                      openModalDeleteTask = true
+                    }
+                  "
                   @on-click-overlay="openDropdownTask = false"
                 />
-                
               </div>
             </div>
             <div class="text-xs font-semibold text-slate-400 mb-6">
@@ -703,14 +712,16 @@ const tasksWrapperRefs = ref([])
               </div>
             </div>
 
-            <label class="block font-bold text-xs dark:text-white text-slate-400 mb-2">Current Status</label>
+            <label class="block font-bold text-xs dark:text-white text-slate-400 mb-2"
+              >Current Status</label
+            >
             <Select
               :open="openSelectStatus"
               @open-select="openSelectStatus = true"
               @close-select="openSelectStatus = false"
               :items="boardStore.board.columns.map((c, i) => ({ name: c.name, index: i }))"
               name="status"
-              renderValueProp="name" 
+              renderValueProp="name"
               realValueProp="index"
               :value="boardStore.board.columns[boardStore.activeColumnIndex]"
               :handleChange="
@@ -741,9 +752,9 @@ const tasksWrapperRefs = ref([])
               <Button
                 @click="
                   () => {
-                    boardStore.deleteTask(this.activeColumnIndex, this.activeTaskIndex);
-                    openModalDeleteTask = false;
-                    boardStore.$persist(); // because if deletes the last item, I don't know why the store is not persisted.
+                    boardStore.deleteTask(this.activeColumnIndex, this.activeTaskIndex)
+                    openModalDeleteTask = false
+                    boardStore.$persist() // because if deletes the last item, I don't know why the store is not persisted.
                   }
                 "
                 size="small"
@@ -753,11 +764,13 @@ const tasksWrapperRefs = ref([])
                 color="text-white"
               />
               <Button
-                @click="() => {
-                  openModalDeleteTask = false;
-                  deleteColumnIndex = null;
-                  deleteTaskIndex = null;
-                }"
+                @click="
+                  () => {
+                    openModalDeleteTask = false
+                    deleteColumnIndex = null
+                    deleteTaskIndex = null
+                  }
+                "
                 size="small"
                 text="Cancel"
                 class="w-full ml-2"
@@ -765,10 +778,15 @@ const tasksWrapperRefs = ref([])
                 color="text-primary"
               />
             </div>
-          </Modal> <!-- Modal Delete Task-->
+          </Modal>
+          <!-- Modal Delete Task-->
 
           <!-- Modal Edit Task -->
-          <Modal :open="openModalEditTask" @close-modal="openModalEditTask = false" class="w-[480px] p-8">
+          <Modal
+            :open="openModalEditTask"
+            @close-modal="openModalEditTask = false"
+            class="w-[480px] p-8"
+          >
             <Form
               @submit="
                 (values) => {
@@ -817,7 +835,11 @@ const tasksWrapperRefs = ref([])
                     >
                   </div>
                   <div v-for="(field, index) in fields" :key="index" class="flex items-center mb-2">
-                    <Input :name="`subtasks[${index}].text`" :value="field.value.text" type="text" />
+                    <Input
+                      :name="`subtasks[${index}].text`"
+                      :value="field.value.text"
+                      type="text"
+                    />
                     <button @click="remove(index)" class="text-slate-400 p-2" type="button">
                       <IconClose />
                     </button>
@@ -856,7 +878,8 @@ const tasksWrapperRefs = ref([])
                 <Button text="Save Changes" type="submit" />
               </div>
             </Form>
-          </Modal> <!-- Modal Edit Task -->
+          </Modal>
+          <!-- Modal Edit Task -->
 
           <div
             v-for="(c, colIndex) in boardStore.board.columns"
@@ -876,7 +899,11 @@ const tasksWrapperRefs = ref([])
               :data-column-index="colIndex"
               data-is-animating="0"
               class="task-wrapper"
-              :class="c.tasks.length > 0 ? 'flex flex-col h-full' : 'border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg h-full'"
+              :class="
+                c.tasks.length > 0
+                  ? 'flex flex-col h-full'
+                  : 'border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg h-full'
+              "
             >
               <div
                 v-for="(t, index) in c.tasks"
@@ -890,20 +917,20 @@ const tasksWrapperRefs = ref([])
                 data-destination-y="0"
                 @mousedown="
                   (e) => {
+                    if (preventDrag) return
 
-                    if (preventDrag) return;
-                    
                     const $this = e.currentTarget
                     const marginBottom = win.parseInt(win.getComputedStyle($this).marginBottom)
-                    let $wrapper = $this.parentElement;
-                    const $initialWrapper = $this.parentElement;
+                    let $wrapper = $this.parentElement
+                    const $initialWrapper = $this.parentElement
                     // console.log('tasksWrapperRefs', tasksWrapperRefs.length)
-                    const transitionDuration = parseFloat(win.getComputedStyle($this).transitionDuration) * 1000 // in ms
+                    const transitionDuration =
+                      parseFloat(win.getComputedStyle($this).transitionDuration) * 1000 // in ms
                     let isOut = false // when the dragged card doesn't belong in any position
 
-                    $this.classList.remove('card-task-transition');
-                    $this.classList.remove('z-50');
-                    $this.style.zIndex = '100';
+                    $this.classList.remove('card-task-transition')
+                    $this.classList.remove('z-50')
+                    $this.style.zIndex = '100'
 
                     // create shadowRect
                     const $thisRect = $this.getBoundingClientRect()
@@ -921,201 +948,256 @@ const tasksWrapperRefs = ref([])
                     let $thisIndex = Number($this.dataset.index)
                     let fromColumnIndex = Number(colIndex)
                     let toColumnIndex = Number(colIndex)
-                    let movedCards = new Set([$this]);
-                    let $prevSwap = {card: null, direction: null}; // direction { null | 1 = swap bottom, -1 = swap top}
+                    let movedCards = new Set([$this])
+                    let $prevSwap = { card: null, direction: null } // direction { null | 1 = swap bottom, -1 = swap top}
 
                     const dragCard = (e) => {
-                      isDragged = true;
-                      const matrix = (new DOMMatrix(win.getComputedStyle($this).transform));
-                      $this.style.transform = `translate(${matrix.e + e.movementX}px, ${matrix.f + e.movementY}px)`;
+                      isDragged = true
+                      const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
+                      $this.style.transform = `translate(${matrix.e + e.movementX}px, ${
+                        matrix.f + e.movementY
+                      }px)`
 
                       if (isOut == false) {
                         // console.log('INSIDE')
-                        const $wrapperRect = $wrapper.getBoundingClientRect();
+                        const $wrapperRect = $wrapper.getBoundingClientRect()
 
-                        if (e.clientX > $wrapperRect.right || e.clientX < $wrapperRect.left || e.clientY < $wrapperRect.top || e.clientY > $wrapperRect.bottom) {
+                        if (
+                          e.clientX > $wrapperRect.right ||
+                          e.clientX < $wrapperRect.left ||
+                          e.clientY < $wrapperRect.top ||
+                          e.clientY > $wrapperRect.bottom
+                        ) {
                           // console.log('OUT OF WRAPPER')
-                          Array.from($wrapper.children).forEach($el => {
-                            if (Number($el.dataset.index) <= Number($this.dataset.index)) return;
-                            
-                            $el.dataset.index = Number($el.dataset.index) - 1;
+                          Array.from($wrapper.children).forEach(($el) => {
+                            if (Number($el.dataset.index) <= Number($this.dataset.index)) return
 
-                            const destinationY = Number($el.dataset.destinationY) - (marginBottom + $thisRect.height);
-                            $el.style.transform = `translate(0px, ${destinationY}px)`;
-                            $el.dataset.destinationY = destinationY;
+                            $el.dataset.index = Number($el.dataset.index) - 1
 
-                            movedCards.add($el);
-                          });
+                            const destinationY =
+                              Number($el.dataset.destinationY) - (marginBottom + $thisRect.height)
+                            $el.style.transform = `translate(0px, ${destinationY}px)`
+                            $el.dataset.destinationY = destinationY
 
-                          const $temp = $wrapper;
-                          $temp.dataset.isAnimating = 1;
+                            movedCards.add($el)
+                          })
+
+                          const $temp = $wrapper
+                          $temp.dataset.isAnimating = 1
                           win.setTimeout(() => {
-                            $temp.dataset.isAnimating = 0;
+                            $temp.dataset.isAnimating = 0
                           }, transitionDuration)
 
-                          $shadowRect.remove();
-                          isOut = true;
-                          $wrapper = null;
-                          
+                          $shadowRect.remove()
+                          isOut = true
+                          $wrapper = null
                         }
 
-                        const $swapCards = doc.elementsFromPoint(e.clientX, e.clientY).filter( ($el) => {
-                          if ($el === $this) return false;
-                          return $el.classList.contains('card-task')
-                        }); 
+                        const $swapCards = doc
+                          .elementsFromPoint(e.clientX, e.clientY)
+                          .filter(($el) => {
+                            if ($el === $this) return false
+                            return $el.classList.contains('card-task')
+                          })
                         // console.log('$swapCard', $swapCard);
-                        if (!!$swapCards.length && !!$swapCards[0].getAnimations().length == false) {
+                        if (
+                          !!$swapCards.length &&
+                          !!$swapCards[0].getAnimations().length == false
+                        ) {
                           // console.log('SWAP', $prevSwap);
-                          const $swapCard = $swapCards[0];
-                          if (Number($this.dataset.index) < Number($swapCard.dataset.index) && e.movementY > 0) {
+                          const $swapCard = $swapCards[0]
+                          if (
+                            Number($this.dataset.index) < Number($swapCard.dataset.index) &&
+                            e.movementY > 0
+                          ) {
                             // console.log('SWAP BOTTOM')
 
-                            const min = Math.min(Number($this.dataset.index), Number($swapCard.dataset.index));
-                            const max = Math.max(Number($this.dataset.index), Number($swapCard.dataset.index));
-                            Array.from($wrapper.children).forEach($el => {
+                            const min = Math.min(
+                              Number($this.dataset.index),
+                              Number($swapCard.dataset.index)
+                            )
+                            const max = Math.max(
+                              Number($this.dataset.index),
+                              Number($swapCard.dataset.index)
+                            )
+                            Array.from($wrapper.children).forEach(($el) => {
                               // console.log('min', min, 'max', max);
-                              if ($el === $this || Number($el.dataset.index) > max || Number($el.dataset.index) < min) return;
-                              $this.dataset.index = Number($this.dataset.index) + 1;
-                              $el.dataset.index = Number($el.dataset.index) - 1;
-  
-                              $shadowRect.style.top = `${$el.getBoundingClientRect().bottom - $thisRect.height}px`;
-                              $shadowRect.style.left = `${$el.getBoundingClientRect().left}px`;
-  
-                              const destinationY = Number($el.dataset.destinationY) - (marginBottom + $thisRect.height);
-                              $el.style.transform = `translate(0px, ${destinationY}px)`;
-                              $el.dataset.destinationY = destinationY;
+                              if (
+                                $el === $this ||
+                                Number($el.dataset.index) > max ||
+                                Number($el.dataset.index) < min
+                              )
+                                return
+                              $this.dataset.index = Number($this.dataset.index) + 1
+                              $el.dataset.index = Number($el.dataset.index) - 1
 
-                              movedCards.add($el);
-                            });
+                              $shadowRect.style.top = `${
+                                $el.getBoundingClientRect().bottom - $thisRect.height
+                              }px`
+                              $shadowRect.style.left = `${$el.getBoundingClientRect().left}px`
 
-                            
-                          } else if (Number($this.dataset.index) > Number($swapCard.dataset.index) && e.movementY < 0) {
+                              const destinationY =
+                                Number($el.dataset.destinationY) - (marginBottom + $thisRect.height)
+                              $el.style.transform = `translate(0px, ${destinationY}px)`
+                              $el.dataset.destinationY = destinationY
+
+                              movedCards.add($el)
+                            })
+                          } else if (
+                            Number($this.dataset.index) > Number($swapCard.dataset.index) &&
+                            e.movementY < 0
+                          ) {
                             // console.log('SWAP TOP');
 
-                            const min = Math.min(Number($this.dataset.index), Number($swapCard.dataset.index));
-                            const max = Math.max(Number($this.dataset.index), Number($swapCard.dataset.index));
-                            let isFirst = false;
+                            const min = Math.min(
+                              Number($this.dataset.index),
+                              Number($swapCard.dataset.index)
+                            )
+                            const max = Math.max(
+                              Number($this.dataset.index),
+                              Number($swapCard.dataset.index)
+                            )
+                            let isFirst = false
                             // console.log('$this.index', $this.dataset.index);
                             // console.log('$swapCard.index', $swapCard.dataset.index);
-                            Array.from($wrapper.children).forEach($el => {
+                            Array.from($wrapper.children).forEach(($el) => {
                               // console.log('min', min, 'max', max);
-                              if ($el === $this || Number($el.dataset.index) > max || Number($el.dataset.index) < min) return;
-
+                              if (
+                                $el === $this ||
+                                Number($el.dataset.index) > max ||
+                                Number($el.dataset.index) < min
+                              )
+                                return
 
                               // swap vertical fix $shadowRect
 
-                              $this.dataset.index = Number($this.dataset.index) - 1;
-                              $el.dataset.index = Number($el.dataset.index) + 1;
-                              
-                              if (isFirst == false) {
-                                $shadowRect.style.top = `${$el.getBoundingClientRect().top}px`;
-                                $shadowRect.style.left = `${$el.getBoundingClientRect().left}px`;
-                                isFirst = true;
-                              }
-                              
-                              const destinationY = Number($el.dataset.destinationY) + (marginBottom + $thisRect.height);
-                              $el.style.transform = `translate(0px, ${destinationY}px)`;
-                              $el.dataset.destinationY = destinationY;
+                              $this.dataset.index = Number($this.dataset.index) - 1
+                              $el.dataset.index = Number($el.dataset.index) + 1
 
-                              movedCards.add($el);
-                            });
+                              if (isFirst == false) {
+                                $shadowRect.style.top = `${$el.getBoundingClientRect().top}px`
+                                $shadowRect.style.left = `${$el.getBoundingClientRect().left}px`
+                                isFirst = true
+                              }
+
+                              const destinationY =
+                                Number($el.dataset.destinationY) + (marginBottom + $thisRect.height)
+                              $el.style.transform = `translate(0px, ${destinationY}px)`
+                              $el.dataset.destinationY = destinationY
+
+                              movedCards.add($el)
+                            })
                           }
                         }
-                        return;
+                        return
                       }
-                      if (isOut) { // and
+                      if (isOut) {
+                        // and
                         // console.log('OUTSIDE');
-                        const $neoWrapper = doc.elementsFromPoint(e.clientX, e.clientY).find( ($el) => {
-                          return $el.classList.contains('task-wrapper')
-                        }); 
+                        const $neoWrapper = doc
+                          .elementsFromPoint(e.clientX, e.clientY)
+                          .find(($el) => {
+                            return $el.classList.contains('task-wrapper')
+                          })
 
                         if (!!$neoWrapper && $neoWrapper.childElementCount === 0) {
                           // console.log('EMPTY $wrapper');
-                          $wrapper = $neoWrapper;
-                          isOut = false;
-                          $shadowRect.style.top = `${$wrapper.getBoundingClientRect().top}px`;
-                          $shadowRect.style.left = `${$wrapper.getBoundingClientRect().left}px`;
+                          $wrapper = $neoWrapper
+                          isOut = false
+                          $shadowRect.style.top = `${$wrapper.getBoundingClientRect().top}px`
+                          $shadowRect.style.left = `${$wrapper.getBoundingClientRect().left}px`
                           doc.body.appendChild($shadowRect)
 
-                          $this.dataset.index = 0;
-                          toColumnIndex = Number($wrapper.dataset.columnIndex);
-                          return;
+                          $this.dataset.index = 0
+                          toColumnIndex = Number($wrapper.dataset.columnIndex)
+                          return
                         }
 
                         if (!!$neoWrapper && Number($neoWrapper.dataset.isAnimating) == 0) {
                           // console.log('INTO NEW WRAPPER');
                           // console.log('$neoWrapper', $neoWrapper);
 
-                          toColumnIndex = Number($neoWrapper.dataset.columnIndex);
-                          $wrapper = $neoWrapper;
-                          let isFirst = false;
-                          let isMoved = false;
-                          let $lastEl = null;
+                          toColumnIndex = Number($neoWrapper.dataset.columnIndex)
+                          $wrapper = $neoWrapper
+                          let isFirst = false
+                          let isMoved = false
+                          let $lastEl = null
 
-                          Array.from($wrapper.children).forEach($el => {
+                          Array.from($wrapper.children).forEach(($el) => {
                             // console.log('$neoWrapper.chidren.forEach')
                             // console.log('$el loco', $el)
-                            if ($el === $this) return;
-                            const $elRect = $el.getBoundingClientRect();
+                            if ($el === $this) return
+                            const $elRect = $el.getBoundingClientRect()
                             // if (e.clientY <= $elRect.bottom && !!$el.getAnimations().length == false) {
                             if (e.clientY <= $elRect.bottom) {
-                              isOut = false;
-                              isMoved = true;
+                              isOut = false
+                              isMoved = true
                               // console.log('isOut = false');
                               if (isFirst == false) {
-                                isFirst = true;
-                                const diff = (new DOMMatrix(win.getComputedStyle($el).transform)).f - Number($el.dataset.destinationY);
-                                $this.dataset.index = $el.dataset.index;
-                                $shadowRect.style.top = `${$elRect.top - diff}px`;
-                                $shadowRect.style.left = `${$elRect.left}px`;
-                                doc.body.appendChild($shadowRect);
+                                isFirst = true
+                                const diff =
+                                  new DOMMatrix(win.getComputedStyle($el).transform).f -
+                                  Number($el.dataset.destinationY)
+                                $this.dataset.index = $el.dataset.index
+                                $shadowRect.style.top = `${$elRect.top - diff}px`
+                                $shadowRect.style.left = `${$elRect.left}px`
+                                doc.body.appendChild($shadowRect)
                               }
 
-                              $el.dataset.index = Number($el.dataset.index) + 1;
+                              $el.dataset.index = Number($el.dataset.index) + 1
 
-                              const destinationY = Number($el.dataset.destinationY) + (marginBottom + $thisRect.height)
-                              $el.style.transform = `translate(0px, ${destinationY}px)`;
-                              $el.dataset.destinationY = destinationY;
+                              const destinationY =
+                                Number($el.dataset.destinationY) + (marginBottom + $thisRect.height)
+                              $el.style.transform = `translate(0px, ${destinationY}px)`
+                              $el.dataset.destinationY = destinationY
 
-                              movedCards.add($el);
+                              movedCards.add($el)
                             }
 
-                            $lastEl = $el;
-                          });
+                            $lastEl = $el
+                          })
 
                           // console.log('$lastEl', $lastEl);
-                          
+
                           if (isMoved == false) {
                             // console.log('LAST POSITION', $lastEl);
-                            isOut = false;
-                            isMoved = true;
-                            $this.dataset.index = Number($lastEl.dataset.index) + 1;
+                            isOut = false
+                            isMoved = true
+                            $this.dataset.index = Number($lastEl.dataset.index) + 1
 
-                            $shadowRect.style.left = `${$wrapper.getBoundingClientRect().left}px`;
-                            const top = $lastEl.getBoundingClientRect().bottom + Number($lastEl.dataset.destinationY) - new DOMMatrix(win.getComputedStyle($lastEl).transform).f
-                            $shadowRect.style.top = `${top + marginBottom}px`;
-                            doc.body.appendChild($shadowRect);
+                            $shadowRect.style.left = `${$wrapper.getBoundingClientRect().left}px`
+                            const top =
+                              $lastEl.getBoundingClientRect().bottom +
+                              Number($lastEl.dataset.destinationY) -
+                              new DOMMatrix(win.getComputedStyle($lastEl).transform).f
+                            $shadowRect.style.top = `${top + marginBottom}px`
+                            doc.body.appendChild($shadowRect)
                           }
                         }
-                        return;
+                        return
                       }
-                    } 
+                    }
                     const cancelDrag = (e) => {
                       // console.log('cancelDrag')
 
-                      preventDrag = true;
-                      win.setTimeout(() => {preventDrag = false}, transitionDuration)
+                      preventDrag = true
+                      win.setTimeout(() => {
+                        preventDrag = false
+                      }, transitionDuration)
 
                       doc.removeEventListener('mousemove', dragCard)
                       doc.removeEventListener('mouseup', cancelDrag)
 
                       if (isDragged == false) {
                         // open modal card
-                        boardStore.setColumnAndTaskIndex(colIndex, index);
-                        openModalTask = true;
-                        boardStore.setColumnAndTaskIndex(fromColumnIndex, Number($this.dataset.index));
-                        $shadowRect.remove();
-                        return;
+                        boardStore.setColumnAndTaskIndex(colIndex, index)
+                        openModalTask = true
+                        boardStore.setColumnAndTaskIndex(
+                          fromColumnIndex,
+                          Number($this.dataset.index)
+                        )
+                        $shadowRect.remove()
+                        return
                       }
 
                       if ($wrapper == null) {
@@ -1123,63 +1205,70 @@ const tasksWrapperRefs = ref([])
                         // console.log('CANCEL DRAG OUTSIDE WRAPPER')
                         movedCards.forEach(($el) => {
                           // console.log('moved $el', $el)
-                          if ($this === $el) return;
-                          $el.style.transform = 'translate(0px, 0px)';
-                        });
+                          if ($this === $el) return
+                          $el.style.transform = 'translate(0px, 0px)'
+                        })
 
-                        // reset cards.dataset.index 
+                        // reset cards.dataset.index
                         Array.from($initialWrapper.children).reduce((curIndex, $el) => {
-                          if ($el === $this || Number($el.dataset.index) < fromIndex) return curIndex;
-                          $el.dataset.index = curIndex + 1;
-                          return curIndex + 1;
-                        }, fromIndex);
+                          if ($el === $this || Number($el.dataset.index) < fromIndex)
+                            return curIndex
+                          $el.dataset.index = curIndex + 1
+                          return curIndex + 1
+                        }, fromIndex)
 
-                        $shadowRect.style.top = `${$thisRect.top}px`;
-                        $shadowRect.style.left = `${$thisRect.left}px`;
-                        doc.body.appendChild($shadowRect);
-
+                        $shadowRect.style.top = `${$thisRect.top}px`
+                        $shadowRect.style.left = `${$thisRect.left}px`
+                        doc.body.appendChild($shadowRect)
                       }
-                      
-                      $this.classList.add('card-task-transition');
-                      
-                      // back to $shadowRect or back to initial position
-                      const moveX = $this.getBoundingClientRect().x - $shadowRect.getBoundingClientRect().x;
-                      const moveY = $this.getBoundingClientRect().y - $shadowRect.getBoundingClientRect().y;
-                      const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
-                      $this.style.transform = `translate(${matrix.e - moveX}px, ${matrix.f - moveY}px)`;
-                      
-                      $this.classList.remove('z-50');
-                      $this.style.zIndex = '';
-                      
-                      $shadowRect.remove();
 
-                      // update store 
+                      $this.classList.add('card-task-transition')
+
+                      // back to $shadowRect or back to initial position
+                      const moveX =
+                        $this.getBoundingClientRect().x - $shadowRect.getBoundingClientRect().x
+                      const moveY =
+                        $this.getBoundingClientRect().y - $shadowRect.getBoundingClientRect().y
+                      const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
+                      $this.style.transform = `translate(${matrix.e - moveX}px, ${
+                        matrix.f - moveY
+                      }px)`
+
+                      $this.classList.remove('z-50')
+                      $this.style.zIndex = ''
+
+                      $shadowRect.remove()
+
+                      // update store
                       win.setTimeout(() => {
-                          // set translateY 0 to all moved cards
-                          // console.log('UPDATE STORE & TYDING MOVED CARDS')
-                          const unsubscribe = boardStore.$onAction(({name, store, args, after, onError}) => {
-                            after(() => { // after swapTask
+                        // set translateY 0 to all moved cards
+                        // console.log('UPDATE STORE & TYDING MOVED CARDS')
+                        const unsubscribe = boardStore.$onAction(
+                          ({ name, store, args, after, onError }) => {
+                            after(() => {
+                              // after swapTask
                               if (name == 'swapTask') {
                                 movedCards.forEach(($c) => {
                                   // console.log('movedCards.forEach', $c)
                                   $c.classList.remove('card-task-transition')
-                                  $c.style.transform = 'translate(0px, 0px)';
-                                  $c.dataset.destinationY = 0;
+                                  $c.style.transform = 'translate(0px, 0px)'
+                                  $c.dataset.destinationY = 0
                                   win.setTimeout(() => {
                                     $c.classList.add('card-task-transition')
                                     // console.log('add transition class')
                                   }, 10) // needed so no transition
-                                });
+                                })
                               }
-                            });
-                          });
-                          boardStore.swapTask(
-                            fromColumnIndex,
-                            toColumnIndex,
-                            fromIndex,
-                            Number($this.dataset.index),
-                          )
-                          unsubscribe();
+                            })
+                          }
+                        )
+                        boardStore.swapTask(
+                          fromColumnIndex,
+                          toColumnIndex,
+                          fromIndex,
+                          Number($this.dataset.index)
+                        )
+                        unsubscribe()
                       }, transitionDuration) // this setTimeout needs for dragged card get back to the position using transition
                     }
                     doc.addEventListener('mousemove', dragCard)
@@ -1195,7 +1284,6 @@ const tasksWrapperRefs = ref([])
                 </div>
               </div>
             </div>
-
           </div>
 
           <div class="shrink-0 w-[286px] flex flex-col">

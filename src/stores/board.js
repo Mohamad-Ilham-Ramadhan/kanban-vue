@@ -296,7 +296,7 @@ export const useBoardStore = defineStore('board', {
          this.sidebar = !this.sidebar;
       },
       setActiveBoardIndex(index) {
-         console.log('set active board index')
+         console.log('set active board index', index)
          this.activeBoardIndex = index
       },
       createNewBoard({name, columns}) {
