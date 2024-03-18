@@ -8,7 +8,7 @@ module.exports = {
 
     extend: {
       screens: {
-        'mobile': {'max': '766px'}
+        'mobile': {'max': '767px'}
       },
       colors: {
         primary: '#635fc7',

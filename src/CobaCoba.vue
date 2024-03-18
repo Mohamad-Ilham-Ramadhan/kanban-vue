@@ -20,10 +20,13 @@ import { Form, FieldArray } from 'vee-validate'
 import * as yup from 'yup'
 import { v4 as uuid } from 'uuid'
 
+// composable
+import { useIsMobile } from './composables/isMobile'
+
 // store
-import { useBoardStore } from '@/stores/board.js'
-const boardStore = useBoardStore()
-const boards = boardStore.boards
+import { useBoardStore } from '@/stores/board.js';
+const boardStore = useBoardStore();
+const boards = boardStore.boards;
 
 function toggleTheme() {
   document.documentElement.classList.toggle('dark')
@@ -63,6 +66,9 @@ const refDragScroll = ref(null)
 const dragScroll = ref(false)
 const preventDrag = ref(false)
 
+const {isMobile} = useIsMobile();
+
+// === === === 
 const doc = document
 const win = window
 const DOMMatrix = window.DOMMatrix
@@ -79,7 +85,6 @@ function removeScrollHandler() {
 
 const tasksWrapperRefs = ref([])
 
-// let shadowRect = {top:0, bottom:0, height: 0} // initial rect of dragged task
 </script>
 
 <template>
@@ -98,7 +103,7 @@ const tasksWrapperRefs = ref([])
       </div>
       <div class="font-bold text-2xl mobile:mr-auto mobile:text-[20px]">{{ boardStore.board.name }}</div>
       <div class="flex items-center">
-        <Button text="+ Add New Task" class="mr-4" @click="openModalAddTask = true" />
+        <Button :text="isMobile ? '+' : '+ Add New Task'" class="mr-4" @click="openModalAddTask = true" />
         <Modal :open="openModalAddTask" @close-modal="openModalAddTask = false" class="w-[480px]">
           <Form
             @submit="
