@@ -271,7 +271,7 @@ const tasksWrapperRefs = ref([])
                 size="small"
                 background-color="bg-white hover:bg-indigo-50"
                 color="text-primary"
-              />
+              >+ Add New Subtask</Button>
             </FieldArray>
 
             <div class="mb-4">
@@ -292,7 +292,7 @@ const tasksWrapperRefs = ref([])
             </div>
 
             <div>
-              <Button text="Add" type="submit" />
+              <Button type="submit" size="small" class="w-full">Create Task</Button>
             </div>
           </Form>
         </Modal>
@@ -344,19 +344,17 @@ const tasksWrapperRefs = ref([])
                 }
               "
               size="small"
-              text="Delete"
               class="w-full mr-2"
               background-color="bg-red-450 hover:opacity-60"
               color="text-white"
-            />
+            >Delete</Button>
             <Button
               @click="openModalDelete = false"
               size="small"
-              text="Cancel"
               class="w-full ml-2"
               background-color="bg-white hover:opacity-60"
               color="text-primary"
-            />
+            >Cancel</Button>
           </div>
         </Modal>
 
@@ -415,22 +413,21 @@ const tasksWrapperRefs = ref([])
                       :disabled="field.value.tasks.length > 0"
                     >
                       <IconClose />
-                    </button>
+                  </button>
                   </div>
                 </div>
                 <Button
                   v-show="fields.length < 6"
                   @click="push({ name: '', tasks: [] })"
-                  text="+ Add New Column"
                   type="button"
                   class="block w-full"
                   size="small"
                   background-color="bg-white hover:bg-indigo-50"
                   color="text-primary"
-                />
+                >+ Add New Column</Button>
               </FieldArray>
             </div>
-            <Button class="w-full" type="submit" text="Save Changes" size="small" />
+            <Button class="w-full" type="submit" size="small" >Save Changes</Button>
           </Form>
         </Modal>
       </div>
@@ -544,10 +541,10 @@ const tasksWrapperRefs = ref([])
                       size="small"
                       background-color="bg-white hover:bg-indigo-50"
                       color="text-primary"
-                    />
+                    >+ Add New Column</Button>
                   </FieldArray>
                 </div>
-                <Button class="w-full" type="submit" text="Create New Board" size="small" />
+                <Button class="w-full" type="submit" size="small" >Create New Board</Button>
               </Form>
             </Modal>
           </nav>
@@ -765,11 +762,10 @@ const tasksWrapperRefs = ref([])
                   }
                 "
                 size="small"
-                text="Delete"
                 class="w-full mr-2"
                 background-color="bg-red-450 hover:opacity-60"
                 color="text-white"
-              />
+              >Delete</Button>
               <Button
                 @click="
                   () => {
@@ -779,11 +775,10 @@ const tasksWrapperRefs = ref([])
                   }
                 "
                 size="small"
-                text="Cancel"
                 class="w-full ml-2"
                 background-color="bg-white hover:opacity-60"
                 color="text-primary"
-              />
+              >Cancel</Button>
             </div>
           </Modal>
           <!-- Modal Delete Task-->
@@ -856,13 +851,12 @@ const tasksWrapperRefs = ref([])
                 <Button
                   v-show="fields.length < 6"
                   @click="push({ id: uuid(), text: '', isDone: false })"
-                  text="+ Add New Subtask"
                   type="button"
                   class="block w-full mb-4"
                   size="small"
                   background-color="bg-white hover:bg-indigo-50"
                   color="text-primary"
-                />
+                >+ Add New Subtask</Button>
               </FieldArray>
 
               <div class="mb-4">
@@ -883,7 +877,7 @@ const tasksWrapperRefs = ref([])
               </div>
 
               <div>
-                <Button text="Save Changes" type="submit" />
+                <Button type="submit" size="small" class="w-full">Save Changes</Button>
               </div>
             </Form>
           </Modal>
@@ -1389,16 +1383,15 @@ const tasksWrapperRefs = ref([])
                     <Button
                       v-show="fields.length < 6"
                       @click="push({ name: '', tasks: [] })"
-                      text="+ Add New Column"
                       type="button"
                       class="block w-full"
                       size="small"
                       background-color="bg-white hover:bg-indigo-50"
                       color="text-primary"
-                    />
+                    >+ Add New Column</Button>
                   </FieldArray>
                 </div>
-                <Button class="w-full" type="submit" text="Save Changes" size="small" />
+                <Button class="w-full" type="submit" size="small">Save Changes</Button>
               </Form>
             </Modal>
           </div>
