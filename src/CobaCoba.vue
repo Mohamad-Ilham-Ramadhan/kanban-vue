@@ -10,6 +10,7 @@ import IconHide from '@/components/icons/IconHide.vue'
 import IconClose from '@/components/icons/IconClose.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
 import IconEye from '@/components/icons/IconEye.vue'
+import IconArrowDown from '@/components/icons/IconArrowDown.vue'
 import Modal from '@/components/Modal.vue'
 import Input from '@/components/VeeValidate/Input.vue'
 import Textarea from '@/components/VeeValidate/Textarea.vue'
@@ -50,6 +51,7 @@ const openSelectStatus = ref(false) // select status in add new task form
 const openModalTask = ref(false)
 const openModalDeleteTask = ref(false);
 const openModalEditTask = ref(false);
+const openModalMobile = ref(false);
 const modalTaskData = ref({
   id: '',
   columnIndex: null,
@@ -101,10 +103,125 @@ const tasksWrapperRefs = ref([])
       <div class="mobile:block hidden mr-4">
         <img src="@/assets/logoMobile.svg" alt="logo">
       </div>
-      <div class="font-bold text-2xl mobile:mr-auto mobile:text-[20px]">{{ boardStore.board.name }}</div>
+      <div v-show="!isMobile" class="font-bold text-2xl mobile:mr-0 mobile:text-[20px]">{{ boardStore.board.name }}</div>
+      <button v-show="isMobile" class="mr-auto flex items-center"
+        @click="openModalMobile = !openModalMobile"
+      >
+        <div class="font-bold text-2xl mr-0 text-[20px]">{{ boardStore.board.name }}</div>
+        <IconArrowDown class="w-[18px] h-[18px] text-primary translate-y-1" />
+      </button>
+
+      <!-- Modal mobile menu -->
+      <Modal
+        :open="openModalMobile"
+        @close-modal="openModalMobile = !openModalMobile"
+      >
+        <div class="uppercase text-[.7rem] text-slate-500 dark:text-slate-400 font-bold tracking-[.175rem] mb-4">all boards ({{ boardStore.boards.length }})</div>
+        <nav class="flex flex-col justify-between mb-2">
+            <li
+              v-for="(b, index) in boards"
+              :key="b.id"
+              :class="[
+                'list-none font-bold flex items-center hover:bg-primary-light hover:text-white dark:hover:text-white hover:cursor-pointer py-2.5 rounded-r-full mb-1',
+                boardStore.activeIndex === index
+                  ? 'bg-primary text-white'
+                  : 'dark:text-slate-400 text-slate-500'
+              ]"
+              @click="boardStore.setActiveBoardIndex(index)"
+            >
+              <IconBoard class="mr-4" />
+              <div>{{ b.name }}</div>
+            </li>
+
+            <li
+              class="flex items-center font-bold pl-8 py-2.5 list-none text-primary hover:opacity-60 hover:cursor-pointer transition-opacity"
+              @click="openCreateNewBoard = true"
+            >
+              <span class="mr-4">
+                <IconBoard />
+              </span>
+              <span>+ Create New Board</span>
+            </li>
+            <Modal
+              :open="openCreateNewBoard"
+              @close-modal="openCreateNewBoard = false"
+              class="w-[480px]"
+            >
+              <div class="font-bold text-lg mb-4">Add New Board</div>
+              <Form
+                @submit="
+                  (values) => {
+                    boardStore.createNewBoard(values)
+                    openCreateNewBoard = false
+                    boardStore.setActiveIndex(boardStore.boards.length - 1)
+                  }
+                "
+                @invalid-submit="() => {}"
+                :validation-schema="
+                  yup.object().shape({
+                    name: yup.string().required(),
+                    columns: yup.array().of(yup.string().required())
+                  })
+                "
+                :initial-values="{ name: '', columns: [''] }"
+              >
+                <div class="mb-4">
+                  <label
+                    for="name"
+                    class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
+                    >Name</label
+                  >
+                  <Input name="name" type="text" />
+                </div>
+                <div class="mb-4">
+                  <FieldArray name="columns" v-slot="{ fields, push, remove }">
+                    <div class="mb-4">
+                      <div class="mb-2">
+                        <label
+                          for="name"
+                          class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
+                          >Columns</label
+                        >
+                      </div>
+                      <div
+                        v-for="(field, index) in fields"
+                        :key="index"
+                        class="flex items-center mb-2"
+                      >
+                        <Input :name="`columns[${index}]`" type="text" />
+                        <button
+                          v-show="fields.length > 1"
+                          @click="remove(index)"
+                          class="text-slate-400 p-2"
+                          type="button"
+                        >
+                          <IconClose />
+                        </button>
+                      </div>
+                    </div>
+                    <Button
+                      v-show="fields.length < 6"
+                      @click="push('')"
+                      text="+ Add New Column"
+                      type="button"
+                      class="block w-full"
+                      size="small"
+                      background-color="bg-white hover:bg-indigo-50"
+                      color="text-primary"
+                    />
+                  </FieldArray>
+                </div>
+                <Button class="w-full" type="submit" text="Create New Board" size="small" />
+              </Form>
+            </Modal>
+          </nav>
+      </Modal>
+      <!-- Modal mobile menu -->
+
       <div class="flex items-center">
         <Button :text="isMobile ? '+' : '+ Add New Task'" class="mr-4" @click="openModalAddTask = true" />
-        <Modal :open="openModalAddTask" @close-modal="openModalAddTask = false" class="w-[480px]">
+        <!-- Modal add new task -->
+        <Modal :open="openModalAddTask" @close-modal="openModalAddTask = false" class="w-[480px] p-8">
           <Form
             @submit="
               (values) => {
@@ -369,10 +486,11 @@ const tasksWrapperRefs = ref([])
               </span>
               <span>+ Create New Board</span>
             </li>
+            <!-- Modal create new board -->
             <Modal
               :open="openCreateNewBoard"
               @close-modal="openCreateNewBoard = false"
-              class="w-[480px]"
+              class="w-[480px] p-8"
             >
               <div class="font-bold text-lg mb-4">Add New Board</div>
               <Form
@@ -511,7 +629,7 @@ const tasksWrapperRefs = ref([])
 
         <div class="relative flex w-full h-fit px-8 py-6" ref="boardFrameRef" id="column-wrapper">
           <!-- Modal Task-->
-          <Modal :open="openModalTask" @close-modal="() => {openModalTask = false; openDropdownTask = false}" class="w-[480px]">
+          <Modal :open="openModalTask" @close-modal="() => {openModalTask = false; openDropdownTask = false}" class="w-[480px] p-8">
             <div class="relative mb-6">
               <div class="font-bold">{{ boardStore.task.title }}</div>
               <div class="absolute top-0 right-0">
@@ -610,7 +728,7 @@ const tasksWrapperRefs = ref([])
 
           <!-- Modal Delete Task -->
           <Modal
-            class="w-[480px]"
+            class="w-[480px] p-8"
             :open="openModalDeleteTask"
             @close-modal="openModalDeleteTask = false"
           >
@@ -650,7 +768,7 @@ const tasksWrapperRefs = ref([])
           </Modal> <!-- Modal Delete Task-->
 
           <!-- Modal Edit Task -->
-          <Modal :open="openModalEditTask" @close-modal="openModalEditTask = false" class="w-[480px]">
+          <Modal :open="openModalEditTask" @close-modal="openModalEditTask = false" class="w-[480px] p-8">
             <Form
               @submit="
                 (values) => {
@@ -1102,7 +1220,7 @@ const tasksWrapperRefs = ref([])
             <Modal
               :open="openModalNewColumn"
               @close-modal="openModalNewColumn = false"
-              class="w-[480px]"
+              class="w-[480px] p-8"
             >
               <div class="font-bold text-lg mb-4">Add New Column</div>
               <Form

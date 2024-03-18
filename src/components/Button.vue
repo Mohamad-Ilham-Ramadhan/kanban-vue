@@ -78,11 +78,3 @@ let textSize = {
 </template>
 
 <style></style>
-
-<!-- <button
-:class="['rounded-full font-bold transition-colors transition-opacity', sizeVar, props.backgroundColor ? props.backgroundColor : , props.color ? props.color : 'text-white', props.class, isMobile && 'py-0 px-3']"
-:type="props.type" :disabled="props.disabled">
-{{ !isMobile ? props.text : null }}
-<svg v-show="isMobile" width="12" height="12" xmlns="http://www.w3.org/2000/svg"><path fill="#FFF" d="M7.368 12V7.344H12V4.632H7.368V0H4.656v4.632H0v2.712h4.656V12z"></path>
-</svg>
-</button> -->

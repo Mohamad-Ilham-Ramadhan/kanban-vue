@@ -11,7 +11,7 @@ const modalRef = ref(null)
       <!-- modal -->
       <Transition name="modal">
         <div v-if="props.open" ref="modalRef"
-          :class="['p-8 dark:text-white text-black rounded-lg bg-white text-black dark:bg-dark-light fixed z-[1000] top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2', props.class]">
+          :class="['dark:text-white text-black rounded-lg bg-white text-black dark:bg-dark-light fixed z-[1000] top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2', props.class]">
           <slot></slot>
         </div>
       </Transition>
