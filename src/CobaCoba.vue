@@ -592,7 +592,7 @@ const tasksWrapperRefs = ref([])
               @click="boardStore.setSidebar()"
               title="Show sidebar"
             >
-              <IconEye />
+              <IconEye class="text-white" />
             </button>
           </Teleport>
         </div>
