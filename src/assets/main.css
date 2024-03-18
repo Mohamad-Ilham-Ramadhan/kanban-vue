@@ -1,7 +1,7 @@
 @import './base.css';
 
 body {
-  font-family: 'Plus Jakarta Sans';
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: #000;
   background-color: theme('colors.light-theme-bg');
 }
