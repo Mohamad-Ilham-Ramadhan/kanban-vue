@@ -200,11 +200,12 @@ const tasksWrapperRefs = ref([])
           <svg v-show="isMobile" width="12" height="12" xmlns="http://www.w3.org/2000/svg"><path fill="#FFF" d="M7.368 12V7.344H12V4.632H7.368V0H4.656v4.632H0v2.712h4.656V12z"></path></svg>
           {{ !isMobile ? '+ Add New Task' : '' }}
         </Button>
+
         <!-- Modal add new task -->
         <Modal
           :open="openModalAddTask"
           @close-modal="openModalAddTask = false"
-          class="w-[480px] p-8"
+          class="max-w-[480px] w-full p-8"
           :isFullscreen="isMobile ? true : false"
         >
           <Form
@@ -329,7 +330,7 @@ const tasksWrapperRefs = ref([])
         </div>
 
         <!-- Modal Delete Board -->
-        <Modal :open="openModalDelete" @close-modal="openModalDelete = false" class="w-[480px] p-8" :isFullscreen="isMobile">
+        <Modal :open="openModalDelete" @close-modal="openModalDelete = false" class="max-w-[480px] w-full p-8" :isFullscreen="isMobile">
           <div class="text-red-450 font-bold text-lg mb-4">Delete this board?</div>
           <div class="text-[.8rem] text-slate-400 font-semibold leading-6 mb-6">
             Are you sure you want to delete the '{{ boardStore.board.name }}' board? This action
@@ -359,7 +360,7 @@ const tasksWrapperRefs = ref([])
         </Modal>
 
         <!-- Modal Edit Board -->
-        <Modal :open="openModalEdit" @close-modal="openModalEdit = false" class="w-[480px] p-8" :isFullscreen="isMobile">
+        <Modal :open="openModalEdit" @close-modal="openModalEdit = false" class="max-w-[480px] w-full p-8" :isFullscreen="isMobile">
           <div class="font-bold text-lg mb-4">Edit Board</div>
           <Form
             @submit="
@@ -477,7 +478,7 @@ const tasksWrapperRefs = ref([])
             <Modal
               :open="openCreateNewBoard"
               @close-modal="openCreateNewBoard = false"
-              class="w-[480px] p-8"
+              class="max-w-[480px] w-full p-8"
               :isFullscreen="isMobile"
             >
               <div class="font-bold text-lg mb-4">Add New Board</div>
@@ -601,8 +602,8 @@ const tasksWrapperRefs = ref([])
 
     <main
       :class="[
-        'pl-[300px] mobile:pl-0 pt-[96px] pb-[40px] flex w-full h-[100vh] overflow-hidden transition-all',
-        !boardStore.sidebar && 'pl-[0px]'
+        'mobile:pl-0 pt-[96px] pb-[40px] flex w-full h-[100vh] overflow-hidden transition-all',
+        boardStore.sidebar ? 'pl-[300px]' : 'pl-[0px]'
       ]"
     >
       <div
@@ -636,7 +637,7 @@ const tasksWrapperRefs = ref([])
                 openDropdownTask = false
               }
             "
-            class="w-[480px] p-8"
+            class="max-w-[480px] w-full p-8"
             :isFullscreen="isMobile"
           >
             <div class="relative mb-6">
@@ -742,7 +743,7 @@ const tasksWrapperRefs = ref([])
 
           <!-- Modal Delete Task -->
           <Modal
-            class="w-[480px] p-8"
+            class="max-w-[480px] w-full p-8"
             :open="openModalDeleteTask"
             @close-modal="openModalDeleteTask = false"
             :isFullscreen="isMobile"
@@ -787,7 +788,7 @@ const tasksWrapperRefs = ref([])
           <Modal
             :open="openModalEditTask"
             @close-modal="openModalEditTask = false"
-            class="w-[480px] p-8"
+            class="max-w-[480px] w-full p-8"
             :isFullscreen="isMobile"
           >
             <Form
