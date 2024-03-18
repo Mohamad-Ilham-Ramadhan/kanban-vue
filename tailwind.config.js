@@ -7,6 +7,9 @@ module.exports = {
   theme: {
 
     extend: {
+      screens: {
+        'mobile': {'max': '766px'}
+      },
       colors: {
         primary: '#635fc7',
         'primary-light': '#A8A4FF',

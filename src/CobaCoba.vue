@@ -87,13 +87,16 @@ const tasksWrapperRefs = ref([])
     class="flex flex-row items-center w-full h-[96px] fixed left-0 top-0 z-50 bg-white dark:bg-dark-light border-b border-b-slate-200 dark:border-b-slate-700"
   >
     <div
-      class="shrink-0 w-[300px] h-full flex items-center border-r border-r-slate-200 dark:border-r-slate-700 pl-8"
+      class="shrink-0 w-[300px] h-full flex items-center border-r border-r-slate-200 dark:border-r-slate-700 pl-8 mobile:hidden"
     >
       <!-- <img src="@/assets/logo.svg" alt="logo"> -->
       <Logo />
     </div>
     <div class="flex flex-row w-full justify-between items-center px-8">
-      <div class="font-bold text-2xl">{{ boardStore.board.name }}</div>
+      <div class="mobile:block hidden mr-4">
+        <img src="@/assets/logoMobile.svg" alt="logo">
+      </div>
+      <div class="font-bold text-2xl mobile:mr-auto mobile:text-[20px]">{{ boardStore.board.name }}</div>
       <div class="flex items-center">
         <Button text="+ Add New Task" class="mr-4" @click="openModalAddTask = true" />
         <Modal :open="openModalAddTask" @close-modal="openModalAddTask = false" class="w-[480px]">
@@ -327,7 +330,7 @@ const tasksWrapperRefs = ref([])
 
   <div class="flex flex-row">
     <aside
-      :class="['shrink-0 w-[300px] h-[100vh] fixed left-0 top-0 z-40 dark:bg-dark-light bg-white border-r border-r-slate-200 dark:border-r-slate-700 pt-[96px] transition-transform', boardStore.sidebar === false && '-translate-x-[300px]']"
+      :class="['shrink-0 w-[300px] h-[100vh] fixed left-0 top-0 z-40 dark:bg-dark-light bg-white border-r border-r-slate-200 dark:border-r-slate-700 pt-[96px] transition-transform mobile:hidden', boardStore.sidebar === false && '-translate-x-[300px]']"
     >
       <div class="flex flex-col justify-between h-full pt-4 beautify-scrollbar overflow-auto">
         <div class="shrink-0">
@@ -479,7 +482,7 @@ const tasksWrapperRefs = ref([])
       </div>
     </aside>
 
-    <main :class="['pl-[300px] pt-[96px] pb-[40px] flex w-full h-[100vh] overflow-hidden transition-all', !boardStore.sidebar && 'pl-[0px]']">
+    <main :class="['pl-[300px] mobile:pl-0 pt-[96px] pb-[40px] flex w-full h-[100vh] overflow-hidden transition-all', !boardStore.sidebar && 'pl-[0px]']">
       <div
         class="beautify-scrollbar w-[100vw] h-[calc(100vh-96px)] overflow-auto hover:cursor-col-resize"
         ref="refDragScroll"
