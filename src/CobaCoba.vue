@@ -202,6 +202,7 @@ const tasksWrapperRefs = ref([])
           :open="openModalAddTask"
           @close-modal="openModalAddTask = false"
           class="w-[480px] p-8"
+          :isFullscreen="isMobile ? true : false"
         >
           <Form
             @submit="
@@ -325,7 +326,7 @@ const tasksWrapperRefs = ref([])
         </div>
 
         <!-- Modal Delete Board -->
-        <Modal :open="openModalDelete" @close-modal="openModalDelete = false" class="w-[480px]">
+        <Modal :open="openModalDelete" @close-modal="openModalDelete = false" class="w-[480px] p-8" :isFullscreen="isMobile">
           <div class="text-red-450 font-bold text-lg mb-4">Delete this board?</div>
           <div class="text-[.8rem] text-slate-400 font-semibold leading-6 mb-6">
             Are you sure you want to delete the '{{ boardStore.board.name }}' board? This action
@@ -357,7 +358,7 @@ const tasksWrapperRefs = ref([])
         </Modal>
 
         <!-- Modal Edit Board -->
-        <Modal :open="openModalEdit" @close-modal="openModalEdit = false" class="w-[480px]">
+        <Modal :open="openModalEdit" @close-modal="openModalEdit = false" class="w-[480px] p-8" :isFullscreen="isMobile">
           <div class="font-bold text-lg mb-4">Edit Board</div>
           <Form
             @submit="
@@ -635,6 +636,7 @@ const tasksWrapperRefs = ref([])
               }
             "
             class="w-[480px] p-8"
+            :isFullscreen="isMobile"
           >
             <div class="relative mb-6">
               <div class="font-bold">{{ boardStore.task.title }}</div>
@@ -742,6 +744,7 @@ const tasksWrapperRefs = ref([])
             class="w-[480px] p-8"
             :open="openModalDeleteTask"
             @close-modal="openModalDeleteTask = false"
+            :isFullscreen="isMobile"
           >
             <div class="text-red-450 font-bold text-lg mb-4">Delete this Task?</div>
             <div class="text-[.8rem] text-slate-400 font-semibold leading-6 mb-6">
@@ -786,6 +789,7 @@ const tasksWrapperRefs = ref([])
             :open="openModalEditTask"
             @close-modal="openModalEditTask = false"
             class="w-[480px] p-8"
+            :isFullscreen="isMobile"
           >
             <Form
               @submit="

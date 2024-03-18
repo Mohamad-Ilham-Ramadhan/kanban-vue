@@ -1,7 +1,10 @@
 <script setup >
-import { ref, defineProps, defineEmits } from 'vue'
+import { ref, defineProps, defineEmits } from 'vue';
+import IconClose from './icons/IconClose.vue';
+
+
 const emit = defineEmits(['close-modal'])
-const props = defineProps(['open', 'class'])
+const props = defineProps(['open', 'class', 'isFullscreen'])
 const modalRef = ref(null)
 </script>
 
@@ -11,7 +14,14 @@ const modalRef = ref(null)
       <!-- modal -->
       <Transition name="modal">
         <div v-if="props.open" ref="modalRef"
-          :class="['dark:text-white text-black rounded-lg bg-white text-black dark:bg-dark-light fixed z-[1000] top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2', props.class]">
+          :class="['dark:text-white text-black rounded-lg bg-white text-black dark:bg-dark-light fixed z-[1000]', props.isFullscreen ? 'top-0 bottom-0 left-1/2 -translate-x-1/2' : 'top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2', props.class]">
+          <button
+            class="absolute top-0 right-0 p-2 rounded-md bg-zinc-800"
+            @click="emit('close-modal')"
+            v-show="isFullscreen"
+          >
+            <IconClose class="text-slate-400" />
+          </button>
           <slot></slot>
         </div>
       </Transition>
