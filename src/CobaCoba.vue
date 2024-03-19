@@ -66,8 +66,8 @@ watch(modalTaskData, () => {
 })
 const refDragScroll = ref(null)
 const dragScroll = ref(false)
-const preventDrag = ref(false); // prevent dragging $card-tasks
-const isPreventMainScroll = ref(false);
+const preventDrag = ref(false) // prevent dragging $card-tasks
+const isPreventMainScroll = ref(false)
 
 const { isMobile } = useIsMobile()
 
@@ -77,7 +77,7 @@ const win = window
 const DOMMatrix = window.DOMMatrix
 
 function moveScrollHandler(e) {
-  refDragScroll.value.scrollLeft = refDragScroll.value.scrollLeft - e.movementX;
+  refDragScroll.value.scrollLeft = refDragScroll.value.scrollLeft - e.movementX
 }
 function removeScrollHandler() {
   doc.body.classList.toggle('select-none')
@@ -88,6 +88,365 @@ function removeScrollHandler() {
 
 const tasksWrapperRefs = ref([])
 
+const dragDesktop = (args, e) => {
+  const {colIndex, index} = args
+  if (preventDrag.value) return
+
+  const $this = e.currentTarget
+  const marginBottom = win.parseInt(win.getComputedStyle($this).marginBottom)
+  let $wrapper = $this.parentElement
+  const $initialWrapper = $this.parentElement
+  // console.log('tasksWrapperRefs', tasksWrapperRefs.length)
+  const transitionDuration =
+    parseFloat(win.getComputedStyle($this).transitionDuration) * 1000 // in ms
+  let isOut = false // when the dragged card doesn't belong in any position
+
+  $this.classList.remove('card-task-transition')
+  $this.classList.remove('z-50')
+  $this.style.zIndex = '100'
+
+  // create shadowRect
+  const $thisRect = $this.getBoundingClientRect()
+  // console.log('$thisRect', $thisRect);
+  const $shadowRect = doc.createElement('div')
+  $shadowRect.style.height = `${$thisRect.height}px`
+  $shadowRect.style.width = `${$thisRect.width}px`
+  $shadowRect.style.position = 'absolute'
+  $shadowRect.style.top = `${$thisRect.top}px`
+  $shadowRect.style.left = `${$thisRect.left}px`
+  doc.body.appendChild($shadowRect)
+
+  let isDragged = false
+  let fromIndex = Number($this.dataset.index)
+  // let $thisIndex = Number($this.dataset.index)
+  let fromColumnIndex = Number(colIndex)
+  let toColumnIndex = Number(colIndex)
+  let movedCards = new Set([$this])
+  // let $prevSwap = { card: null, direction: null } // direction { null | 1 = swap bottom, -1 = swap top}
+
+  const dragCard = (e) => {
+    isDragged = true
+    const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
+    $this.style.transform = `translate(${matrix.e + e.movementX}px, ${
+      matrix.f + e.movementY
+    }px)`
+
+    if (isOut == false) {
+      // console.log('INSIDE')
+      const $wrapperRect = $wrapper.getBoundingClientRect()
+
+      if (
+        e.clientX > $wrapperRect.right ||
+        e.clientX < $wrapperRect.left ||
+        e.clientY < $wrapperRect.top ||
+        e.clientY > $wrapperRect.bottom
+      ) {
+        // console.log('OUT OF WRAPPER')
+        Array.from($wrapper.children).forEach(($el) => {
+          if (Number($el.dataset.index) <= Number($this.dataset.index)) return
+
+          $el.dataset.index = Number($el.dataset.index) - 1
+
+          const destinationY =
+            Number($el.dataset.destinationY) - (marginBottom + $thisRect.height)
+          $el.style.transform = `translate(0px, ${destinationY}px)`
+          $el.dataset.destinationY = destinationY
+
+          movedCards.add($el)
+        })
+
+        const $temp = $wrapper
+        $temp.dataset.isAnimating = 1
+        win.setTimeout(() => {
+          $temp.dataset.isAnimating = 0
+        }, transitionDuration)
+
+        $shadowRect.remove()
+        isOut = true
+        $wrapper = null
+      }
+
+      const $swapCards = doc
+        .elementsFromPoint(e.clientX, e.clientY)
+        .filter(($el) => {
+          if ($el === $this) return false
+          return $el.classList.contains('card-task')
+        })
+      // console.log('$swapCard', $swapCard);
+      if (
+        !!$swapCards.length &&
+        !!$swapCards[0].getAnimations().length == false
+      ) {
+        // console.log('SWAP', $prevSwap);
+        const $swapCard = $swapCards[0]
+        if (
+          Number($this.dataset.index) < Number($swapCard.dataset.index) &&
+          e.movementY > 0
+        ) {
+          // console.log('SWAP BOTTOM')
+
+          const min = Math.min(
+            Number($this.dataset.index),
+            Number($swapCard.dataset.index)
+          )
+          const max = Math.max(
+            Number($this.dataset.index),
+            Number($swapCard.dataset.index)
+          )
+          Array.from($wrapper.children).forEach(($el) => {
+            // console.log('min', min, 'max', max);
+            if (
+              $el === $this ||
+              Number($el.dataset.index) > max ||
+              Number($el.dataset.index) < min
+            )
+              return
+            $this.dataset.index = Number($this.dataset.index) + 1
+            $el.dataset.index = Number($el.dataset.index) - 1
+
+            $shadowRect.style.top = `${
+              $el.getBoundingClientRect().bottom - $thisRect.height
+            }px`
+            $shadowRect.style.left = `${$el.getBoundingClientRect().left}px`
+
+            const destinationY =
+              Number($el.dataset.destinationY) - (marginBottom + $thisRect.height)
+            $el.style.transform = `translate(0px, ${destinationY}px)`
+            $el.dataset.destinationY = destinationY
+
+            movedCards.add($el)
+          })
+        } else if (
+          Number($this.dataset.index) > Number($swapCard.dataset.index) &&
+          e.movementY < 0
+        ) {
+          // console.log('SWAP TOP');
+
+          const min = Math.min(
+            Number($this.dataset.index),
+            Number($swapCard.dataset.index)
+          )
+          const max = Math.max(
+            Number($this.dataset.index),
+            Number($swapCard.dataset.index)
+          )
+          let isFirst = false
+          // console.log('$this.index', $this.dataset.index);
+          // console.log('$swapCard.index', $swapCard.dataset.index);
+          Array.from($wrapper.children).forEach(($el) => {
+            // console.log('min', min, 'max', max);
+            if (
+              $el === $this ||
+              Number($el.dataset.index) > max ||
+              Number($el.dataset.index) < min
+            )
+              return
+
+            // swap vertical fix $shadowRect
+
+            $this.dataset.index = Number($this.dataset.index) - 1
+            $el.dataset.index = Number($el.dataset.index) + 1
+
+            if (isFirst == false) {
+              $shadowRect.style.top = `${$el.getBoundingClientRect().top}px`
+              $shadowRect.style.left = `${$el.getBoundingClientRect().left}px`
+              isFirst = true
+            }
+
+            const destinationY =
+              Number($el.dataset.destinationY) + (marginBottom + $thisRect.height)
+            $el.style.transform = `translate(0px, ${destinationY}px)`
+            $el.dataset.destinationY = destinationY
+
+            movedCards.add($el)
+          })
+        }
+      }
+      return
+    }
+
+    if (isOut) {
+      // and
+      // console.log('OUTSIDE');
+      const $neoWrapper = doc
+        .elementsFromPoint(e.clientX, e.clientY)
+        .find(($el) => {
+          return $el.classList.contains('task-wrapper')
+        })
+
+      if (!!$neoWrapper && $neoWrapper.childElementCount === 0) {
+        // console.log('EMPTY $wrapper');
+        $wrapper = $neoWrapper
+        isOut = false
+        $shadowRect.style.top = `${$wrapper.getBoundingClientRect().top}px`
+        $shadowRect.style.left = `${$wrapper.getBoundingClientRect().left}px`
+        doc.body.appendChild($shadowRect)
+
+        $this.dataset.index = 0
+        toColumnIndex = Number($wrapper.dataset.columnIndex)
+        return
+      }
+
+      if (!!$neoWrapper && Number($neoWrapper.dataset.isAnimating) == 0) {
+        // console.log('INTO NEW WRAPPER');
+        // console.log('$neoWrapper', $neoWrapper);
+
+        toColumnIndex = Number($neoWrapper.dataset.columnIndex)
+        $wrapper = $neoWrapper
+        let isFirst = false
+        let isMoved = false
+        let $lastEl = null
+
+        Array.from($wrapper.children).forEach(($el) => {
+          // console.log('$neoWrapper.chidren.forEach')
+          // console.log('$el loco', $el)
+          if ($el === $this) return
+          const $elRect = $el.getBoundingClientRect()
+          // if (e.clientY <= $elRect.bottom && !!$el.getAnimations().length == false) {
+          if (e.clientY <= $elRect.bottom) {
+            isOut = false
+            isMoved = true
+            // console.log('isOut = false');
+            if (isFirst == false) {
+              isFirst = true
+              const diff =
+                new DOMMatrix(win.getComputedStyle($el).transform).f -
+                Number($el.dataset.destinationY)
+              $this.dataset.index = $el.dataset.index
+              $shadowRect.style.top = `${$elRect.top - diff}px`
+              $shadowRect.style.left = `${$elRect.left}px`
+              doc.body.appendChild($shadowRect)
+            }
+
+            $el.dataset.index = Number($el.dataset.index) + 1
+
+            const destinationY =
+              Number($el.dataset.destinationY) + (marginBottom + $thisRect.height)
+            $el.style.transform = `translate(0px, ${destinationY}px)`
+            $el.dataset.destinationY = destinationY
+
+            movedCards.add($el)
+          }
+
+          $lastEl = $el
+        })
+
+        // console.log('$lastEl', $lastEl);
+
+        if (isMoved == false) {
+          // console.log('LAST POSITION', $lastEl);
+          isOut = false
+          isMoved = true
+          $this.dataset.index = Number($lastEl.dataset.index) + 1
+
+          $shadowRect.style.left = `${$wrapper.getBoundingClientRect().left}px`
+          const top =
+            $lastEl.getBoundingClientRect().bottom +
+            Number($lastEl.dataset.destinationY) -
+            new DOMMatrix(win.getComputedStyle($lastEl).transform).f
+          $shadowRect.style.top = `${top + marginBottom}px`
+          doc.body.appendChild($shadowRect)
+        }
+      }
+      return
+    }
+  }
+  const cancelDrag = () => {
+    // console.log('cancelDrag')
+
+    preventDrag.value = true
+    win.setTimeout(() => {
+      preventDrag.value = false
+    }, transitionDuration)
+
+    doc.removeEventListener('mousemove', dragCard)
+    doc.removeEventListener('mouseup', cancelDrag)
+
+    if (isDragged == false) {
+      // open modal card
+      boardStore.setColumnAndTaskIndex(colIndex, index)
+      openModalTask.value = true
+      boardStore.setColumnAndTaskIndex(
+        fromColumnIndex,
+        Number($this.dataset.index)
+      )
+      $shadowRect.remove()
+      return
+    }
+
+    if ($wrapper == null) {
+      // if outside of wrapper when cancelDrag
+      // console.log('CANCEL DRAG OUTSIDE WRAPPER')
+      movedCards.forEach(($el) => {
+        // console.log('moved $el', $el)
+        if ($this === $el) return
+        $el.style.transform = 'translate(0px, 0px)'
+      })
+
+      // reset cards.dataset.index
+      Array.from($initialWrapper.children).reduce((curIndex, $el) => {
+        if ($el === $this || Number($el.dataset.index) < fromIndex)
+          return curIndex
+        $el.dataset.index = curIndex + 1
+        return curIndex + 1
+      }, fromIndex)
+
+      $shadowRect.style.top = `${$thisRect.top}px`
+      $shadowRect.style.left = `${$thisRect.left}px`
+      doc.body.appendChild($shadowRect)
+    }
+
+    $this.classList.add('card-task-transition')
+
+    // back to $shadowRect or back to initial position
+    const moveX = $this.getBoundingClientRect().x - $shadowRect.getBoundingClientRect().x
+    const moveY = $this.getBoundingClientRect().y - $shadowRect.getBoundingClientRect().y
+    const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
+    $this.style.transform = `translate(${matrix.e - moveX}px, ${
+      matrix.f - moveY
+    }px)`
+
+    $this.classList.remove('z-50')
+    $this.style.zIndex = ''
+
+    $shadowRect.remove()
+
+    // update store
+    win.setTimeout(() => {
+      // set translateY 0 to all moved cards
+      // console.log('UPDATE STORE & TYDING MOVED CARDS')
+      const unsubscribe = boardStore.$onAction(
+        ({ name, after }) => {
+          after(() => {
+            // after swapTask
+            if (name == 'swapTask') {
+              movedCards.forEach(($c) => {
+                // console.log('movedCards.forEach', $c)
+                $c.classList.remove('card-task-transition')
+                $c.style.transform = 'translate(0px, 0px)'
+                $c.dataset.destinationY = 0
+                win.setTimeout(() => {
+                  $c.classList.add('card-task-transition')
+                  // console.log('add transition class')
+                }, 10) // needed so no transition
+              })
+            }
+          })
+        }
+      )
+      boardStore.swapTask(
+        fromColumnIndex,
+        toColumnIndex,
+        fromIndex,
+        Number($this.dataset.index)
+      )
+      unsubscribe()
+    }, transitionDuration) // this setTimeout needs for dragged card get back to the position using transition
+  }
+  doc.addEventListener('mousemove', dragCard)
+  doc.addEventListener('mouseup', cancelDrag)
+  e.stopPropagation()
+}
 </script>
 
 <template>
@@ -114,7 +473,11 @@ const tasksWrapperRefs = ref([])
         class="mr-auto flex items-center pr-4"
         @click="openModalMobile = !openModalMobile"
       >
-        <div class="font-bold max-w-[50vw]  overflow-hidden whitespace-nowrap md:text-2xl text-[18px] mr-0 ">{{ boardStore.board.name }}</div>
+        <div
+          class="font-bold max-w-[50vw] overflow-hidden whitespace-nowrap md:text-2xl text-[18px] mr-0"
+        >
+          {{ boardStore.board.name }}
+        </div>
         <IconArrowDown class="w-[18px] h-[18px] shrink-0 text-primary translate-y-1" />
       </button>
 
@@ -199,7 +562,12 @@ const tasksWrapperRefs = ref([])
           @click="openModalAddTask = true"
           :size="isMobile ? 'custom' : 'medium'"
         >
-          <svg v-show="isMobile" width="12" height="12" xmlns="http://www.w3.org/2000/svg"><path fill="#FFF" d="M7.368 12V7.344H12V4.632H7.368V0H4.656v4.632H0v2.712h4.656V12z"></path></svg>
+          <svg v-show="isMobile" width="12" height="12" xmlns="http://www.w3.org/2000/svg">
+            <path
+              fill="#FFF"
+              d="M7.368 12V7.344H12V4.632H7.368V0H4.656v4.632H0v2.712h4.656V12z"
+            ></path>
+          </svg>
           {{ !isMobile ? '+ Add New Task' : '' }}
         </Button>
 
@@ -274,7 +642,8 @@ const tasksWrapperRefs = ref([])
                 size="small"
                 background-color="bg-white hover:bg-indigo-50"
                 color="text-primary"
-              >+ Add New Subtask</Button>
+                >+ Add New Subtask</Button
+              >
             </FieldArray>
 
             <div class="mb-4">
@@ -332,7 +701,12 @@ const tasksWrapperRefs = ref([])
         </div>
 
         <!-- Modal Delete Board -->
-        <Modal :open="openModalDelete" @close-modal="openModalDelete = false" class="max-w-[480px] w-full p-8" :isFullscreen="isMobile">
+        <Modal
+          :open="openModalDelete"
+          @close-modal="openModalDelete = false"
+          class="max-w-[480px] w-full p-8"
+          :isFullscreen="isMobile"
+        >
           <div class="text-red-450 font-bold text-lg mb-4">Delete this board?</div>
           <div class="text-[.8rem] text-slate-400 font-semibold leading-6 mb-6">
             Are you sure you want to delete the '{{ boardStore.board.name }}' board? This action
@@ -350,19 +724,26 @@ const tasksWrapperRefs = ref([])
               class="w-full mr-2"
               background-color="bg-red-450 hover:opacity-60"
               color="text-white"
-            >Delete</Button>
+              >Delete</Button
+            >
             <Button
               @click="openModalDelete = false"
               size="small"
               class="w-full ml-2"
               background-color="bg-white hover:opacity-60"
               color="text-primary"
-            >Cancel</Button>
+              >Cancel</Button
+            >
           </div>
         </Modal>
 
         <!-- Modal Edit Board -->
-        <Modal :open="openModalEdit" @close-modal="openModalEdit = false" class="max-w-[480px] w-full p-8" :isFullscreen="isMobile">
+        <Modal
+          :open="openModalEdit"
+          @close-modal="openModalEdit = false"
+          class="max-w-[480px] w-full p-8"
+          :isFullscreen="isMobile"
+        >
           <div class="font-bold text-lg mb-4">Edit Board</div>
           <Form
             @submit="
@@ -416,7 +797,7 @@ const tasksWrapperRefs = ref([])
                       :disabled="field.value.tasks.length > 0"
                     >
                       <IconClose />
-                  </button>
+                    </button>
                   </div>
                 </div>
                 <Button
@@ -427,10 +808,11 @@ const tasksWrapperRefs = ref([])
                   size="small"
                   background-color="bg-white hover:bg-indigo-50"
                   color="text-primary"
-                >+ Add New Column</Button>
+                  >+ Add New Column</Button
+                >
               </FieldArray>
             </div>
-            <Button class="w-full" type="submit" size="small" >Save Changes</Button>
+            <Button class="w-full" type="submit" size="small">Save Changes</Button>
           </Form>
         </Modal>
       </div>
@@ -544,10 +926,11 @@ const tasksWrapperRefs = ref([])
                       size="small"
                       background-color="bg-white hover:bg-indigo-50"
                       color="text-primary"
-                    >+ Add New Column</Button>
+                      >+ Add New Column</Button
+                    >
                   </FieldArray>
                 </div>
-                <Button class="w-full" type="submit" size="small" >Create New Board</Button>
+                <Button class="w-full" type="submit" size="small">Create New Board</Button>
               </Form>
             </Modal>
           </nav>
@@ -620,10 +1003,12 @@ const tasksWrapperRefs = ref([])
             doc.addEventListener('mouseup', removeScrollHandler)
           }
         "
-        @touchmove="(e) => {
-          console.log('main-scroll @touchmove', isPreventMainScroll);
-          if (isPreventMainScroll) e.preventDefault();
-        }"
+        @touchmove="
+          (e) => {
+            console.log('main-scroll @touchmove', isPreventMainScroll)
+            if (isPreventMainScroll) e.preventDefault()
+          }
+        "
       >
         <Teleport to="body">
           <div
@@ -634,7 +1019,11 @@ const tasksWrapperRefs = ref([])
           ></div>
         </Teleport>
 
-        <div class="relative flex w-full h-fit px-4 md:px-8 py-6" ref="boardFrameRef" id="column-wrapper">
+        <div
+          class="relative flex w-full h-fit px-4 md:px-8 py-6"
+          ref="boardFrameRef"
+          id="column-wrapper"
+        >
           <!-- Modal Task-->
           <Modal
             :open="openModalTask"
@@ -772,7 +1161,8 @@ const tasksWrapperRefs = ref([])
                 class="w-full mr-2"
                 background-color="bg-red-450 hover:opacity-60"
                 color="text-white"
-              >Delete</Button>
+                >Delete</Button
+              >
               <Button
                 @click="
                   () => {
@@ -785,7 +1175,8 @@ const tasksWrapperRefs = ref([])
                 class="w-full ml-2"
                 background-color="bg-white hover:opacity-60"
                 color="text-primary"
-              >Cancel</Button>
+                >Cancel</Button
+              >
             </div>
           </Modal>
           <!-- Modal Delete Task-->
@@ -863,7 +1254,8 @@ const tasksWrapperRefs = ref([])
                   size="small"
                   background-color="bg-white hover:bg-indigo-50"
                   color="text-primary"
-                >+ Add New Subtask</Button>
+                  >+ Add New Subtask</Button
+                >
               </FieldArray>
 
               <div class="mb-4">
@@ -924,131 +1316,17 @@ const tasksWrapperRefs = ref([])
                 :data-title="t.title"
                 :data-is-animating="0"
                 data-destination-y="0"
-                
-                @touchstart="(e) => {
-                  // Coba touchmovenya di pasang di card-task jangan di document.body
-                  e.stopPropagation()
-                  console.log('touchstart', e)
-                  let isDragged = false;
-
-                  const $this = e.currentTarget
-                  const marginBottom = win.parseInt(win.getComputedStyle($this).marginBottom)
-                  let $wrapper = $this.parentElement
-                  const $initialWrapper = $this.parentElement
-                  // console.log('tasksWrapperRefs', tasksWrapperRefs.length)
-                  const transitionDuration =
-                    parseFloat(win.getComputedStyle($this).transitionDuration) * 1000 // in ms
-                  let isOut = false // when the dragged card doesn't belong in any position
-
-                  $this.classList.remove('card-task-transition')
-                  $this.classList.remove('z-50')
-                  $this.style.zIndex = '100'
-
-                  // create shadowRect
-                  const $thisRect = $this.getBoundingClientRect()
-                  // console.log('$thisRect', $thisRect);
-                  const $shadowRect = doc.createElement('div')
-                  $shadowRect.style.height = `${$thisRect.height}px`
-                  $shadowRect.style.width = `${$thisRect.width}px`
-                  $shadowRect.style.position = 'absolute'
-                  $shadowRect.style.top = `${$thisRect.top}px`
-                  $shadowRect.style.left = `${$thisRect.left}px`
-                  doc.body.appendChild($shadowRect)
-
-                  // let isDragged = false
-                  let fromIndex = Number($this.dataset.index)
-                  // let $thisIndex = Number($this.dataset.index)
-                  let fromColumnIndex = Number(colIndex)
-                  let toColumnIndex = Number(colIndex)
-                  let movedCards = new Set([$this])
-                  let prevTouch;
-                  const startStamp = Date.now();
-                  const holdToDrag = 150; // milliseconds hold to drag card-task
-
-                  const setBgTimeoutId = win.setTimeout(() => {
-                    console.log('before background', win.style);
-                    // theme ==> 0 = dark, 1 = light
-                    $this.style.backgroundColor = boardStore.theme === 0 ? '#23242c' : '#e2e8f0';
-                    isPreventMainScroll = true;
-                  }, holdToDrag);
-                  
-                  const $mainScroll = doc.getElementById(`main-scroll`);
-                  const mainScrollMaxScroll = Math.floor($mainScroll.scrollWidth - $mainScroll.clientWidth);
-
-                  const setScrollIntervalId = win.setInterval(() => {
-                    // console.log('check scroll');
-                    const $thisRect = $this.getBoundingClientRect();
-                    const $thisMatrix = new DOMMatrix(win.getComputedStyle($this).transform)
-                    if ($thisRect.left < 0 && $mainScroll.scrollLeft > 0) {
-                      const leftDiff = Math.floor($thisRect.left / 10);
-                      $this.style.transform = `translate(${Math.round($thisMatrix.e + leftDiff)}px, ${$thisMatrix.f}px)`;
-                      $mainScroll.scrollLeft = Math.round($mainScroll.scrollLeft + leftDiff);
-                    }
-                    const rightDiff = ($thisRect.right -  win.innerWidth) / 10;
-                    // console.log('$mainScroll.scrollLeft',$mainScroll.scrollLeft, 'mainScrollMaxScroll', mainScrollMaxScroll);
-                    if ($thisRect.right >  win.innerWidth && $mainScroll.scrollLeft < mainScrollMaxScroll) {
-                      $mainScroll.scrollLeft = Math.floor($mainScroll.scrollLeft + rightDiff);
-                      $this.style.transform = `translate(${Math.floor($thisMatrix.e + rightDiff)}px, ${$thisMatrix.f}px)`;
-                    }
-                  }, 5);
-
-                  // mobile drag feature
-                  const touchMove =  (e) => {
-                    e.stopImmediatePropagation()
-                    // e.preventDefault();
-                  
-                    if (!isDragged) {
-                      if (Date.now() - startStamp > holdToDrag) {
-                        isDragged = true
-                      } else {
-                        console.log('touch remove')
-                        doc.removeEventListener('touchmove', touchMove)
-                        doc.removeEventListener('touchend', touchEnd)
-                        win.clearTimeout(setBgTimeoutId);
-                        win.clearInterval(setScrollIntervalId);
-                      }
-                    }
-                    if (isDragged) {
-                      // console.log('dragged', e)
-                      const touch = e.touches[0];
-
-                      if (prevTouch) {
-                        e.movementX = touch.pageX - prevTouch.pageX;
-                        e.movementY = touch.pageY - prevTouch.pageY;
-
-                        // drag $this card-task
-                        const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
-                        $this.style.transform = `translate(${matrix.e + e.movementX}px, ${matrix.f + e.movementY}px)`;
-
-
-                      }
-                      prevTouch = touch;
-                    }
-                  }
-
-                  const touchEnd = () => {
-                    console.log('touchend')
-
-                    $shadowRect.remove();
-                    $this.style.backgroundColor = '';
-                    win.clearTimeout(setBgTimeoutId);
-                    win.clearInterval(setScrollIntervalId);
-
-                    doc.removeEventListener('touchmove', touchMove)
-                    doc.removeEventListener('touchend', touchEnd)
-                    isPreventMainScroll = false;
-                  }
-                  doc.addEventListener('touchmove', touchMove)
-                  doc.addEventListener('touchend', touchEnd)
-                }"
-                
-                @mousedown="
+                @touchstart="
                   (e) => {
-                    if (preventDrag) return
+                    // Coba touchmovenya di pasang di card-task jangan di document.body
+                    e.stopPropagation()
+                    console.log('touchstart', e)
+                    let isDragged = false
 
-                    const $this = e.currentTarget
+                    const $this = e.currentTarget;
                     const marginBottom = win.parseInt(win.getComputedStyle($this).marginBottom)
-                    let $wrapper = $this.parentElement
+                    let $wrapper = $this.parentElement;
+                    const $wrappers = Array.from(doc.querySelectorAll('.task-wrapper'));
                     const $initialWrapper = $this.parentElement
                     // console.log('tasksWrapperRefs', tasksWrapperRefs.length)
                     const transitionDuration =
@@ -1068,32 +1346,106 @@ const tasksWrapperRefs = ref([])
                     $shadowRect.style.position = 'absolute'
                     $shadowRect.style.top = `${$thisRect.top}px`
                     $shadowRect.style.left = `${$thisRect.left}px`
+                    $shadowRect.style.border = '1px solid red';
                     doc.body.appendChild($shadowRect)
 
-                    let isDragged = false
+                    // let isDragged = false
                     let fromIndex = Number($this.dataset.index)
                     // let $thisIndex = Number($this.dataset.index)
                     let fromColumnIndex = Number(colIndex)
                     let toColumnIndex = Number(colIndex)
                     let movedCards = new Set([$this])
-                    // let $prevSwap = { card: null, direction: null } // direction { null | 1 = swap bottom, -1 = swap top}
+                    const $thisPosition = {
+                      columnIndex: fromColumnIndex,
+                      index: fromIndex,
+                    };
+                    let prevTouch
+                    const startStamp = Date.now()
+                    const holdToDrag = 150 // milliseconds hold to drag card-task
 
-                    const dragCard = (e) => {
-                      isDragged = true
-                      const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
-                      $this.style.transform = `translate(${matrix.e + e.movementX}px, ${
-                        matrix.f + e.movementY
-                      }px)`
+                    const setBgTimeoutId = win.setTimeout(() => {
+                      console.log('before background', win.style)
+                      // theme ==> 0 = dark, 1 = light
+                      $this.style.backgroundColor = boardStore.theme === 0 ? '#23242c' : '#e2e8f0'
+                      isPreventMainScroll = true
+                    }, holdToDrag)
 
-                      if (isOut == false) {
+                    const $mainScroll = doc.getElementById(`main-scroll`)
+                    const mainScrollMaxScroll = Math.floor(
+                      $mainScroll.scrollWidth - $mainScroll.clientWidth
+                    )
+
+                    const setScrollIntervalId = win.setInterval(() => {
+                      // console.log('check scroll');
+                      const $thisRect = $this.getBoundingClientRect()
+                      const $thisMatrix = new DOMMatrix(win.getComputedStyle($this).transform)
+                      if ($thisRect.left < 0 && $mainScroll.scrollLeft > 0) {
+                        const leftDiff = Math.floor($thisRect.left / 10)
+                        $this.style.transform = `translate(${Math.round(
+                          $thisMatrix.e + leftDiff
+                        )}px, ${$thisMatrix.f}px)`
+                        $mainScroll.scrollLeft = Math.round($mainScroll.scrollLeft + leftDiff)
+                      }
+                      const rightDiff = ($thisRect.right - win.innerWidth) / 10
+                      // console.log('$mainScroll.scrollLeft',$mainScroll.scrollLeft, 'mainScrollMaxScroll', mainScrollMaxScroll);
+                      if (
+                        $thisRect.right > win.innerWidth &&
+                        $mainScroll.scrollLeft < mainScrollMaxScroll
+                      ) {
+                        $mainScroll.scrollLeft = Math.floor($mainScroll.scrollLeft + rightDiff)
+                        $this.style.transform = `translate(${Math.floor(
+                          $thisMatrix.e + rightDiff
+                        )}px, ${$thisMatrix.f}px)`
+                      }
+                    }, 5)
+
+                    // mobile drag feature
+                    const touchMove = (e) => {
+                      e.stopImmediatePropagation()
+                      // e.preventDefault();
+
+                      if (!isDragged) {
+                        if (Date.now() - startStamp > holdToDrag) {
+                          isDragged = true
+                        } else {
+                          console.log('touch remove')
+                          doc.removeEventListener('touchmove', touchMove)
+                          doc.removeEventListener('touchend', touchEnd)
+                          win.clearTimeout(setBgTimeoutId)
+                          win.clearInterval(setScrollIntervalId)
+                        }
+                      }
+                      if (isDragged) {
+                        // console.log('dragged', e)
+                        const touch = e.touches[0]
+
+                        if (prevTouch) {
+                          e.movementX = touch.pageX - prevTouch.pageX
+                          e.movementY = touch.pageY - prevTouch.pageY
+
+                          // drag $this card-task
+                          const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
+                          $this.style.transform = `translate(${matrix.e + e.movementX}px, ${
+                            matrix.f + e.movementY
+                          }px)`
+                        }
+                        prevTouch = touch;
+                        e.clientX
+
+                        // Drag and sort/swap lies here!! [START]
+                        console.log('e', touch)
+                        console.log('x',touch.clientX)
+                        console.log('y',touch.clientY)
+                        // return;
+                        if (isOut == false) {
                         // console.log('INSIDE')
                         const $wrapperRect = $wrapper.getBoundingClientRect()
 
                         if (
-                          e.clientX > $wrapperRect.right ||
-                          e.clientX < $wrapperRect.left ||
-                          e.clientY < $wrapperRect.top ||
-                          e.clientY > $wrapperRect.bottom
+                          touch.clientX > $wrapperRect.right ||
+                          touch.clientX < $wrapperRect.left ||
+                          touch.clientY < $wrapperRect.top ||
+                          touch.clientY > $wrapperRect.bottom
                         ) {
                           // console.log('OUT OF WRAPPER')
                           Array.from($wrapper.children).forEach(($el) => {
@@ -1101,8 +1453,7 @@ const tasksWrapperRefs = ref([])
 
                             $el.dataset.index = Number($el.dataset.index) - 1
 
-                            const destinationY =
-                              Number($el.dataset.destinationY) - (marginBottom + $thisRect.height)
+                            const destinationY = Number($el.dataset.destinationY) - (marginBottom + $thisRect.height)
                             $el.style.transform = `translate(0px, ${destinationY}px)`
                             $el.dataset.destinationY = destinationY
 
@@ -1120,12 +1471,10 @@ const tasksWrapperRefs = ref([])
                           $wrapper = null
                         }
 
-                        const $swapCards = doc
-                          .elementsFromPoint(e.clientX, e.clientY)
-                          .filter(($el) => {
+                        const $swapCards = doc.elementsFromPoint(touch.clientX, touch.clientY).filter(($el) => {
                             if ($el === $this) return false
                             return $el.classList.contains('card-task')
-                          })
+                        })
                         // console.log('$swapCard', $swapCard);
                         if (
                           !!$swapCards.length &&
@@ -1218,191 +1567,57 @@ const tasksWrapperRefs = ref([])
                         }
                         return
                       }
-                      if (isOut) {
-                        // and
-                        // console.log('OUTSIDE');
-                        const $neoWrapper = doc
-                          .elementsFromPoint(e.clientX, e.clientY)
-                          .find(($el) => {
-                            return $el.classList.contains('task-wrapper')
-                          })
-
-                        if (!!$neoWrapper && $neoWrapper.childElementCount === 0) {
-                          // console.log('EMPTY $wrapper');
-                          $wrapper = $neoWrapper
-                          isOut = false
-                          $shadowRect.style.top = `${$wrapper.getBoundingClientRect().top}px`
-                          $shadowRect.style.left = `${$wrapper.getBoundingClientRect().left}px`
-                          doc.body.appendChild($shadowRect)
-
-                          $this.dataset.index = 0
-                          toColumnIndex = Number($wrapper.dataset.columnIndex)
-                          return
-                        }
-
-                        if (!!$neoWrapper && Number($neoWrapper.dataset.isAnimating) == 0) {
-                          // console.log('INTO NEW WRAPPER');
-                          // console.log('$neoWrapper', $neoWrapper);
-
-                          toColumnIndex = Number($neoWrapper.dataset.columnIndex)
-                          $wrapper = $neoWrapper
-                          let isFirst = false
-                          let isMoved = false
-                          let $lastEl = null
-
-                          Array.from($wrapper.children).forEach(($el) => {
-                            // console.log('$neoWrapper.chidren.forEach')
-                            // console.log('$el loco', $el)
-                            if ($el === $this) return
-                            const $elRect = $el.getBoundingClientRect()
-                            // if (e.clientY <= $elRect.bottom && !!$el.getAnimations().length == false) {
-                            if (e.clientY <= $elRect.bottom) {
-                              isOut = false
-                              isMoved = true
-                              // console.log('isOut = false');
-                              if (isFirst == false) {
-                                isFirst = true
-                                const diff =
-                                  new DOMMatrix(win.getComputedStyle($el).transform).f -
-                                  Number($el.dataset.destinationY)
-                                $this.dataset.index = $el.dataset.index
-                                $shadowRect.style.top = `${$elRect.top - diff}px`
-                                $shadowRect.style.left = `${$elRect.left}px`
-                                doc.body.appendChild($shadowRect)
-                              }
-
-                              $el.dataset.index = Number($el.dataset.index) + 1
-
-                              const destinationY =
-                                Number($el.dataset.destinationY) + (marginBottom + $thisRect.height)
-                              $el.style.transform = `translate(0px, ${destinationY}px)`
-                              $el.dataset.destinationY = destinationY
-
-                              movedCards.add($el)
-                            }
-
-                            $lastEl = $el
-                          })
-
-                          // console.log('$lastEl', $lastEl);
-
-                          if (isMoved == false) {
-                            // console.log('LAST POSITION', $lastEl);
-                            isOut = false
-                            isMoved = true
-                            $this.dataset.index = Number($lastEl.dataset.index) + 1
-
-                            $shadowRect.style.left = `${$wrapper.getBoundingClientRect().left}px`
-                            const top =
-                              $lastEl.getBoundingClientRect().bottom +
-                              Number($lastEl.dataset.destinationY) -
-                              new DOMMatrix(win.getComputedStyle($lastEl).transform).f
-                            $shadowRect.style.top = `${top + marginBottom}px`
-                            doc.body.appendChild($shadowRect)
-                          }
-                        }
-                        return
+                        // Drag and sort/swap lies here!! [END]
+                        
                       }
                     }
-                    const cancelDrag = (e) => {
-                      // console.log('cancelDrag')
+
+                    const touchEnd = () => {
+                      console.log('touchend')
+
+                      $this.style.backgroundColor = ''
+                      win.clearTimeout(setBgTimeoutId)
+                      win.clearInterval(setScrollIntervalId)
 
                       preventDrag = true
                       win.setTimeout(() => {
                         preventDrag = false
                       }, transitionDuration)
 
-                      doc.removeEventListener('mousemove', dragCard)
-                      doc.removeEventListener('mouseup', cancelDrag)
-
-                      if (isDragged == false) {
-                        // open modal card
-                        boardStore.setColumnAndTaskIndex(colIndex, index)
-                        openModalTask = true
-                        boardStore.setColumnAndTaskIndex(
-                          fromColumnIndex,
-                          Number($this.dataset.index)
-                        )
-                        $shadowRect.remove()
-                        return
-                      }
-
-                      if ($wrapper == null) {
-                        // if outside of wrapper when cancelDrag
-                        // console.log('CANCEL DRAG OUTSIDE WRAPPER')
-                        movedCards.forEach(($el) => {
-                          // console.log('moved $el', $el)
-                          if ($this === $el) return
-                          $el.style.transform = 'translate(0px, 0px)'
-                        })
-
-                        // reset cards.dataset.index
-                        Array.from($initialWrapper.children).reduce((curIndex, $el) => {
-                          if ($el === $this || Number($el.dataset.index) < fromIndex)
-                            return curIndex
-                          $el.dataset.index = curIndex + 1
-                          return curIndex + 1
-                        }, fromIndex)
-
-                        $shadowRect.style.top = `${$thisRect.top}px`
-                        $shadowRect.style.left = `${$thisRect.left}px`
-                        doc.body.appendChild($shadowRect)
-                      }
-
-                      $this.classList.add('card-task-transition')
+                      // open modal task automatically handled by @click handler
 
                       // back to $shadowRect or back to initial position
-                      const moveX =
-                        $this.getBoundingClientRect().x - $shadowRect.getBoundingClientRect().x
-                      const moveY =
-                        $this.getBoundingClientRect().y - $shadowRect.getBoundingClientRect().y
+                      // New approach:
+                      const $toWrapper = $wrappers[$thisPosition.columnIndex];
+                      const $toWrapperRect = $toWrapper.getBoundingClientRect()
+                      const left = $toWrapperRect.left;
+                      $shadowRect.style.left = `${left}px`;
+
+
+                      const moveX = $this.getBoundingClientRect().x - $shadowRect.getBoundingClientRect().x
+                      const moveY = $this.getBoundingClientRect().y - $shadowRect.getBoundingClientRect().y
                       const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
-                      $this.style.transform = `translate(${matrix.e - moveX}px, ${
-                        matrix.f - moveY
-                      }px)`
+                      $this.style.transform = `translate(${matrix.e - moveX}px, ${matrix.f - moveY}px)`;
 
                       $this.classList.remove('z-50')
                       $this.style.zIndex = ''
 
                       $shadowRect.remove()
 
-                      // update store
-                      win.setTimeout(() => {
-                        // set translateY 0 to all moved cards
-                        // console.log('UPDATE STORE & TYDING MOVED CARDS')
-                        const unsubscribe = boardStore.$onAction(
-                          ({ name, store, args, after, onError }) => {
-                            after(() => {
-                              // after swapTask
-                              if (name == 'swapTask') {
-                                movedCards.forEach(($c) => {
-                                  // console.log('movedCards.forEach', $c)
-                                  $c.classList.remove('card-task-transition')
-                                  $c.style.transform = 'translate(0px, 0px)'
-                                  $c.dataset.destinationY = 0
-                                  win.setTimeout(() => {
-                                    $c.classList.add('card-task-transition')
-                                    // console.log('add transition class')
-                                  }, 10) // needed so no transition
-                                })
-                              }
-                            })
-                          }
-                        )
-                        boardStore.swapTask(
-                          fromColumnIndex,
-                          toColumnIndex,
-                          fromIndex,
-                          Number($this.dataset.index)
-                        )
-                        unsubscribe()
-                      }, transitionDuration) // this setTimeout needs for dragged card get back to the position using transition
+                      console.log('$toWrapper', $toWrapper)
+                      console.log('$toWrapperRect', $toWrapperRect)
+                      console.log('$left', left)
+
+                      doc.removeEventListener('touchmove', touchMove)
+                      doc.removeEventListener('touchend', touchEnd)
+                      isPreventMainScroll = false
                     }
-                    doc.addEventListener('mousemove', dragCard)
-                    doc.addEventListener('mouseup', cancelDrag)
-                    e.stopPropagation()
+                    doc.addEventListener('touchmove', touchMove)
+                    doc.addEventListener('touchend', touchEnd)
                   }
                 "
+
+                @mousedown="dragDesktop({colIndex, index}, $event)"
               >
                 <div class="font-bold text-[15px] mb-3">{{ t.title }}</div>
                 <div class="text-xs text-slate-400 font-semibold">
@@ -1513,7 +1728,8 @@ const tasksWrapperRefs = ref([])
                       size="small"
                       background-color="bg-white hover:bg-indigo-50"
                       color="text-primary"
-                    >+ Add New Column</Button>
+                      >+ Add New Column</Button
+                    >
                   </FieldArray>
                 </div>
                 <Button class="w-full" type="submit" size="small">Save Changes</Button>
