@@ -15,6 +15,8 @@ module.exports = {
         primary: '#635fc7',
         'primary-light': '#A8A4FF',
         'dark-light': '#2b2c37',
+        'drag-card-dark': '#23242c', // when card-task ready/available to drag (theme === dark)
+        'drag-card-light': '#e2e8f0', // when card-task ready/available to drag (theme === ligth)
         'light-theme-bg': '#f4f7fd',
         dark: '#20212c',
         dot0: '#49C4E5',

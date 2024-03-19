@@ -66,7 +66,8 @@ watch(modalTaskData, () => {
 })
 const refDragScroll = ref(null)
 const dragScroll = ref(false)
-const preventDrag = ref(false)
+const preventDrag = ref(false); // prevent dragging $card-tasks
+const isPreventMainScroll = ref(false);
 
 const { isMobile } = useIsMobile()
 
@@ -76,7 +77,7 @@ const win = window
 const DOMMatrix = window.DOMMatrix
 
 function moveScrollHandler(e) {
-  refDragScroll.value.scrollLeft = refDragScroll.value.scrollLeft - e.movementX
+  refDragScroll.value.scrollLeft = refDragScroll.value.scrollLeft - e.movementX;
 }
 function removeScrollHandler() {
   doc.body.classList.toggle('select-none')
@@ -86,6 +87,7 @@ function removeScrollHandler() {
 }
 
 const tasksWrapperRefs = ref([])
+
 </script>
 
 <template>
@@ -609,6 +611,7 @@ const tasksWrapperRefs = ref([])
       <div
         class="beautify-scrollbar w-[100vw] h-[calc(100vh-96px)] overflow-auto hover:cursor-col-resize"
         ref="refDragScroll"
+        id="main-scroll"
         @mousedown="
           (e) => {
             dragScroll = true
@@ -617,6 +620,10 @@ const tasksWrapperRefs = ref([])
             doc.addEventListener('mouseup', removeScrollHandler)
           }
         "
+        @touchmove="(e) => {
+          console.log('main-scroll @touchmove', isPreventMainScroll);
+          if (isPreventMainScroll) e.preventDefault();
+        }"
       >
         <Teleport to="body">
           <div
@@ -649,7 +656,6 @@ const tasksWrapperRefs = ref([])
                 >
                   <IconEllipsis class="" />
                 </button>
-                <!-- disini -->
                 <DropdownMenu
                   left="left-1/2 -translate-x-1/2"
                   editText="Edit Task"
@@ -918,6 +924,124 @@ const tasksWrapperRefs = ref([])
                 :data-title="t.title"
                 :data-is-animating="0"
                 data-destination-y="0"
+                
+                @touchstart="(e) => {
+                  // Coba touchmovenya di pasang di card-task jangan di document.body
+                  e.stopPropagation()
+                  console.log('touchstart', e)
+                  let isDragged = false;
+
+                  const $this = e.currentTarget
+                  const marginBottom = win.parseInt(win.getComputedStyle($this).marginBottom)
+                  let $wrapper = $this.parentElement
+                  const $initialWrapper = $this.parentElement
+                  // console.log('tasksWrapperRefs', tasksWrapperRefs.length)
+                  const transitionDuration =
+                    parseFloat(win.getComputedStyle($this).transitionDuration) * 1000 // in ms
+                  let isOut = false // when the dragged card doesn't belong in any position
+
+                  $this.classList.remove('card-task-transition')
+                  $this.classList.remove('z-50')
+                  $this.style.zIndex = '100'
+
+                  // create shadowRect
+                  const $thisRect = $this.getBoundingClientRect()
+                  // console.log('$thisRect', $thisRect);
+                  const $shadowRect = doc.createElement('div')
+                  $shadowRect.style.height = `${$thisRect.height}px`
+                  $shadowRect.style.width = `${$thisRect.width}px`
+                  $shadowRect.style.position = 'absolute'
+                  $shadowRect.style.top = `${$thisRect.top}px`
+                  $shadowRect.style.left = `${$thisRect.left}px`
+                  doc.body.appendChild($shadowRect)
+
+                  // let isDragged = false
+                  let fromIndex = Number($this.dataset.index)
+                  // let $thisIndex = Number($this.dataset.index)
+                  let fromColumnIndex = Number(colIndex)
+                  let toColumnIndex = Number(colIndex)
+                  let movedCards = new Set([$this])
+                  let prevTouch;
+                  const startStamp = Date.now();
+                  const holdToDrag = 150; // milliseconds hold to drag card-task
+
+                  const setBgTimeoutId = win.setTimeout(() => {
+                    console.log('before background', win.style);
+                    // theme ==> 0 = dark, 1 = light
+                    $this.style.backgroundColor = boardStore.theme === 0 ? '#23242c' : '#e2e8f0';
+                    isPreventMainScroll = true;
+                  }, holdToDrag);
+                  
+                  const $mainScroll = doc.getElementById(`main-scroll`);
+                  const mainScrollMaxScroll = Math.floor($mainScroll.scrollWidth - $mainScroll.clientWidth);
+
+                  const setScrollIntervalId = win.setInterval(() => {
+                    // console.log('check scroll');
+                    const $thisRect = $this.getBoundingClientRect();
+                    const $thisMatrix = new DOMMatrix(win.getComputedStyle($this).transform)
+                    if ($thisRect.left < 0 && $mainScroll.scrollLeft > 0) {
+                      const leftDiff = Math.floor($thisRect.left / 10);
+                      $this.style.transform = `translate(${Math.round($thisMatrix.e + leftDiff)}px, ${$thisMatrix.f}px)`;
+                      $mainScroll.scrollLeft = Math.round($mainScroll.scrollLeft + leftDiff);
+                    }
+                    const rightDiff = ($thisRect.right -  win.innerWidth) / 10;
+                    // console.log('$mainScroll.scrollLeft',$mainScroll.scrollLeft, 'mainScrollMaxScroll', mainScrollMaxScroll);
+                    if ($thisRect.right >  win.innerWidth && $mainScroll.scrollLeft < mainScrollMaxScroll) {
+                      $mainScroll.scrollLeft = Math.floor($mainScroll.scrollLeft + rightDiff);
+                      $this.style.transform = `translate(${Math.floor($thisMatrix.e + rightDiff)}px, ${$thisMatrix.f}px)`;
+                    }
+                  }, 5);
+
+                  // mobile drag feature
+                  const touchMove =  (e) => {
+                    e.stopImmediatePropagation()
+                    // e.preventDefault();
+                  
+                    if (!isDragged) {
+                      if (Date.now() - startStamp > holdToDrag) {
+                        isDragged = true
+                      } else {
+                        console.log('touch remove')
+                        doc.removeEventListener('touchmove', touchMove)
+                        doc.removeEventListener('touchend', touchEnd)
+                        win.clearTimeout(setBgTimeoutId);
+                        win.clearInterval(setScrollIntervalId);
+                      }
+                    }
+                    if (isDragged) {
+                      // console.log('dragged', e)
+                      const touch = e.touches[0];
+
+                      if (prevTouch) {
+                        e.movementX = touch.pageX - prevTouch.pageX;
+                        e.movementY = touch.pageY - prevTouch.pageY;
+
+                        // drag $this card-task
+                        const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
+                        $this.style.transform = `translate(${matrix.e + e.movementX}px, ${matrix.f + e.movementY}px)`;
+
+
+                      }
+                      prevTouch = touch;
+                    }
+                  }
+
+                  const touchEnd = () => {
+                    console.log('touchend')
+
+                    $shadowRect.remove();
+                    $this.style.backgroundColor = '';
+                    win.clearTimeout(setBgTimeoutId);
+                    win.clearInterval(setScrollIntervalId);
+
+                    doc.removeEventListener('touchmove', touchMove)
+                    doc.removeEventListener('touchend', touchEnd)
+                    isPreventMainScroll = false;
+                  }
+                  doc.addEventListener('touchmove', touchMove)
+                  doc.addEventListener('touchend', touchEnd)
+                }"
+                
                 @mousedown="
                   (e) => {
                     if (preventDrag) return
@@ -948,11 +1072,11 @@ const tasksWrapperRefs = ref([])
 
                     let isDragged = false
                     let fromIndex = Number($this.dataset.index)
-                    let $thisIndex = Number($this.dataset.index)
+                    // let $thisIndex = Number($this.dataset.index)
                     let fromColumnIndex = Number(colIndex)
                     let toColumnIndex = Number(colIndex)
                     let movedCards = new Set([$this])
-                    let $prevSwap = { card: null, direction: null } // direction { null | 1 = swap bottom, -1 = swap top}
+                    // let $prevSwap = { card: null, direction: null } // direction { null | 1 = swap bottom, -1 = swap top}
 
                     const dragCard = (e) => {
                       isDragged = true
