@@ -332,12 +332,12 @@ export const useBoardStore = defineStore('board', {
       },
       swapTask(fromColumnIndex, toColumnIndex, fromIndex, toIndex) { // drag/sort card task
          // this.board.columns[colIndex].tasks
-         // console.log('SWAP TASK (store)', fromColumnIndex, toColumnIndex, fromIndex, toIndex)
+         console.log('SWAP TASK (store)', fromColumnIndex, toColumnIndex, fromIndex, toIndex)
          if (toColumnIndex === null && fromIndex === toIndex) {
-            // console.log('not doing anything')
+            console.log('store.swapTask() not doing anything')
             
          } else if (fromColumnIndex === toColumnIndex || toColumnIndex === null) {
-            // console.log('SAME COLUMN')
+            console.log('store.swapTask() SAME COLUMN')
 
             if (toIndex > fromIndex) { // drag ke bawah
                const newTasks = this.board.columns[fromColumnIndex].tasks.map((t, index) => {
@@ -357,7 +357,7 @@ export const useBoardStore = defineStore('board', {
                this.boards[this.activeBoardIndex].columns[fromColumnIndex].tasks = newTasks
             }
          } else {
-            // console.log('DIFFERENT COLUMN')
+            console.log('store.swapTask() DIFFERENT COLUMN')
             // oldColumn
             const theTask = this.board.columns[fromColumnIndex].tasks.splice(fromIndex, 1)[0];
             this.board.columns[toColumnIndex].tasks.splice(toIndex, 0, theTask)
