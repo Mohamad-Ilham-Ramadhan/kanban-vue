@@ -92,7 +92,7 @@ function removeScrollHandler() {
 const tasksWrapperRefs = ref([])
 
 const dragDesktop = (args, e) => {
-  const { colIndex, } = args
+  const { colIndex, index } = args
   if (preventDrag.value) return
 
   const $this = e.currentTarget
@@ -1068,7 +1068,7 @@ const dragMobile = (args, e) => {
         </Teleport>
 
         <div
-          class="relative flex w-full h-fit px-4 md:px-8 py-6 "
+          class="relative flex w-full h-full px-4 md:px-8 py-6 "
           ref="boardFrameRef"
           id="column-wrapper"
         >
