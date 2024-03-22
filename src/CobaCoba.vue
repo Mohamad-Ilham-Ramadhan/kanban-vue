@@ -1600,14 +1600,17 @@ const dragDesktop = (args, e) => {
 
                             // console.log('$lastEl', $lastEl);
 
-                            if (isMoved == false) {
-                              // console.log('LAST POSITION', $lastEl);
+                            if (isMoved == false) { // insert into last position in a new wrapper or when wrapper is empty of any card (new wrapper is initial wrapper)
+                              // console.log('LAST POSITION', $lastEl);p
+                              // $lastEl === null ? empty wrapper : last position;
+                      
                               isOut = false
                               isMoved = true
-                              $this.dataset.index = Number($lastEl.dataset.index) + 1
+                              $this.dataset.index = $lastEl === null ? 0 : Number($lastEl.dataset.index) + 1
 
+                              const $wrapperRect = $wrapper.getBoundingClientRect()
                               $shadowRect.style.left = `${$wrapper.getBoundingClientRect().left}px`
-                              const top =
+                              const top = $lastEl === null ? $wrapperRect.top - marginBottom :
                                 $lastEl.getBoundingClientRect().bottom +
                                 Number($lastEl.dataset.destinationY) -
                                 new DOMMatrix(win.getComputedStyle($lastEl).transform).f
