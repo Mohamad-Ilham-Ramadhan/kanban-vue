@@ -50,7 +50,7 @@ const openCreateNewBoard = ref(false)
 const openModalNewColumn = ref(false)
 // const openModalEdit = ref(false)
 // const openModalAddTask = ref(false)
-// const openSelectStatus = ref(false) // select status in add new task form
+const openSelectStatus = ref(false) // select status in add new task form
 const openModalTask = ref(false)
 const openModalDeleteTask = ref(false)
 const openModalEditTask = ref(false)
@@ -411,7 +411,7 @@ const dragDesktop = (args, e) => {
 }
 
 const dragMobile = (args, e) => {
-  let { colIndex } = args;
+  let { colIndex, index } = args;
   e.stopPropagation()
   console.log('touchstart', e)
   let isDragged = false
@@ -773,11 +773,23 @@ const dragMobile = (args, e) => {
     win.clearInterval(setScrollIntervalId);
 
     preventDrag.value = true;
-    win.setTimeout(() => {
-      preventDrag.value = false;
-    }, transitionDuration)
+    win.setTimeout(() => { preventDrag.value = false;}, transitionDuration);
+
+    doc.removeEventListener('touchmove', touchMove)
+    doc.removeEventListener('touchend', touchEnd)
+    isPreventMainScroll.value = false;
 
     // open modal task automatically handled by @click handler
+    console.log('isDragged', isDragged);
+    if (isDragged == false) {
+      // open modal card
+      boardStore.setColumnAndTaskIndex(colIndex, index);
+      openModalTask.value = true;
+      boardStore.setColumnAndTaskIndex(fromColumnIndex, Number($this.dataset.index));
+      $shadowRect.remove();
+      return;
+    }
+
 
     $this.classList.add('card-task-transition')
 
@@ -853,14 +865,6 @@ const dragMobile = (args, e) => {
       )
       unsubscribe()
     }, transitionDuration) // this setTimeout needs for dragged card get back to the position using transition
-
-    // console.log('$toWrapper', $toWrapper)
-    // console.log('$toWrapperRect', $toWrapperRect)
-    // console.log('$left', left)
-
-    doc.removeEventListener('touchmove', touchMove)
-    doc.removeEventListener('touchend', touchEnd)
-    isPreventMainScroll.value = false;
   }
   doc.addEventListener('touchmove', touchMove)
   doc.addEventListener('touchend', touchEnd)
