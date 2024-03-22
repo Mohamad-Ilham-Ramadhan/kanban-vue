@@ -315,24 +315,23 @@ const dragDesktop = (args, e) => {
       return
     } // Outside
   }
+
   const cancelDrag = () => {
     // console.log('cancelDrag')
 
-    preventDrag.value = true
-    win.setTimeout(() => {
-      preventDrag.value = false
-    }, transitionDuration)
+    preventDrag.value = true;
+    win.setTimeout(() => { preventDrag.value = false; }, transitionDuration);
 
-    doc.removeEventListener('mousemove', dragCard)
-    doc.removeEventListener('mouseup', cancelDrag)
+    doc.removeEventListener('mousemove', dragCard);
+    doc.removeEventListener('mouseup', cancelDrag);
 
     if (isDragged == false) {
       // open modal card
-      boardStore.setColumnAndTaskIndex(colIndex, index)
-      openModalTask.value = true
-      boardStore.setColumnAndTaskIndex(fromColumnIndex, Number($this.dataset.index))
-      $shadowRect.remove()
-      return
+      boardStore.setColumnAndTaskIndex(colIndex, index);
+      openModalTask.value = true;
+      boardStore.setColumnAndTaskIndex(fromColumnIndex, Number($this.dataset.index));
+      $shadowRect.remove();
+      return;
     }
 
     if ($wrapper == null) {
@@ -349,23 +348,23 @@ const dragDesktop = (args, e) => {
         if ($el === $this || Number($el.dataset.index) < fromIndex) return curIndex
         $el.dataset.index = curIndex + 1
         return curIndex + 1
-      }, fromIndex)
+      }, fromIndex);
 
-      $shadowRect.style.top = `${$thisRect.top}px`
-      $shadowRect.style.left = `${$thisRect.left}px`
-      doc.body.appendChild($shadowRect)
+      $shadowRect.style.top = `${$thisRect.top}px`;
+      $shadowRect.style.left = `${$thisRect.left}px`;
+      doc.body.appendChild($shadowRect);
     }
 
     $this.classList.add('card-task-transition')
 
     // back to $shadowRect or back to initial position
-    const moveX = $this.getBoundingClientRect().x - $shadowRect.getBoundingClientRect().x
-    const moveY = $this.getBoundingClientRect().y - $shadowRect.getBoundingClientRect().y
-    const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
-    $this.style.transform = `translate(${matrix.e - moveX}px, ${matrix.f - moveY}px)`
+    const moveX = $this.getBoundingClientRect().x - $shadowRect.getBoundingClientRect().x;
+    const moveY = $this.getBoundingClientRect().y - $shadowRect.getBoundingClientRect().y;
+    const matrix = new DOMMatrix(win.getComputedStyle($this).transform);
+    $this.style.transform = `translate(${matrix.e - moveX}px, ${matrix.f - moveY}px)`;
 
-    $this.classList.remove('z-50')
-    $this.style.zIndex = ''
+    $this.classList.remove('z-50');
+    $this.style.zIndex = '';
 
     $shadowRect.remove()
 
@@ -777,7 +776,7 @@ const dragDesktop = (args, e) => {
     </div>
   </header>
 
-  <div class="flex flex-row">
+  <div class="flex flex-row overflow-hidden">
     <aside
       :class="[
         'shrink-0 w-[300px] h-[100vh] fixed left-0 top-0 z-40 dark:bg-dark-light bg-white border-r border-r-slate-200 dark:border-r-slate-700 pt-[96px] transition-transform mobile:hidden',
@@ -944,10 +943,7 @@ const dragDesktop = (args, e) => {
     </aside>
 
     <main
-      :class="[
-        'mobile:pl-0 pt-[96px] pb-[40px] flex w-full h-[100vh] overflow-hidden transition-all',
-        boardStore.sidebar ? 'pl-[300px]' : 'pl-[0px]'
-      ]"
+      :class="['mobile:pl-0 pt-[96px] pb-[40px] flex w-full h-[100vh] overflow-hidden transition-all', boardStore.sidebar ? 'pl-[300px]' : 'pl-[0px]']"
     >
       <div
         class="beautify-scrollbar w-[100vw] h-[calc(100vh-96px)] overflow-auto hover:cursor-col-resize"
@@ -978,7 +974,7 @@ const dragDesktop = (args, e) => {
         </Teleport>
 
         <div
-          class="relative flex w-full h-fit px-4 md:px-8 py-6"
+          class="relative flex w-full h-fit px-4 md:px-8 py-6 "
           ref="boardFrameRef"
           id="column-wrapper"
         >
@@ -1299,12 +1295,11 @@ const dragDesktop = (args, e) => {
                     const $thisRect = $this.getBoundingClientRect()
                     // console.log('$thisRect', $thisRect);
                     const $shadowRect = doc.createElement('div')
-                    $shadowRect.style.height = `${$thisRect.height}px`
-                    $shadowRect.style.width = `${$thisRect.width}px`
-                    $shadowRect.style.position = 'absolute'
-                    $shadowRect.style.top = `${$thisRect.top}px`
-                    $shadowRect.style.left = `${$thisRect.left}px`
-                    $shadowRect.style.border = '1px solid red'
+                    $shadowRect.style.height = `${$thisRect.height}px`;
+                    $shadowRect.style.width = `${1}px`;
+                    $shadowRect.style.position = 'absolute';
+                    $shadowRect.style.top = `${$thisRect.top}px`;
+                    $shadowRect.style.left = `${$thisRect.left}px`;
                     doc.body.appendChild($shadowRect)
 
                     // let isDragged = false
@@ -1312,6 +1307,7 @@ const dragDesktop = (args, e) => {
                     // let $thisIndex = Number($this.dataset.index)
                     let fromColumnIndex = Number(colIndex)
                     let toColumnIndex = Number(colIndex)
+                    console.log('fromColumnIndex', fromColumnIndex, 'toColumnIndex', toColumnIndex);
                     let movedCards = new Set([$this])
                     const $thisPosition = {
                       columnIndex: fromColumnIndex,
@@ -1333,27 +1329,34 @@ const dragDesktop = (args, e) => {
                       $mainScroll.scrollWidth - $mainScroll.clientWidth
                     )
 
-                    const setScrollIntervalId = win.setInterval(() => {
+                    const setScrollIntervalId = win.setInterval(() => { // scroll when dragging out of frame
                       // console.log('check scroll');
                       const $thisRect = $this.getBoundingClientRect()
                       const $thisMatrix = new DOMMatrix(win.getComputedStyle($this).transform)
                       if ($thisRect.left < 0 && $mainScroll.scrollLeft > 0) {
                         const leftDiff = Math.floor($thisRect.left / 10)
-                        $this.style.transform = `translate(${Math.round(
-                          $thisMatrix.e + leftDiff
-                        )}px, ${$thisMatrix.f}px)`
-                        $mainScroll.scrollLeft = Math.round($mainScroll.scrollLeft + leftDiff)
+                        // $this.style.transform = `translate(${Math.round(
+                        //   $thisMatrix.e + leftDiff
+                        // )}px, ${$thisMatrix.f}px)`
+                        // $mainScroll.scrollLeft = Math.round($mainScroll.scrollLeft + leftDiff)
+                        $this.style.transform = `translate(${Math.ceil($thisMatrix.e - 4)}px, ${$thisMatrix.f}px)`
+                        $mainScroll.scrollLeft = Math.floor($mainScroll.scrollLeft - 3);
+
                       }
                       const rightDiff = ($thisRect.right - win.innerWidth) / 10
                       // console.log('$mainScroll.scrollLeft',$mainScroll.scrollLeft, 'mainScrollMaxScroll', mainScrollMaxScroll);
                       if (
                         $thisRect.right > win.innerWidth &&
                         $mainScroll.scrollLeft < mainScrollMaxScroll
-                      ) {
-                        $mainScroll.scrollLeft = Math.floor($mainScroll.scrollLeft + rightDiff)
-                        $this.style.transform = `translate(${Math.floor(
-                          $thisMatrix.e + rightDiff
-                        )}px, ${$thisMatrix.f}px)`
+                        ) {
+                          console.log('window.innerWidth', win.innerWidth, 'doc.clientWidh', doc.documentElement.clientWidth);
+                          // $mainScroll.scrollLeft = Math.floor($mainScroll.scrollLeft + rightDiff)
+                        // $this.style.transform = `translate(${Math.floor(
+                        //   $thisMatrix.e + rightDiff
+                        // )}px, ${$thisMatrix.f}px)`
+
+                        $this.style.transform = `translate(${Math.floor($thisMatrix.e + 3)}px, ${$thisMatrix.f}px)`;
+                        $mainScroll.scrollLeft = Math.ceil($mainScroll.scrollLeft + 3);
                       }
                     }, 5)
 
@@ -1371,6 +1374,7 @@ const dragDesktop = (args, e) => {
                           doc.removeEventListener('touchend', touchEnd)
                           win.clearTimeout(setBgTimeoutId)
                           win.clearInterval(setScrollIntervalId)
+                          $shadowRect.remove();
                         }
                       }
                       if (isDragged) {
@@ -1391,10 +1395,6 @@ const dragDesktop = (args, e) => {
                         e.clientX
 
                         // Drag and sort/swap lies here!! [START]
-                        console.log('e', touch)
-                        console.log('x', touch.clientX)
-                        console.log('y', touch.clientY)
-                        // return;
                         if (isOut == false) {
                           // console.log('INSIDE')
                           const $wrapperRect = $wrapper.getBoundingClientRect()
@@ -1532,7 +1532,6 @@ const dragDesktop = (args, e) => {
                         } // INSIDE
 
                         if (isOut) {
-                          // and
                           // console.log('OUTSIDE');
                           const $neoWrapper = doc
                             .elementsFromPoint(touch.clientX, touch.clientY)
@@ -1625,9 +1624,9 @@ const dragDesktop = (args, e) => {
                     const touchEnd = () => {
                       console.log('touchend')
 
-                      $this.style.backgroundColor = ''
-                      win.clearTimeout(setBgTimeoutId)
-                      win.clearInterval(setScrollIntervalId)
+                      $this.style.backgroundColor = '';
+                      win.clearTimeout(setBgTimeoutId);
+                      win.clearInterval(setScrollIntervalId);
 
                       preventDrag = true
                       win.setTimeout(() => {
@@ -1640,7 +1639,7 @@ const dragDesktop = (args, e) => {
 
                       if ($wrapper == null) {
                         // if outside of wrapper when cancelDrag
-                        // console.log('CANCEL DRAG OUTSIDE WRAPPER')
+                        console.log('CANCEL DRAG OUTSIDE WRAPPER')
                         movedCards.forEach(($el) => {
                           // console.log('moved $el', $el)
                           if ($this === $el) return
@@ -1662,10 +1661,8 @@ const dragDesktop = (args, e) => {
 
                       // back to $shadowRect or back to initial position
                       // New approach:
-                      const $toWrapper = $wrappers[$thisPosition.columnIndex]
-                      const $toWrapperRect = $toWrapper.getBoundingClientRect()
-                      const left = $toWrapperRect.left
-                      $shadowRect.style.left = `${left}px`
+                      const $toWrapper = $wrappers[isOut ? fromColumnIndex : toColumnIndex];
+                      $shadowRect.style.left = `${$toWrapper.getBoundingClientRect().left}px`
 
                       const moveX =
                         $this.getBoundingClientRect().x - $shadowRect.getBoundingClientRect().x
@@ -1697,23 +1694,25 @@ const dragDesktop = (args, e) => {
                                 win.setTimeout(() => {
                                   $c.classList.add('card-task-transition')
                                   // console.log('add transition class')
-                                }, 10) // needed so no transition
+                                }, 100) // needed so no transition
                               })
+
+                              if (isOut) $this.dataset.index = fromIndex;
                             }
                           })
                         })
                         boardStore.swapTask(
                           fromColumnIndex,
-                          toColumnIndex,
+                          isOut ? fromColumnIndex : toColumnIndex,
                           fromIndex,
-                          Number($this.dataset.index)
+                          isOut ? fromIndex : Number($this.dataset.index)
                         )
                         unsubscribe()
                       }, transitionDuration) // this setTimeout needs for dragged card get back to the position using transition
 
-                      console.log('$toWrapper', $toWrapper)
-                      console.log('$toWrapperRect', $toWrapperRect)
-                      console.log('$left', left)
+                      // console.log('$toWrapper', $toWrapper)
+                      // console.log('$toWrapperRect', $toWrapperRect)
+                      // console.log('$left', left)
 
                       doc.removeEventListener('touchmove', touchMove)
                       doc.removeEventListener('touchend', touchEnd)
