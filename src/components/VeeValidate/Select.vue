@@ -54,14 +54,14 @@ const {
   <div class="relative">
     <button
       ref="selectButtonRef"
-      class="block relative w-full text-left border-2 border-slate-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary rounded text-sm py-2 px-4"
+      class="block relative w-full text-left border-2 border-slate-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary rounded text-[13px] text-black py-2 px-4"
       @click="$emit('open-select')"
       type="button"
     >
       <div>{{ inputValue[props.renderValueProp] }}</div>
       <IconArrow :class="['text-primary w-[18px] h-[18px] absolute right-[12px] top-[10px] transition-transform', props.open && 'rotate-180']"/>
     </button>
-    <input class="invisible" aria-hidden="true" :value="inputValue" :name="name" />
+    <input class="hidden" aria-hidden="true" :value="inputValue" :name="name" />
   </div>
   <Teleport to="body">
     <Transition name="overlay">
@@ -69,7 +69,7 @@ const {
         <div class="absolute z-[101] inset-0" @click="$emit('close-select')"></div>
         <div
           ref="paperRef"
-          class="absolute z-[1000] rounded overflow-hidden bg-dark"
+          class="absolute z-[1000] py-3 rounded overflow-hidden bg-white dark:bg-dark drop-shadow"
           id="paper"
           v-if="props.open"
         >
@@ -83,7 +83,7 @@ const {
                 emit('close-select')
               }
             "
-            class="px-4 py-2 text-sm font-semibold text-slate-400 hover:text-white hover:cursor-pointer"
+            class="px-4 mb-1 text-[13px] hover:font-semibold text-slate-400 hover:text-black dark:hover:text-white hover:cursor-pointer"
           >
             {{ item[props.renderValueProp] }}
           </div>
