@@ -932,7 +932,7 @@ const dragMobile = (args, e) => {
             <div
               v-for="(subtask, index) in boardStore.task.subtasks"
               :key="subtask.id"
-              class="rounded dark:bg-dark bg-light-theme-bg p-3 flex items-center hover:cursor-pointer mb-2"
+              class="rounded dark:bg-dark bg-light-theme-bg hover:bg-[#A8A4FF50] dark:hover:bg-[#635fc740] transition-colors p-3 flex items-center hover:cursor-pointer mb-2"
               @click="
                 () => {
                   boardStore.toggleSubtask(
