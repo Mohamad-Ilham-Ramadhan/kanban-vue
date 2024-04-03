@@ -321,7 +321,7 @@ function toggleTheme() {
               @click="openModalDelete = false"
               size="small"
               class="w-full ml-2"
-              background-color="bg-white hover:opacity-60"
+              background-color="bg-indigo-50 dark:bg-white hover:opacity-60"
               color="text-primary"
               >Cancel</Button
             >

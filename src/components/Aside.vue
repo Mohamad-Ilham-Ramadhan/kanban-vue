@@ -51,7 +51,7 @@ console.log('[ASIDE] boardStore.sidebar', boardStore.sidebar);
             v-for="(b, index) in boards"
             :key="b.id"
             :class="[
-              'list-none font-bold flex items-center hover:bg-primary-light hover:text-white dark:hover:text-white hover:cursor-pointer pl-8 py-2.5 rounded-r-full mb-1',
+              'list-none font-bold flex items-center hover:bg-primary-light hover:text-white dark:hover:text-white transition-colors hover:cursor-pointer pl-8 py-2.5 rounded-r-full mb-1',
               boardStore.activeBoardIndex === index
                 ? 'bg-primary text-white'
                 : 'dark:text-slate-400 text-slate-400'
@@ -84,7 +84,7 @@ console.log('[ASIDE] boardStore.sidebar', boardStore.sidebar);
                 (values) => {
                   boardStore.createNewBoard(values)
                   openCreateNewBoard = false
-                  boardStore.setActiveIndex(boardStore.boards.length - 1)
+                  boardStore.setActiveBoardIndex(boardStore.boards.length - 1)
                 }
               "
               @invalid-submit="() => {}"
