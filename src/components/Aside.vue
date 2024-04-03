@@ -136,11 +136,11 @@ const win = window;
                     v-show="fields.length < 6"
                     @click="() => {
                       push('')
-                      console.log('input', fields.length )
+                      console.log('input', fields.length)
 
                       win.setTimeout(() => { // Focus the last inserted input. Need setTimeout so .focus() method executed after input element inserted on DOM.
                         doc.getElementById(`columns[${fields.length - 1}]`).focus()
-                      }, 1)
+                      }, 1);
                     }"
                     text="+ Add New Column"
                     type="button"

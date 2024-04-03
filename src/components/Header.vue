@@ -37,7 +37,8 @@ function toggleTheme() {
   if (boardStore.theme === 0) boardStore.setTheme(1)
   else boardStore.setTheme(0)
 }
-
+const win = window;
+const doc = document;
 </script>
 
 <template>
@@ -226,12 +227,17 @@ function toggleTheme() {
               </div>
               <Button
                 v-show="fields.length < 6"
-                @click="push({ id: uuid(), name: '', isDone: false })"
+                @click="() => {
+                  push({ id: uuid(), name: '', isDone: false })
+                  win.setTimeout(() => {
+                    doc.getElementById(`subtasks[${fields.length - 1}].text`).focus();
+                  },1);
+                }"
                 text="+ Add New Subtask"
                 type="button"
                 class="block w-full mb-4"
                 size="small"
-                background-color="bg-white hover:bg-indigo-50"
+                background-color="bg-indigo-50 dark:bg-slate-50 dark:hover:bg-gray-200"
                 color="text-primary"
                 >+ Add New Subtask</Button
               >

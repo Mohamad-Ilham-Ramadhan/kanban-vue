@@ -1,5 +1,5 @@
 <script setup>
-import { ref, Teleport, Transition, defineProps, defineEmits, onUpdated, toRef } from 'vue'
+import { ref, defineProps, defineEmits, onUpdated, toRef } from 'vue'
 import { useField } from 'vee-validate'
 import IconArrow from '@/components/icons/IconArrowDown.vue'
 
@@ -44,10 +44,7 @@ onUpdated(() => {
 const name = toRef(props, 'name')
 const {
   value: inputValue,
-  errorMessage,
-  handleBlur,
   handleChange,
-  meta
 } = useField(name, undefined, {
   initialValue: props.initialValue ? props.items[props.initialValue] : props.items[0]
 })
@@ -57,7 +54,7 @@ const {
   <div class="relative">
     <button
       ref="selectButtonRef"
-      class="block relative w-full text-left border-2 border-slate-400 dark:border-gray-600 focus:border-primary dark:focus:border-primary rounded text-sm py-2 px-4"
+      class="block relative w-full text-left border-2 border-slate-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary rounded text-sm py-2 px-4"
       @click="$emit('open-select')"
       type="button"
     >
@@ -77,7 +74,8 @@ const {
           v-if="props.open"
         >
           <div
-            v-for="(item, index) in props.items"
+            v-for="(item) in props.items"
+            :key="item[props.renderValueProp]"
             @click="
               () => {
                 handleChange(item)
