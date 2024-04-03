@@ -11,6 +11,7 @@ import IconMoonStar from '@/components/icons/IconMoonStar.vue';
 import IconBoard from '@/components/icons/IconBoard.vue';
 import IconHide from '@/components/icons/IconHide.vue';
 import IconEye from '@/components/icons/IconEye.vue';
+import IconClose from '@/components/icons/IconClose.vue';
 
 // store
 import { useBoardStore } from '@/stores/board.js';
@@ -41,7 +42,7 @@ console.log('[ASIDE] boardStore.sidebar', boardStore.sidebar);
     <div class="flex flex-col justify-between h-full pt-4 beautify-scrollbar overflow-auto">
       <div class="shrink-0">
         <div
-          class="uppercase text-[.7rem] text-slate-500 dark:text-slate-400 font-bold tracking-[.175rem] pl-8 mb-4"
+          class="uppercase text-[.735rem] text-slate-400 dark:text-slate-400 font-bold tracking-[.16rem] pl-8 mb-4"
         >
           all boards ({{ boardStore.boards.length }})
         </div>
@@ -53,7 +54,7 @@ console.log('[ASIDE] boardStore.sidebar', boardStore.sidebar);
               'list-none font-bold flex items-center hover:bg-primary-light hover:text-white dark:hover:text-white hover:cursor-pointer pl-8 py-2.5 rounded-r-full mb-1',
               boardStore.activeBoardIndex === index
                 ? 'bg-primary text-white'
-                : 'dark:text-slate-400 text-slate-500'
+                : 'dark:text-slate-400 text-slate-400'
             ]"
             @click="boardStore.setActiveBoardIndex(index)"
           >
@@ -125,7 +126,7 @@ console.log('[ASIDE] boardStore.sidebar', boardStore.sidebar);
                         class="text-slate-400 p-2"
                         type="button"
                       >
-                        <IconClose />
+                        <IconClose class="" />
                       </button>
                     </div>
                   </div>
@@ -136,7 +137,7 @@ console.log('[ASIDE] boardStore.sidebar', boardStore.sidebar);
                     type="button"
                     class="block w-full"
                     size="small"
-                    background-color="bg-white hover:bg-indigo-50"
+                    background-color="bg-indigo-50 dark:bg-slate-50 dark:hover:bg-gray-200"
                     color="text-primary"
                     >+ Add New Column</Button
                   >

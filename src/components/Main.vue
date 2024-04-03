@@ -1129,7 +1129,7 @@ const dragMobile = (args, e) => {
         <div
           v-for="(c, colIndex) in boardStore.board.columns"
           :key="c.id"
-          class="column shrink-0 w-[286px] mr-16 flex flex-col"
+          class="column shrink-0 w-[286px] mr-8 flex flex-col"
         >
           <div class="flex items-center mb-6">
             <div :class="['w-[14px] h-[14px] rounded-full mr-3', `bg-dot${colIndex}`]"></div>
@@ -1152,7 +1152,7 @@ const dragMobile = (args, e) => {
           >
             <div
               v-for="(t, index) in c.tasks"
-              class="card-task card-task-transition bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-zinc-900 hover:cursor-grab select-none px-4 py-6 mb-4 relative"
+              class="card-task card-task-transition bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-none hover:cursor-grab select-none px-4 py-6 mb-4 relative"
               :key="t.id"
               data-moveable="0"
               :data-index="index"
