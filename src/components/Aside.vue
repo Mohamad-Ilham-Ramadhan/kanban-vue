@@ -30,6 +30,8 @@ function toggleTheme() {
 
 console.log('[ASIDE] boardStore.sidebar', boardStore.sidebar);
 
+const doc = document;
+const win = window;
 </script>
 
 <template>
@@ -132,7 +134,14 @@ console.log('[ASIDE] boardStore.sidebar', boardStore.sidebar);
                   </div>
                   <Button
                     v-show="fields.length < 6"
-                    @click="push('')"
+                    @click="() => {
+                      push('')
+                      console.log('input', fields.length )
+
+                      win.setTimeout(() => { // Focus the last inserted input. Need setTimeout so .focus() method executed after input element inserted on DOM.
+                        doc.getElementById(`columns[${fields.length - 1}]`).focus()
+                      }, 1)
+                    }"
                     text="+ Add New Column"
                     type="button"
                     class="block w-full"
