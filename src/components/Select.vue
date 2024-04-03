@@ -66,7 +66,7 @@ console.log('Select props.items', props.items);
         <div class="absolute z-[101] inset-0" @click="$emit('close-select')"></div>
         <div
           ref="paperRef"
-          class="absolute z-[1000] rounded overflow-hidden bg-dark"
+          class="absolute z-[1000] rounded overflow-hidden bg-white dark:bg-dark drop-shadow-md"
           id="paper"
           v-if="props.open"
         >
@@ -80,7 +80,7 @@ console.log('Select props.items', props.items);
                 emit('close-select')
               }
             "
-            class="px-4 py-2 text-sm font-semibold text-slate-400 hover:text-white hover:cursor-pointer"
+            class="px-4 py-2 text-sm font-semibold text-slate-400 hover:text-black dark:hover:text-white hover:cursor-pointer"
           >
             {{ item[props.renderValueProp] }}
           </div>
