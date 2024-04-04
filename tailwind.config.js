@@ -13,6 +13,7 @@ module.exports = {
       },
       colors: {
         primary: '#635fc7',
+        'primary-hover': '#8c89e0',
         'primary-light': '#A8A4FF',
         'dark-light': '#2b2c37',
         'drag-card-dark': '#23242c', // when card-task ready/available to drag (theme === dark)

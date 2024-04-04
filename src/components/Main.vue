@@ -1092,11 +1092,16 @@ const dragMobile = (args, e) => {
               </div>
               <Button
                 v-show="fields.length < 6"
-                @click="push({ id: uuid(), text: '', isDone: false })"
+                @click="() => {
+                  push({ id: uuid(), text: '', isDone: false })
+                  win.setTimeout(() => {
+                    doc.getElementById(`subtasks[${fields.length - 1}].text`).focus();
+                  },1);
+                }"
                 type="button"
                 class="block w-full mb-4"
                 size="small"
-                background-color="bg-white hover:bg-indigo-50"
+                background-color="bg-indigo-50 hover:text-primary-hover dark:bg-slate-50 dark:hover:bg-gray-200"
                 color="text-primary"
                 >+ Add New Subtask</Button
               >
@@ -1266,11 +1271,16 @@ const dragMobile = (args, e) => {
                   </div>
                   <Button
                     v-show="fields.length < 6"
-                    @click="push({ name: '', tasks: [] })"
+                    @click="() => {
+                      push({ name: '', tasks: [] })
+                      win.setTimeout(() => {
+                        doc.getElementById(`columns[${fields.length - 1}].name`).focus()
+                      },1)
+                    }"
                     type="button"
                     class="block w-full"
                     size="small"
-                    background-color="bg-white hover:bg-indigo-50"
+                    background-color="bg-indigo-50 hover:text-primary-hover dark:bg-slate-50 dark:hover:bg-gray-200"
                     color="text-primary"
                     >+ Add New Column</Button
                   >

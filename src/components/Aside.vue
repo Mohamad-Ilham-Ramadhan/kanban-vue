@@ -146,7 +146,7 @@ const win = window;
                     type="button"
                     class="block w-full"
                     size="small"
-                    background-color="bg-indigo-50 dark:bg-slate-50 dark:hover:bg-gray-200"
+                    background-color="bg-indigo-50 hover:text-primary-hover dark:bg-slate-50 dark:hover:bg-gray-200"
                     color="text-primary"
                     >+ Add New Column</Button
                   >
