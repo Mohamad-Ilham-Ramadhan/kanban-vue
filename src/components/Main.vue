@@ -1007,7 +1007,7 @@ const dragMobile = (args, e) => {
               "
               size="small"
               class="w-full mr-2"
-              background-color="bg-red-450 hover:opacity-60"
+              background-color="bg-red-450 transition-opacity hover:opacity-70"
               color="text-white"
               >Delete</Button
             >
@@ -1021,7 +1021,7 @@ const dragMobile = (args, e) => {
               "
               size="small"
               class="w-full ml-2"
-              background-color="bg-white hover:opacity-60"
+              background-color="bg-indigo-50 transition-opacity hover:opacity-70"
               color="text-primary"
               >Cancel</Button
             >
