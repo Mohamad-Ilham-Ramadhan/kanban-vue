@@ -206,7 +206,7 @@ const doc = document;
 
             <div class="mb-4">
               <label for="title" class="block text-xs text-slate-400 font-bold mb-2">Description</label>
-              <Textarea name="description" id="description" />
+              <Textarea name="description" id="description" rows="4"/>
             </div>
 
             <FieldArray name="subtasks" v-slot="{ fields, push, remove }">
