@@ -340,19 +340,25 @@ export const useBoardStore = defineStore('board', {
             console.log('store.swapTask() SAME COLUMN')
 
             if (toIndex > fromIndex) { // drag ke bawah
+
+               // re-arrange tasks in the current column
                const newTasks = this.board.columns[fromColumnIndex].tasks.map((t, index) => {
                   if (index > toIndex || index < fromIndex) return t
                   if (index == toIndex) return this.board.columns[fromColumnIndex].tasks[fromIndex] 
                   if (index >= fromIndex) return this.board.columns[fromColumnIndex].tasks[index + 1]
+                  console.log('will reach here?')
                })
                // console.log('newTasks', newTasks)
                this.boards[this.activeBoardIndex].columns[fromColumnIndex].tasks = newTasks;
             } else if (toIndex < fromIndex) { // drag ke atas
                // console.log('swap task atas')
+               
+               // re-arrange tasks in the current column
                const newTasks = this.board.columns[fromColumnIndex].tasks.map((t, index) => {
                   if (index < toIndex || index > fromIndex) return t
                   if (index == toIndex) return this.board.columns[fromColumnIndex].tasks[fromIndex] 
                   if (index <= fromIndex) return this.board.columns[fromColumnIndex].tasks[index - 1]
+                  console.log('will reach here?')
                })
                this.boards[this.activeBoardIndex].columns[fromColumnIndex].tasks = newTasks
             }

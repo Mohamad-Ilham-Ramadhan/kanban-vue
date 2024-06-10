@@ -10,7 +10,7 @@ const emit = defineEmits(['open-select', 'close-select', 'select-value'])
 onUpdated(() => {
   if (paperRef.value !== null) {
     // @ts-ignore
-    const { top, bottom, left, right, width, height } =
+    const {  bottom, left,  width } =
       selectButtonRef.value.getBoundingClientRect()
     setTimeout(() => {
       // @ts-ignore
@@ -54,7 +54,7 @@ const {
   <div class="relative">
     <button
       ref="selectButtonRef"
-      class="block relative w-full text-left border-2 border-slate-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary rounded text-[13px] text-black py-2 px-4"
+      class="block relative w-full text-left border-2 border-slate-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary rounded text-[13px] text-black dark:text-white py-2 px-4"
       @click="$emit('open-select')"
       type="button"
     >

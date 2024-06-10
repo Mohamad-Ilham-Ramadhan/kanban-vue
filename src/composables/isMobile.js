@@ -9,7 +9,6 @@ export function useIsMobile() {
       } else {
          isMobile.value = false;
       }
-      console.log('isMobile size()')
    }
    onMounted(() => {
       window.removeEventListener('resize', size)

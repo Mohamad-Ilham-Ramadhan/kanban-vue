@@ -107,7 +107,7 @@ const dragDesktop = (args, e) => {
     isDragged = true
     const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
     $this.style.transform = `translate(${matrix.e + e.movementX}px, ${matrix.f + e.movementY}px)`
-
+    
     if (isOut == false) {
       // console.log('INSIDE')
       const $wrapperRect = $wrapper.getBoundingClientRect()
@@ -831,6 +831,7 @@ const dragMobile = (args, e) => {
   doc.addEventListener('touchmove', touchMove)
   doc.addEventListener('touchend', touchEnd)
 }
+
 </script>
 
 <template>

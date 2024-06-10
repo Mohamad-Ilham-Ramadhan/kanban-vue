@@ -51,6 +51,7 @@ const doc = document;
       <!-- <img src="@/assets/logo.svg" alt="logo"> -->
       <Logo />
     </div>
+    
     <div class="flex flex-row w-full justify-between items-center px-4 md:px-8">
       <div class="mobile:block hidden shrink-0 mr-4">
         <img src="@/assets/logoMobile.svg" alt="logo" />
@@ -200,12 +201,12 @@ const doc = document;
           >
             <div class="text-lg font-bold mb-6">Add New Task</div>
             <div class="mb-4">
-              <label for="title" class="block text-xs text-slate-400 font-bold mb-2">Title</label>
+              <label for="title" class="block text-xs  font-bold mb-2">Title</label>
               <Input type="text" name="title" id="title" />
             </div>
 
             <div class="mb-4">
-              <label for="title" class="block text-xs text-slate-400 font-bold mb-2">Description</label>
+              <label for="title" class="block text-xs  font-bold mb-2">Description</label>
               <Textarea name="description" id="description" rows="4"/>
             </div>
 
