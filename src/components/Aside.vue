@@ -28,8 +28,6 @@ function toggleTheme() {
   else boardStore.setTheme(0)
 }
 
-console.log('[ASIDE] boardStore.sidebar', boardStore.sidebar);
-
 const doc = document;
 const win = window;
 </script>

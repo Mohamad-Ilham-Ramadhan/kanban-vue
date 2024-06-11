@@ -1,9 +1,6 @@
 <script setup>
    const props = defineProps(['open', 'editText', 'deleteText','top', 'right', 'left', 'bottom']);
    defineEmits(['onClickEdit', 'onClickDelete', 'onClickOverlay'])
-   console.log('open', props.open)
-   console.log('editText', props.editText)
-   console.log('deleteText', props.deleteText)
 </script>
 
 <template>

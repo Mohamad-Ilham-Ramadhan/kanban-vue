@@ -296,7 +296,6 @@ export const useBoardStore = defineStore('board', {
          this.sidebar = !this.sidebar;
       },
       setActiveBoardIndex(index) {
-         console.log('set active board index', index)
          this.activeBoardIndex = index
       },
       createNewBoard({name, columns}) {
@@ -332,12 +331,9 @@ export const useBoardStore = defineStore('board', {
       },
       swapTask(fromColumnIndex, toColumnIndex, fromIndex, toIndex) { // drag/sort card task
          // this.board.columns[colIndex].tasks
-         console.log('SWAP TASK (store)', fromColumnIndex, toColumnIndex, fromIndex, toIndex)
          if (toColumnIndex === null && fromIndex === toIndex) {
-            console.log('store.swapTask() not doing anything')
             
          } else if (fromColumnIndex === toColumnIndex || toColumnIndex === null) {
-            console.log('store.swapTask() SAME COLUMN')
 
             if (toIndex > fromIndex) { // drag ke bawah
 
@@ -346,24 +342,19 @@ export const useBoardStore = defineStore('board', {
                   if (index > toIndex || index < fromIndex) return t
                   if (index == toIndex) return this.board.columns[fromColumnIndex].tasks[fromIndex] 
                   if (index >= fromIndex) return this.board.columns[fromColumnIndex].tasks[index + 1]
-                  console.log('will reach here?')
                })
-               // console.log('newTasks', newTasks)
                this.boards[this.activeBoardIndex].columns[fromColumnIndex].tasks = newTasks;
             } else if (toIndex < fromIndex) { // drag ke atas
-               // console.log('swap task atas')
                
                // re-arrange tasks in the current column
                const newTasks = this.board.columns[fromColumnIndex].tasks.map((t, index) => {
                   if (index < toIndex || index > fromIndex) return t
                   if (index == toIndex) return this.board.columns[fromColumnIndex].tasks[fromIndex] 
                   if (index <= fromIndex) return this.board.columns[fromColumnIndex].tasks[index - 1]
-                  console.log('will reach here?')
                })
                this.boards[this.activeBoardIndex].columns[fromColumnIndex].tasks = newTasks
             }
          } else {
-            console.log('store.swapTask() DIFFERENT COLUMN')
             // oldColumn
             const theTask = this.board.columns[fromColumnIndex].tasks.splice(fromIndex, 1)[0];
             this.board.columns[toColumnIndex].tasks.splice(toIndex, 0, theTask)
@@ -379,7 +370,6 @@ export const useBoardStore = defineStore('board', {
          }
       },
       deleteTask() {
-         console.log('deleteTask')
          this.boards[this.activeBoardIndex].columns[this.activeColumnIndex].tasks.splice(this.activeTaskIndex, 1)
          // this.boards[this.activeBoardIndex].columns[this.activeColumnIndex].tasks = this.boards[this.activeBoardIndex].columns[this.activeColumnIndex].tasks.filter((t,id) => id !== this.activeTaskIndex )
       },

@@ -174,7 +174,6 @@ const doc = document;
           <Form
             @submit="
               (values) => {
-                console.log('submit add new task', values)
                 boardStore.addNewTask(values)
                 openModalAddTask = false
               }
@@ -346,7 +345,6 @@ const doc = document;
           <Form
             @submit="
               (values) => {
-                console.log('SUBMIT form edit')
                 boardStore.addNewcolumn(values.columns.map((c) => ({ ...c, name: c.name.trim() })))
                 boardStore.setName(values.name.trim())
                 openModalEdit = false

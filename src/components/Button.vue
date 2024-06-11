@@ -40,9 +40,7 @@ const props = defineProps({
       }
    }
 });
-console.log('buttons props', props)
 
-console.log('button props', props.backgroundColor)
 let padding = {
    medium: 'py-3 px-5',
    small: 'py-[.55rem] px-5',
