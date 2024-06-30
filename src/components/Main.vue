@@ -86,7 +86,9 @@ const dragDesktop = (args, e) => {
   const $shadowRect = doc.createElement('div')
   $shadowRect.style.height = `${$thisRect.height}px`
   $shadowRect.style.width = `${$thisRect.width}px`
-  $shadowRect.style.position = 'absolute'
+  $shadowRect.style.position = 'absolute';
+  $shadowRect.style.zIndex = '10';
+  $shadowRect.style.border = 'red 1px solid';
   $shadowRect.style.top = `${$thisRect.top}px`
   $shadowRect.style.left = `${$thisRect.left}px`
   doc.body.appendChild($shadowRect)
@@ -121,25 +123,29 @@ const dragDesktop = (args, e) => {
       if ($thisRect.left < $mainScrollRect.left && $mainScroll.scrollLeft > 0) {
         // scroll left
         $this.style.transform = `translate(${Math.ceil($thisMatrix.e - 2)}px, ${$thisMatrix.f}px)`
-        $mainScroll.scrollLeft = Math.ceil($mainScroll.scrollLeft - 2)
+        $mainScroll.scrollLeft = Math.ceil($mainScroll.scrollLeft - 2);
+        $shadowRect.style.left = `${win.parseInt($shadowRect.style.left) + 2}px`;
       }
 
       if ($thisRect.right > $mainScrollRect.right && $mainScroll.scrollLeft < mainScrollMaxScrollRight) {
         // scroll right
         $this.style.transform = `translate(${Math.floor($thisMatrix.e + 2)}px, ${$thisMatrix.f}px)`
         $mainScroll.scrollLeft = Math.ceil($mainScroll.scrollLeft + 2)
+        $shadowRect.style.left = `${win.parseInt($shadowRect.style.left) - 2}px`;
       }
   
       if ($thisRect.bottom > ($mainScrollRect.bottom - 50) && $mainScroll.scrollTop < mainScrollMaxScrollBottom) {
         // Scroll bottom
         $this.style.transform = `translate(${$thisMatrix.e}px, ${Math.ceil($thisMatrix.f + 2)}px)`;
         $mainScroll.scrollTop = Math.ceil($mainScroll.scrollTop + 2);
+        $shadowRect.style.top = `${win.parseInt($shadowRect.style.top) - 2}px`;
       }
   
       if ($thisRect.top < ($mainScrollRect.top + 50) && $mainScroll.scrollTop > 0) {
         // scroll top
         $this.style.transform = `translate(${$thisMatrix.e}px, ${Math.ceil($thisMatrix.f - 2)}px)`
         $mainScroll.scrollTop = Math.ceil($mainScroll.scrollTop - 2)
+        $shadowRect.style.top = `${win.parseInt($shadowRect.style.top) + 2}px`;
       }
     }, 5)
   
