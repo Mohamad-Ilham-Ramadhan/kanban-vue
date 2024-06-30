@@ -99,6 +99,51 @@ const dragDesktop = (args, e) => {
   let movedCards = new Set([$this])
   // let $prevSwap = { card: null, direction: null } // direction { null | 1 = swap bottom, -1 = swap top}
 
+  const $mainScroll = document.getElementById(`main-scroll`);
+    if ($mainScroll === null) return;
+
+    const mainScrollMaxScrollRight = Math.floor($mainScroll.scrollWidth - $mainScroll.clientWidth)
+    const mainScrollMaxScrollBottom = Math.floor($mainScroll.scrollHeight - $mainScroll.clientHeight)
+    
+    // let lastThisRectLeft = $this.getBoundingClientRect().left;
+    // let lastThisRectRight = $this.getBoundingClientRect().right;
+
+    const setScrollIntervalId = window.setInterval(() => {
+      if (!isDragged) return;
+      // scroll when dragging out of frame
+      const $thisRect = $this.getBoundingClientRect()
+      const $thisMatrix = new DOMMatrix(window.getComputedStyle($this).transform)
+      const $mainScrollRect = $mainScroll.getBoundingClientRect();
+
+      // if ($thisRect.left >= 300) lastThisRectLeft = 300;
+      // if ($thisRect.right <= window.innerWidth) lastThisRectRight = window.innerWidth;
+      
+      if ($thisRect.left < $mainScrollRect.left && $mainScroll.scrollLeft > 0) {
+        // scroll left
+        $this.style.transform = `translate(${Math.ceil($thisMatrix.e - 2)}px, ${$thisMatrix.f}px)`
+        $mainScroll.scrollLeft = Math.ceil($mainScroll.scrollLeft - 2)
+      }
+
+      if ($thisRect.right > $mainScrollRect.right && $mainScroll.scrollLeft < mainScrollMaxScrollRight) {
+        // scroll right
+        $this.style.transform = `translate(${Math.floor($thisMatrix.e + 2)}px, ${$thisMatrix.f}px)`
+        $mainScroll.scrollLeft = Math.ceil($mainScroll.scrollLeft + 2)
+      }
+  
+      if ($thisRect.bottom > ($mainScrollRect.bottom - 50) && $mainScroll.scrollTop < mainScrollMaxScrollBottom) {
+        // Scroll bottom
+        $this.style.transform = `translate(${$thisMatrix.e}px, ${Math.ceil($thisMatrix.f + 2)}px)`;
+        $mainScroll.scrollTop = Math.ceil($mainScroll.scrollTop + 2);
+      }
+  
+      if ($thisRect.top < ($mainScrollRect.top + 50) && $mainScroll.scrollTop > 0) {
+        // scroll top
+        $this.style.transform = `translate(${$thisMatrix.e}px, ${Math.ceil($thisMatrix.f - 2)}px)`
+        $mainScroll.scrollTop = Math.ceil($mainScroll.scrollTop - 2)
+      }
+    }, 5)
+  
+
   const dragCard = (e) => {
     isDragged = true
     const matrix = new DOMMatrix(win.getComputedStyle($this).transform)
@@ -279,7 +324,7 @@ const dragDesktop = (args, e) => {
   }
 
   const cancelDrag = () => {
-
+    win.clearInterval(setScrollIntervalId);
     preventDrag.value = true
     win.setTimeout(() => {
       preventDrag.value = false
@@ -366,6 +411,7 @@ const dragDesktop = (args, e) => {
 const dragMobile = (args, e) => {
   let { colIndex, index } = args
   e.stopPropagation()
+  console.log('dragMobile e', e);
   let isDragged = false
 
   const $this = e.currentTarget
@@ -453,6 +499,8 @@ const dragMobile = (args, e) => {
     e.stopImmediatePropagation()
     // e.preventDefault();
 
+    console.log('touchMove e', e);
+    
     if (!isDragged) {
       if (Date.now() - startStamp > holdToDrag) {
         isDragged = true
