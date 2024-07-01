@@ -821,12 +821,12 @@ const dragMobile = (args, e) => {
 <template>
   <main
     :class="[
-      'mobile:pl-0 pt-[96px] pb-[40px] flex w-full h-[100vh] overflow-hidden transition-all',
+      'mobile:pl-0 pt-[96px] flex w-full h-[100vh] overflow-hidden transition-all',
       boardStore.sidebar ? 'pl-[300px]' : 'pl-[0px]'
     ]"
   >
     <div
-      class="beautify-scrollbar w-[100vw] h-[calc(100vh-96px)] overflow-auto hover:cursor-col-resize"
+      class="beautify-scrollbar w-[100vw] overflow-auto hover:cursor-col-resize"
       ref="refDragScroll"
       id="main-scroll"
       @mousedown="
