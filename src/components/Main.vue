@@ -87,8 +87,8 @@ const dragDesktop = (args, e) => {
   $shadowRect.style.height = `${$thisRect.height}px`
   $shadowRect.style.width = `${$thisRect.width}px`
   $shadowRect.style.position = 'absolute';
-  $shadowRect.style.zIndex = '10';
-  $shadowRect.style.border = 'red 1px solid';
+  // $shadowRect.style.zIndex = '10';
+  // $shadowRect.style.border = 'red 1px solid';
   $shadowRect.style.top = `${$thisRect.top}px`
   $shadowRect.style.left = `${$thisRect.left}px`
   doc.body.appendChild($shadowRect)
