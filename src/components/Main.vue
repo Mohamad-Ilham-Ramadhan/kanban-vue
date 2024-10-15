@@ -430,7 +430,7 @@ const dragMobile = (args, e) => {
 
   $this.classList.remove('card-task-transition')
   $this.classList.remove('z-50')
-  $this.style.zIndex = '100'
+  $this.style.zIndex = '100';
 
   // create shadowRect
   const $thisRect = $this.getBoundingClientRect()
@@ -853,7 +853,7 @@ const dragMobile = (args, e) => {
       </Teleport>
 
       <div
-        class="relative flex w-full h-full px-4 md:px-8 py-6"
+        class="relative flex w-full px-4 md:px-8 py-6"
         ref="boardFrameRef"
         id="column-wrapper"
       >
@@ -1133,11 +1133,11 @@ const dragMobile = (args, e) => {
             ref="tasksWrapperRefs"
             :data-column-index="colIndex"
             data-is-animating="0"
-            class="task-wrapper"
+            class="task-wrapper pb-8"
             :class="
               c.tasks.length > 0
                 ? 'flex flex-col h-full'
-                : 'border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg h-full'
+                : 'h-[calc(100vh_-_232px)] border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg h-full'
             "
           >
             <div
