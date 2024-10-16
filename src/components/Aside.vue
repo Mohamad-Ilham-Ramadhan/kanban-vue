@@ -73,6 +73,7 @@ const win = window;
             </span>
             <span>+ Create New Board</span>
           </li>
+
           <!-- Modal create new board -->
           <Modal
             :open="openCreateNewBoard"
