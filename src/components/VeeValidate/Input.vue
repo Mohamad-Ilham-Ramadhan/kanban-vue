@@ -7,8 +7,6 @@ const name = toRef(props, 'name')
 const { value: inputValue, errorMessage, handleBlur, handleChange } = useField(name, undefined, {
    initialValue: props.value
 })
-
-console.log('Input errorMessage', errorMessage);
 </script>
 
 <template>

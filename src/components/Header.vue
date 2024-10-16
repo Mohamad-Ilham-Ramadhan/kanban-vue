@@ -181,12 +181,11 @@ const doc = document;
             :validation-schema="
               yup.object().shape({
                 title: yup.string().required('Required'),
-                description: yup.string().required('Required'),
                 subtasks: yup.array().of(
                   yup.object().shape({
-                    id: yup.string().required(),
-                    text: yup.string().required(),
-                    isDone: yup.boolean().required()
+                    id: yup.string().required('Required'),
+                    text: yup.string().required('Required'),
+                    isDone: yup.boolean().required('Required')
                   })
                 )
               })
