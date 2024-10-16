@@ -180,8 +180,8 @@ const doc = document;
             "
             :validation-schema="
               yup.object().shape({
-                title: yup.string().required(),
-                description: yup.string().required(),
+                title: yup.string().required('Required'),
+                description: yup.string().required('Required'),
                 subtasks: yup.array().of(
                   yup.object().shape({
                     id: yup.string().required(),
@@ -352,10 +352,10 @@ const doc = document;
             "
             :validation-schema="
               yup.object().shape({
-                name: yup.string().required(),
+                name: yup.string().required('Required'),
                 columns: yup.array().of(
                   yup.object().shape({
-                    name: yup.string().required()
+                    name: yup.string().required('Required')
                   })
                 )
               })
