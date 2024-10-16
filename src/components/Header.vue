@@ -186,7 +186,7 @@ const doc = document;
             :validation-schema="
               yup.object().shape({
                 title: yup.string().required('Required').test('unique-name', 'Used', (value) => {
-                return boardStore.tasksTitleSet.has(value.trim()) ? false : true;
+                return boardStore.tasksTitleSet.has(value.trim().toLocaleLowerCase()) ? false : true;
                 }),
                 subtasks: yup.array().of(
                   yup.object().shape({
