@@ -1201,7 +1201,7 @@ const dragMobile = (args, e) => {
                 yup.object().shape({
                   columns: yup.array().of(
                     yup.object().shape({
-                      name: yup.string().required()
+                      name: yup.string().required('Required')
                     })
                   )
                 })
