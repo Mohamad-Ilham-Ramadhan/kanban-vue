@@ -1,5 +1,5 @@
 <script setup>
-import {ref} from 'vue';
+import {ref, watch, watchEffect} from 'vue';
 import { useIsMobile } from '../composables/isMobile';
 import { Form, FieldArray } from 'vee-validate'
 import * as yup from 'yup'
@@ -23,6 +23,11 @@ import DropdownMenu from '@/components/DropdownMenu.vue'
 import { useBoardStore } from '@/stores/board.js'
 const boardStore = useBoardStore()
 const boards = boardStore.boards;
+
+watchEffect(() => {
+  console.log('header watchEffect boardStore', boardStore)
+})
+console.log('taskTitlesSet', boardStore.taskTitlesSet)
 
 const openModalMobile = ref(false);
 const openModalAddTask = ref(false)
@@ -180,7 +185,9 @@ const doc = document;
             "
             :validation-schema="
               yup.object().shape({
-                title: yup.string().required('Required'),
+                title: yup.string().required('Required').test('unique-name', 'Used', (value) => {
+                return boardStore.tasksTitleSet.has(value) ? false : true;
+                }),
                 subtasks: yup.array().of(
                   yup.object().shape({
                     id: yup.string().required('Required'),

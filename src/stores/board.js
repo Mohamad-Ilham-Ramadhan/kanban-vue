@@ -286,7 +286,17 @@ export const useBoardStore = defineStore('board', {
    }),
    getters: {
       board: (state) => state.boards[state.activeBoardIndex],
-      task: (state) => state.boards[state.activeBoardIndex].columns[state.activeColumnIndex].tasks[state.activeTaskIndex]
+      task: (state) => state.boards[state.activeBoardIndex].columns[state.activeColumnIndex].tasks[state.activeTaskIndex],
+      tasksTitleSet: (state) => {
+         // current board set of tasks' title
+         const s = new Set();
+         state.boards[state.activeBoardIndex].columns.forEach( column => {
+           column.tasks.forEach( task => {
+             s.add(task.title.toLowerCase().trim())
+           })
+         });
+         return s;
+      }
    },
    actions: {
       setTheme(value) {
