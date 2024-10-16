@@ -94,7 +94,7 @@ const win = window;
               :validation-schema="
                 yup.object().shape({
                   name: yup.string().required('Required').test('unique-name', 'Used', (value) => {
-                    return boardNamesSet.has(value)  ? false : true;
+                    return boardNamesSet.has(value.trim())  ? false : true;
                   }),
                   columns: yup.array().of(yup.string().required('Required'))
                 })
