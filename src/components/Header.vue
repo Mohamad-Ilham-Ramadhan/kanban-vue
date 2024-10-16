@@ -271,6 +271,7 @@ const doc = document;
             </div>
           </Form>
         </Modal>
+        <!-- Modal add new task [end] -->
 
         <div class="relative">
           <button

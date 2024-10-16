@@ -1,11 +1,11 @@
 <script setup >
 import { ref, defineProps, defineEmits } from 'vue';
 import IconClose from './icons/IconClose.vue';
-
-
 const emit = defineEmits(['close-modal'])
 const props = defineProps(['open', 'class', 'isFullscreen'])
-const modalRef = ref(null)
+const modalRef = ref(null);
+
+
 </script>
 
 <template>

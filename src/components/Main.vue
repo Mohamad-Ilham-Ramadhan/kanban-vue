@@ -1165,7 +1165,7 @@ const dragMobile = (args, e) => {
         <div class="shrink-0 w-[286px] flex flex-col">
           <div class="h-[44px]"></div>
           <div
-            class="h-full bg-gradient-to-b dark:from-dark-light dark:to-dark from-slate-200 to-light-theme-bg text-slate-400 dark:text-slate-400 hover:text-primary dark:hover:text-primary hover:cursor-pointer rounded-lg transition-all flex items-center justify-center font-bold text-2xl"
+            class="h-[calc(100vh_-_232px)] bg-gradient-to-b dark:from-dark-light dark:to-dark from-slate-200 to-light-theme-bg text-slate-400 dark:text-slate-400 hover:text-primary dark:hover:text-primary hover:cursor-pointer rounded-lg transition-all flex items-center justify-center font-bold text-2xl"
             @click="
               (e) => {
                 console.log('new column')
@@ -1180,11 +1180,13 @@ const dragMobile = (args, e) => {
           >
             + New Column
           </div>
+
           <!-- Modal Add New Column -->
           <Modal
             :open="openModalNewColumn"
             @close-modal="openModalNewColumn = false"
-            class="w-[480px] p-8"
+            class="max-w-[480px] w-full p-8"
+            :isFullscreen="isMobile ? true : false"
           >
             <div class="font-bold text-lg mb-4">Add New Column</div>
             <Form
