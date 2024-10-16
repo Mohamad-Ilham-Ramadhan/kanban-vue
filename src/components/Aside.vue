@@ -17,6 +17,8 @@ import IconClose from '@/components/icons/IconClose.vue';
 import { useBoardStore } from '@/stores/board.js';
 const boardStore = useBoardStore();
 const boards = boardStore.boards;
+const boardNamesSet = new Set();
+boards.forEach(b => boardNamesSet.add(b.name.toLowerCase().trim()));
 
 const { isMobile } = useIsMobile()
 
@@ -90,11 +92,13 @@ const win = window;
               @invalid-submit="() => {}"
               :validation-schema="
                 yup.object().shape({
-                  name: yup.string().required(),
-                  columns: yup.array().of(yup.string().required())
+                  name: yup.string().required('Required').test('unique-name', 'Used', (value) => {
+                    return boardNamesSet.has(value)  ? false : true;
+                  }),
+                  columns: yup.array().of(yup.string().required('Required'))
                 })
               "
-              :initial-values="{ name: '', columns: [''] }"
+              :initial-values="{name: '', columns: ['']}"
             >
               <div class="mb-4">
                 <label
@@ -153,6 +157,7 @@ const win = window;
               <Button class="w-full" type="submit" size="small">Create New Board</Button>
             </Form>
           </Modal>
+
         </nav>
       </div>
 
