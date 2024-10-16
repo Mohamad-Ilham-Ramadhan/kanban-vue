@@ -1137,7 +1137,7 @@ const dragMobile = (args, e) => {
             :class="
               c.tasks.length > 0
                 ? 'flex flex-col h-full'
-                : 'h-[calc(100vh_-_232px)] border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg h-full'
+                : 'h-[calc(100vh_-_232px)] border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg'
             "
           >
             <div
