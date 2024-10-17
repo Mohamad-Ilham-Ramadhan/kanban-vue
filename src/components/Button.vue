@@ -55,7 +55,7 @@ let textSize = {
 </script>
 <template>
    <button
-      :class="['rounded-full font-bold transition-colors', size === 'custom' ? '' : padding[props.size], size === 'custom' ? '' : textSize[props.size], props.backgroundColor, props.color, props.class]"
+      :class="['rounded-full font-bold transition-colors focus:outline-2 focus:outline focus:outline-amber-300', size === 'custom' ? '' : padding[props.size], size === 'custom' ? '' : textSize[props.size], props.backgroundColor, props.color, props.class]"
       :type="props.type" :disabled="props.disabled">
       <slot></slot>
    </button>
