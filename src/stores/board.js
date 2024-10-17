@@ -287,6 +287,7 @@ export const useBoardStore = defineStore('board', {
    getters: {
       board: (state) => state.boards[state.activeBoardIndex],
       boardsNameSet: (state) => {
+         // for unique name validation on create new board
          const s = new Set();
          state.boards.forEach(b => {
             s.add(b.name.toLocaleLowerCase().trim())

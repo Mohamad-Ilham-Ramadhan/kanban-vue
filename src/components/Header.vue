@@ -296,6 +296,9 @@ const doc = document;
               () => {
                 openModalDelete = true
                 openOption = false
+                win.setTimeout(() => {
+                  doc.getElementById('button-delete')?.focus()
+                })
               }
             "
             @on-click-overlay="openOption = true"
@@ -324,6 +327,7 @@ const doc = document;
                   openModalDelete = false
                 }
               "
+              id="button-delete"
               size="small"
               class="w-full mr-2"
               background-color="bg-red-450 transition-opacity hover:opacity-70"
