@@ -23,12 +23,6 @@ import DropdownMenu from '@/components/DropdownMenu.vue'
 import { useBoardStore } from '@/stores/board.js'
 const boardStore = useBoardStore()
 const boards = boardStore.boards;
-
-watchEffect(() => {
-  console.log('header watchEffect boardStore', boardStore)
-})
-console.log('taskTitlesSet', boardStore.taskTitlesSet)
-
 const openModalMobile = ref(false);
 const openModalAddTask = ref(false)
 const openOption = ref(false)
@@ -366,7 +360,11 @@ const doc = document;
             "
             :validation-schema="
               yup.object().shape({
-                name: yup.string().required('Required'),
+                name: yup.string().required('Required').test('unique-name', 'Used', (value) => {
+                  value = value.toLocaleLowerCase().trim();
+                  if (value === boardStore.board.name.toLocaleLowerCase().trim()) return true;
+                  return boardStore.boardsNameSet.has(value) ? false : true;
+                }),
                 columns: yup.array().of(
                   yup.object().shape({
                     name: yup.string().required('Required')
