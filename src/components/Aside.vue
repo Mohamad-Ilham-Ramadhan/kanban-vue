@@ -18,7 +18,6 @@ import { useBoardStore } from '@/stores/board.js';
 const boardStore = useBoardStore();
 const boards = boardStore.boards;
 const boardNamesSet = new Set();
-boards.forEach(b => boardNamesSet.add(b.name.toLowerCase().trim()));
 
 const { isMobile } = useIsMobile()
 
@@ -99,7 +98,7 @@ const win = window;
               :validation-schema="
                 yup.object().shape({
                   name: yup.string().required('Required').test('unique-name', 'Used', (value) => {
-                    return boardNamesSet.has(value.trim().toLocaleLowerCase())  ? false : true;
+                    return boardStore.boardsNameSet.has(value.trim().toLocaleLowerCase())  ? false : true;
                   }),
                   columns: yup.array().of(yup.string().required('Required'))
                 })

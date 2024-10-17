@@ -286,6 +286,13 @@ export const useBoardStore = defineStore('board', {
    }),
    getters: {
       board: (state) => state.boards[state.activeBoardIndex],
+      boardsNameSet: (state) => {
+         const s = new Set();
+         state.boards.forEach(b => {
+            s.add(b.name.toLocaleLowerCase().trim())
+         });
+         return s;
+      },
       task: (state) => state.boards[state.activeBoardIndex].columns[state.activeColumnIndex].tasks[state.activeTaskIndex],
       tasksTitleSet: (state) => {
          // current board set of tasks' title
@@ -311,7 +318,7 @@ export const useBoardStore = defineStore('board', {
       createNewBoard({name, columns}) {
          const newBoard = {
             id: uuid(),
-            name,
+            name: name.trim(),
             columns: columns.map( c => ({id: uuid(), name: c, tasks: []}))
          }
          this.boards.push(newBoard)
@@ -342,7 +349,7 @@ export const useBoardStore = defineStore('board', {
       swapTask(fromColumnIndex, toColumnIndex, fromIndex, toIndex) { // drag/sort card task
          // this.board.columns[colIndex].tasks
          if (toColumnIndex === null && fromIndex === toIndex) {
-            
+            return;
          } else if (fromColumnIndex === toColumnIndex || toColumnIndex === null) {
 
             if (toIndex > fromIndex) { // drag ke bawah
