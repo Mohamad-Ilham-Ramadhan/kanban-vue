@@ -66,7 +66,12 @@ const win = window;
 
           <li
             class="flex items-center font-bold pl-8 py-2.5 list-none text-primary hover:opacity-60 hover:cursor-pointer transition-opacity"
-            @click="openCreateNewBoard = true"
+            @click="() => {
+              openCreateNewBoard = true;
+              win.setTimeout(() => {
+                doc.getElementById('name')?.focus();
+              })
+            }"
           >
             <span class="mr-4">
               <IconBoard />
