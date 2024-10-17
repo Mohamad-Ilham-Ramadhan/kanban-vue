@@ -1168,8 +1168,10 @@ const dragMobile = (args, e) => {
             class="h-[calc(100vh_-_232px)] bg-gradient-to-b dark:from-dark-light dark:to-dark from-slate-200 to-light-theme-bg text-slate-400 dark:text-slate-400 hover:text-primary dark:hover:text-primary hover:cursor-pointer rounded-lg transition-all flex items-center justify-center font-bold text-2xl"
             @click="
               (e) => {
-                console.log('new column')
-                openModalNewColumn = true
+                openModalNewColumn = true;
+                win.setTimeout(() => {
+                  doc.getElementById('columns[0].name')?.focus()
+                });
               }
             "
             @mousedown="
