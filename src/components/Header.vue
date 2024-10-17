@@ -288,8 +288,11 @@ const doc = document;
             deleteText="Delete Board"
             @on-click-edit="
               () => {
-                openModalEdit = true
-                openOption = false
+                openModalEdit = true;
+                openOption = false;
+                win.setTimeout(() => {
+                  doc.getElementById('name')?.focus()
+                })
               }
             "
             @on-click-delete="
