@@ -367,7 +367,24 @@ const doc = document;
                 }),
                 columns: yup.array().of(
                   yup.object().shape({
-                    name: yup.string().required('Required')
+                    name: yup.string().required('Required').test('unique-name', 'Used', (value, context) => {
+                      // @ts-ignore
+                      const columns = context.from[1].value.columns;
+                      const match = context?.path?.match(/\d+/)
+                      let index;
+                      if (match !== null) {
+                        index = Number(match[0])
+                      }
+                      let unique = true;
+                      columns.some( (c, i) => {
+                        const {name} = c;
+                        if (!name) return true;
+                        if (i === index) return true;
+                        if (name.toLowerCase().trim() === value.toLocaleLowerCase().trim()) unique = false
+
+                      });
+                      return unique;
+                    })
                   })
                 )
               })

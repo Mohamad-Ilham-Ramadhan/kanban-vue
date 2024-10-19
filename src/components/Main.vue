@@ -1240,14 +1240,7 @@ const dragMobile = (args, e) => {
                 >
                 <Input name="name" type="text" :disabled="true" />
               </div>
-              <div class="mb-4">
-                <button @click="() => {
-                  console.log('hehehe')
-                  for (let i = 0; i < 4; i++) {
-                    console.log('i', i);
-                  }
-                }" type="button">For loop</button>
-              </div>
+              
               <div class="mb-4">
                 <FieldArray name="columns" v-slot="{ fields, push, remove }">
                   <div class="mb-4">
