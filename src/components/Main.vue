@@ -1205,7 +1205,24 @@ const dragMobile = (args, e) => {
                 yup.object().shape({
                   columns: yup.array().of(
                     yup.object().shape({
-                      name: yup.string().required('Required')
+                      name: yup.string().required('Required').test('unique-name', 'Used', (value, context) => {
+                        // @ts-ignore
+                        const columns = context.from[1].value.columns;
+                        const match = context?.path?.match(/\d+/)
+                        let index;
+                        if (match !== null) {
+                          index = Number(match[0])
+                        }
+                        let unique = true;
+                        columns.some( (c, i) => {
+                          const {name} = c;
+                          if (!name) return true;
+                          if (i === index) return true;
+                          if (name.toLowerCase().trim() === value.toLocaleLowerCase().trim()) unique = false
+
+                        });
+                        return unique;
+                      })
                     })
                   )
                 })
@@ -1223,7 +1240,14 @@ const dragMobile = (args, e) => {
                 >
                 <Input name="name" type="text" :disabled="true" />
               </div>
-
+              <div class="mb-4">
+                <button @click="() => {
+                  console.log('hehehe')
+                  for (let i = 0; i < 4; i++) {
+                    console.log('i', i);
+                  }
+                }" type="button">For loop</button>
+              </div>
               <div class="mb-4">
                 <FieldArray name="columns" v-slot="{ fields, push, remove }">
                   <div class="mb-4">
