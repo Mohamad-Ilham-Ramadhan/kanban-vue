@@ -43,8 +43,6 @@ onUpdated(() => {
 
 const name = toRef(props, 'name')
 
-console.log('Select props.items', props.items);
-
 </script>
 
 <template>
