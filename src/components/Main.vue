@@ -1219,7 +1219,6 @@ const dragMobile = (args, e) => {
                           if (!name) return true;
                           if (i === index) return true;
                           if (name.toLowerCase().trim() === value.toLocaleLowerCase().trim()) unique = false
-
                         });
                         return unique;
                       })

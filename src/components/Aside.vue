@@ -1,27 +1,27 @@
 <script setup>
-import {ref} from 'vue';
-import { Form, FieldArray } from 'vee-validate';
-import * as yup from 'yup';
-import { useIsMobile } from '../composables/isMobile';
-import Modal from '@/components/Modal.vue';
-import Button from '@/components/Button.vue';
-import Input from '@/components/VeeValidate/Input.vue';
-import IconSun from '@/components/icons/IconSun.vue';
-import IconMoonStar from '@/components/icons/IconMoonStar.vue';
-import IconBoard from '@/components/icons/IconBoard.vue';
-import IconHide from '@/components/icons/IconHide.vue';
-import IconEye from '@/components/icons/IconEye.vue';
-import IconClose from '@/components/icons/IconClose.vue';
+import { ref } from 'vue'
+import { Form, FieldArray } from 'vee-validate'
+import * as yup from 'yup'
+import { useIsMobile } from '../composables/isMobile'
+import Modal from '@/components/Modal.vue'
+import Button from '@/components/Button.vue'
+import Input from '@/components/VeeValidate/Input.vue'
+import IconSun from '@/components/icons/IconSun.vue'
+import IconMoonStar from '@/components/icons/IconMoonStar.vue'
+import IconBoard from '@/components/icons/IconBoard.vue'
+import IconHide from '@/components/icons/IconHide.vue'
+import IconEye from '@/components/icons/IconEye.vue'
+import IconClose from '@/components/icons/IconClose.vue'
 
 // store
-import { useBoardStore } from '@/stores/board.js';
-const boardStore = useBoardStore();
-const boards = boardStore.boards;
-const boardNamesSet = new Set();
+import { useBoardStore } from '@/stores/board.js'
+const boardStore = useBoardStore()
+const boards = boardStore.boards
+const boardNamesSet = new Set()
 
 const { isMobile } = useIsMobile()
 
-const openCreateNewBoard = ref(false);
+const openCreateNewBoard = ref(false)
 
 function toggleTheme() {
   document.documentElement.classList.toggle('dark')
@@ -29,8 +29,8 @@ function toggleTheme() {
   else boardStore.setTheme(0)
 }
 
-const doc = document;
-const win = window;
+const doc = document
+const win = window
 </script>
 
 <template>
@@ -65,12 +65,14 @@ const win = window;
 
           <li
             class="flex items-center font-bold pl-8 py-2.5 list-none text-primary hover:opacity-60 hover:cursor-pointer transition-opacity"
-            @click="() => {
-              openCreateNewBoard = true;
-              win.setTimeout(() => {
-                doc.getElementById('name')?.focus();
-              })
-            }"
+            @click="
+              () => {
+                openCreateNewBoard = true
+                win.setTimeout(() => {
+                  doc.getElementById('name')?.focus()
+                })
+              }
+            "
           >
             <span class="mr-4">
               <IconBoard />
@@ -97,13 +99,40 @@ const win = window;
               @invalid-submit="() => {}"
               :validation-schema="
                 yup.object().shape({
-                  name: yup.string().required('Required').test('unique-name', 'Used', (value) => {
-                    return boardStore.boardsNameSet.has(value.trim().toLocaleLowerCase())  ? false : true;
-                  }),
-                  columns: yup.array().of(yup.string().required('Required'))
+                  name: yup
+                    .string()
+                    .required('Required')
+                    .test('unique-name', 'Used', (value) => {
+                      return boardStore.boardsNameSet.has(value.trim().toLocaleLowerCase())
+                        ? false
+                        : true
+                    }),
+                  columns: yup.array().of(
+                    yup
+                      .string()
+                      .required('Required')
+                      .test('unique-name', 'Used', (value, context) => {
+                        // @ts-ignore
+                        const columns = context.from[0].value.columns
+                        const match = context?.path?.match(/\d+/)
+                        let index
+                        if (match !== null) {
+                          index = Number(match[0])
+                        }
+                        let unique = true
+                        columns.some((c, i) => {
+                          const name  = c
+                          if (!name) return true
+                          if (i === index) return true
+                          if (name.toLowerCase().trim() === value.toLocaleLowerCase().trim())
+                            unique = false
+                        })
+                        return unique;
+                      })
+                  )
                 })
               "
-              :initial-values="{name: '', columns: ['']}"
+              :initial-values="{ name: '', columns: [''] }"
             >
               <div class="mb-4">
                 <label
@@ -141,14 +170,17 @@ const win = window;
                   </div>
                   <Button
                     v-show="fields.length < 6"
-                    @click="() => {
-                      push('')
-                      console.log('input', fields.length)
+                    @click="
+                      () => {
+                        push('')
+                        console.log('input', fields.length)
 
-                      win.setTimeout(() => { // Focus the last inserted input. Need setTimeout so .focus() method executed after input element inserted on DOM.
-                        doc.getElementById(`columns[${fields.length - 1}]`).focus()
-                      }, 1);
-                    }"
+                        win.setTimeout(() => {
+                          // Focus the last inserted input. Need setTimeout so .focus() method executed after input element inserted on DOM.
+                          doc.getElementById(`columns[${fields.length - 1}]`).focus()
+                        }, 1)
+                      }
+                    "
                     text="+ Add New Column"
                     type="button"
                     class="block w-full"
@@ -162,7 +194,6 @@ const win = window;
               <Button class="w-full" type="submit" size="small">Create New Board</Button>
             </Form>
           </Modal>
-
         </nav>
       </div>
 
