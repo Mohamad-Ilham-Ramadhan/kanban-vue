@@ -173,8 +173,6 @@ const win = window
                     @click="
                       () => {
                         push('')
-                        console.log('input', fields.length)
-
                         win.setTimeout(() => {
                           // Focus the last inserted input. Need setTimeout so .focus() method executed after input element inserted on DOM.
                           doc.getElementById(`columns[${fields.length - 1}]`).focus()
