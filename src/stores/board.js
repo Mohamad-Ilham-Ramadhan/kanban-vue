@@ -320,7 +320,7 @@ export const useBoardStore = defineStore('board', {
          const newBoard = {
             id: uuid(),
             name: name.trim(),
-            columns: columns.map( c => ({id: uuid(), name: c, tasks: []}))
+            columns: columns.map( c => ({id: uuid(), name: c.trim(), tasks: []}))
          }
          this.boards.push(newBoard)
       },
