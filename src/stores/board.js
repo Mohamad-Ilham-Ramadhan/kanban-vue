@@ -342,9 +342,9 @@ export const useBoardStore = defineStore('board', {
       addNewTask(task) {
          this.boards[this.activeBoardIndex].columns[task.status.index].tasks.push({
             id: uuid(),
-            title: task.title,
-            description: task.description,
-            subtasks: task.subtasks, 
+            title: task.title.trim(),
+            description: task.description.trim(),
+            subtasks: task.subtasks.map( (st) => ({...st, text: st.text.trim()})), 
          })
       },
       swapTask(fromColumnIndex, toColumnIndex, fromIndex, toIndex) { // drag/sort card task
@@ -379,12 +379,12 @@ export const useBoardStore = defineStore('board', {
          }
       },
       editTask(values) {
-         this.board.columns[values.status.index].tasks[this.activeTaskIndex].title = values.title; 
-         this.board.columns[values.status.index].tasks[this.activeTaskIndex].description = values.description; 
-         this.board.columns[values.status.index].tasks[this.activeTaskIndex].subtasks = values.subtasks; 
+         this.board.columns[this.activeColumnIndex].tasks[this.activeTaskIndex].title = values.title.trim(); 
+         this.board.columns[this.activeColumnIndex].tasks[this.activeTaskIndex].description = values.description.trim(); 
+         this.board.columns[this.activeColumnIndex].tasks[this.activeTaskIndex].subtasks = values.subtasks.map( (st) => ({...st, text: st.text.trim()})); 
          if (this.activeColumnIndex !== values.status.index) {
-            const newTask = this.board.columns[this.activeColumnIndex].tasks.splice(this.activeTaskIndex, 1)
-            this.baord.columns[values.status.index].tasks.push(newTask)
+            const newTask = this.board.columns[this.activeColumnIndex].tasks.splice(this.activeTaskIndex, 1)[0]
+            this.board.columns[values.status.index].tasks.push(newTask)
          }
       },
       deleteTask() {

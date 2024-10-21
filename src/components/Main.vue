@@ -888,7 +888,6 @@ const dragMobile = (args, e) => {
                     openModalTask = false
                     openDropdownTask = false
                     openModalEditTask = true
-                    console.log('active task', boardStore.task)
                   }
                 "
                 @on-click-delete="
