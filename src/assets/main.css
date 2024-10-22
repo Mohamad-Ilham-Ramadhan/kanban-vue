@@ -37,3 +37,6 @@ html.dark .beautify-scrollbar::-webkit-scrollbar-thumb {
 html.dark .beautify-scrollbar::-webkit-scrollbar-corner {
   background-color: theme('colors.zinc.900');
 }
+button:focus-visible {
+  outline: 2px solid theme('colors.orange.400');
+}

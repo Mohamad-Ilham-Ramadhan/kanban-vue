@@ -8,6 +8,12 @@ const props = defineProps(['open', 'items', 'name', 'renderValueProp', 'realValu
 const emit = defineEmits(['open-select', 'close-select', 'select-value'])
 
 onUpdated(() => {
+  if (props.open) {
+    paperRef.value?.firstElementChild?.focus()
+  }
+  if (!props.open) {
+    selectButtonRef.value?.focus()
+  }
   if (paperRef.value !== null) {
     // @ts-ignore
     const {  bottom, left,  width} =
@@ -49,7 +55,7 @@ const name = toRef(props, 'name')
   <div class="relative">
     <button
       ref="selectButtonRef"
-      class="block relative w-full text-left border-2 border-slate-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary rounded text-sm py-2 px-4"
+      class="block relative w-full text-left border-2 border-slate-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary focus:border-primary outline-none focus:outline-none  rounded text-sm py-2 px-4"
       @click="$emit('open-select')"
       type="button"
     >
@@ -64,11 +70,11 @@ const name = toRef(props, 'name')
         <div class="absolute z-[101] inset-0" @click="$emit('close-select')"></div>
         <div
           ref="paperRef"
-          class="absolute z-[1000] rounded overflow-hidden bg-white dark:bg-dark drop-shadow-md"
+          class="absolute z-[1000] rounded overflow-hidden bg-white dark:bg-dark drop-shadow-md p-3"
           id="paper"
           v-if="props.open"
         >
-          <div
+          <button
             v-for="(item) in props.items"
             :key="item.name"
             @click="
@@ -78,10 +84,10 @@ const name = toRef(props, 'name')
                 emit('close-select')
               }
             "
-            class="px-4 py-2 text-sm font-semibold text-slate-400 hover:text-black dark:hover:text-white hover:cursor-pointer"
+            class="block w-full text-left mb-1 last:mb-0 text-sm font-semibold text-slate-400 hover:text-black dark:hover:text-white hover:cursor-pointer"
           >
             {{ item[props.renderValueProp] }}
-          </div>
+            </button>
         </div>
       </div>
     </Transition>

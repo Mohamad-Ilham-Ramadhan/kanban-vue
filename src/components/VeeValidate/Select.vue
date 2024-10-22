@@ -8,6 +8,12 @@ const selectButtonRef = ref(null)
 const props = defineProps(['open', 'items', 'name', 'renderValueProp', 'realValueProp', 'initialValue'])
 const emit = defineEmits(['open-select', 'close-select', 'select-value'])
 onUpdated(() => {
+  if (props.open) {
+    paperRef.value?.firstElementChild?.focus()
+  }
+  if (!props.open) {
+    selectButtonRef.value?.focus()
+  }
   if (paperRef.value !== null) {
     // @ts-ignore
     const {  bottom, left,  width } =
@@ -54,7 +60,7 @@ const {
   <div class="relative">
     <button
       ref="selectButtonRef"
-      class="block relative w-full text-left border-2 border-slate-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary rounded text-[13px] text-black dark:text-white py-2 px-4"
+      class="block relative w-full text-left border-2 border-slate-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary outline-none focus:outline-none rounded text-[13px] text-black dark:text-white py-2 px-4"
       @click="$emit('open-select')"
       type="button"
     >
@@ -69,11 +75,11 @@ const {
         <div class="absolute z-[101] inset-0" @click="$emit('close-select')"></div>
         <div
           ref="paperRef"
-          class="absolute z-[1000] py-3 rounded overflow-hidden bg-white dark:bg-dark drop-shadow"
+          class="absolute z-[1000] p-3 rounded overflow-hidden bg-white dark:bg-dark drop-shadow"
           id="paper"
           v-if="props.open"
         >
-          <div
+          <button
             v-for="(item) in props.items"
             :key="item[props.renderValueProp]"
             @click="
@@ -83,10 +89,10 @@ const {
                 emit('close-select')
               }
             "
-            class="px-4 mb-1 text-[13px] hover:font-semibold text-slate-400 hover:text-black dark:hover:text-white hover:cursor-pointer"
+            class="block w-full text-left px-4 mb-1 last:mb-0 text-[13px] hover:font-semibold text-slate-400 hover:text-black dark:hover:text-white hover:cursor-pointer"
           >
             {{ item[props.renderValueProp] }}
-          </div>
+            </button>
         </div>
       </div>
     </Transition>
