@@ -417,7 +417,7 @@ const dragDesktop = (args, e) => {
 const dragMobile = (args, e) => {
   let { colIndex, index } = args
   e.stopPropagation()
-  console.log('dragMobile e', e);
+  // console.log('dragMobile e', e);
   let isDragged = false
 
   const $this = e.currentTarget
@@ -463,6 +463,7 @@ const dragMobile = (args, e) => {
   const mainScrollMaxScrollBottom = Math.floor($mainScroll.scrollHeight - $mainScroll.clientHeight)
 
   const setScrollIntervalId = win.setInterval(() => {
+    if (!isDragged) return;
     // scroll when dragging out of frame
     const $thisRect = $this.getBoundingClientRect()
     const $thisMatrix = new DOMMatrix(win.getComputedStyle($this).transform)
@@ -505,7 +506,7 @@ const dragMobile = (args, e) => {
     e.stopImmediatePropagation()
     // e.preventDefault();
 
-    console.log('touchMove e', e);
+    // console.log('touchMove e', e);
     
     if (!isDragged) {
       if (Date.now() - startStamp > holdToDrag) {
