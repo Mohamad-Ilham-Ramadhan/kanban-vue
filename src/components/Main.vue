@@ -896,9 +896,12 @@ const dragMobile = (args, e) => {
                 "
                 @on-click-delete="
                   () => {
-                    openModalTask = false
-                    openDropdownTask = false
-                    openModalDeleteTask = true
+                    openModalTask = false;
+                    openDropdownTask = false;
+                    openModalDeleteTask = true;
+                    win.setTimeout(() => {
+                      doc.getElementById('delete-task').focus()
+                    })
                   }
                 "
                 @on-click-overlay="openDropdownTask = false"
@@ -994,6 +997,7 @@ const dragMobile = (args, e) => {
                   boardStore.$persist() // because if deletes the last item, I don't know why the store is not persisted.
                 }
               "
+              id="delete-task"
               size="small"
               class="w-full mr-2"
               background-color="bg-red-450 transition-opacity hover:opacity-70"
