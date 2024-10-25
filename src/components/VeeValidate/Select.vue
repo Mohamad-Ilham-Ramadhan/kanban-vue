@@ -7,13 +7,9 @@ const paperRef = ref(null)
 const selectButtonRef = ref(null)
 const props = defineProps(['open', 'items', 'name', 'renderValueProp', 'realValueProp', 'initialValue'])
 const emit = defineEmits(['open-select', 'close-select', 'select-value'])
+const win = window;
+
 onUpdated(() => {
-  if (props.open) {
-    paperRef.value?.firstElementChild?.focus()
-  }
-  if (!props.open) {
-    selectButtonRef.value?.focus()
-  }
   if (paperRef.value !== null) {
     // @ts-ignore
     const {  bottom, left,  width } =
@@ -61,7 +57,12 @@ const {
     <button
       ref="selectButtonRef"
       class="block relative w-full text-left border-2 border-slate-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary outline-none focus:outline-none rounded text-[13px] text-black dark:text-white py-2 px-4"
-      @click="$emit('open-select')"
+      @click="() => {
+        $emit('open-select')
+        win.setTimeout(() => {
+          paperRef?.firstElementChild?.focus()
+        })
+      }"
       type="button"
     >
       <div>{{ inputValue[props.renderValueProp] }}</div>
@@ -87,6 +88,7 @@ const {
                 handleChange(item)
                 emit('select-value')
                 emit('close-select')
+                selectButtonRef.focus()
               }
             "
             class="block w-full text-left px-4 mb-1 last:mb-0 text-[13px] hover:font-semibold text-slate-400 hover:text-black dark:hover:text-white hover:cursor-pointer"
