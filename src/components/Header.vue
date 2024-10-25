@@ -151,7 +151,14 @@ const doc = document;
       <div class="flex items-center">
         <Button
           :class="['md:mr-4 mr-1', isMobile && 'px-4 py-2']"
-          @click="openModalAddTask = true"
+          @click="() => {
+            openModalAddTask = true;
+            win.setTimeout(() => {
+              console.log('focus title', doc.getElementById('title'))
+              // doc.getElementById('title')?.focus()
+              doc.querySelector('input#title')?.focus()
+            });
+          }"
           :size="isMobile ? 'custom' : 'medium'"
         >
           <svg v-show="isMobile" width="12" height="12" xmlns="http://www.w3.org/2000/svg">
