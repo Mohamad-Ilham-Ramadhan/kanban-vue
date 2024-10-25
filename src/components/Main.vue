@@ -886,9 +886,12 @@ const dragMobile = (args, e) => {
                 :open="openDropdownTask"
                 @on-click-edit="
                   () => {
-                    openModalTask = false
-                    openDropdownTask = false
-                    openModalEditTask = true
+                    openModalTask = false;
+                    openDropdownTask = false;
+                    openModalEditTask = true;
+                    win.setTimeout(() => {
+                      doc.querySelector('input#title').focus()
+                    })
                   }
                 "
                 @on-click-delete="
