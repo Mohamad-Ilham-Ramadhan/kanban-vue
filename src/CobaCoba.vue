@@ -10,9 +10,8 @@ import Main from './components/Main.vue';
 <template>
   <Header />
 
-  <div class="flex flex-row overflow-hidden">
+  <div class="h-screen flex flex-col">
     <Aside />
-
     <Main />
   </div>
 </template>

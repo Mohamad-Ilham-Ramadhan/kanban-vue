@@ -821,12 +821,12 @@ const dragMobile = (args, e) => {
 <template>
   <main
     :class="[
-      'mobile:pl-0 pt-[96px] flex w-full h-[100vh] overflow-hidden transition-all',
+      'fixed top-0 left-0 right-0 bottom-0 mobile:pl-0 pt-[96px] flex w-full h-screen transition-all',
       boardStore.sidebar ? 'pl-[300px]' : 'pl-[0px]'
     ]"
   >
     <div
-      class="beautify-scrollbar w-[100vw] overflow-auto hover:cursor-col-resize"
+      class="beautify-scrollbar w-[100vw] h-full overflow-auto hover:cursor-col-resize"
       ref="refDragScroll"
       id="main-scroll"
       @mousedown="
@@ -1141,7 +1141,7 @@ const dragMobile = (args, e) => {
           >
             <div
               v-for="(t, index) in c.tasks"
-              class="card-task card-task-transition bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-none hover:cursor-grab select-none px-4 py-6 mb-4 relative"
+              class="card-task card-task-transition bg-white text-black dark:bg-dark-light dark:text-white rounded-lg dark:border dark:border-gray-750 shadow-md shadow-slate-200 dark:shadow-none hover:cursor-grab select-none px-4 py-6 mb-6 relative"
               :key="t.id"
               data-moveable="0"
               :data-index="index"
