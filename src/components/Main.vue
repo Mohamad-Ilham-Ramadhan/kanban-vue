@@ -920,7 +920,7 @@ const dragMobile = (args, e) => {
             of {{ boardStore.task.subtasks.length }})</label
           >
           <div class="mb-4">
-            <div class="text-xs font-semibold text-slate-400 mb-6">{{ boardStore.task.subtasks.length === 0 && 'No subtasks.' }}</div>
+            <div class="text-xs font-semibold text-slate-400 mb-6" v-show="boardStore.task.subtasks.length === 0">No subtasks.</div>
             <div
               v-for="(subtask, index) in boardStore.task.subtasks"
               :key="subtask.id"
