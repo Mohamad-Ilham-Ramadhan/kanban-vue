@@ -154,8 +154,6 @@ const doc = document;
           @click="() => {
             openModalAddTask = true;
             win.setTimeout(() => {
-              console.log('focus title', doc.getElementById('title'))
-              // doc.getElementById('title')?.focus()
               doc.querySelector('input#title')?.focus()
             });
           }"
