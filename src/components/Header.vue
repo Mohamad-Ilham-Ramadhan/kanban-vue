@@ -184,13 +184,13 @@ const doc = document;
             "
             :validation-schema="
               yup.object().shape({
-                title: yup.string().required('Required').test('unique-name', 'Used', (value) => {
+                title: yup.string().trim().required('Required').test('unique-name', 'Used', (value) => {
                 return boardStore.tasksTitleSet.has(value.trim().toLocaleLowerCase()) ? false : true;
                 }),
                 subtasks: yup.array().of(
                   yup.object().shape({
                     id: yup.string().required('Required'),
-                    text: yup.string().required('Required'),
+                    text: yup.string().trim().required('Required'),
                     isDone: yup.boolean().required('Required')
                   })
                 )
