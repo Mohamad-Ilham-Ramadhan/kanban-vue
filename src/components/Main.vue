@@ -1110,6 +1110,7 @@ const dragMobile = (args, e) => {
                 @open-select="openSelectStatus = true"
                 @close-select="openSelectStatus = false"
                 :items="boardStore.board.columns.map((c, i) => ({ name: c.name, index: i }))"
+                :initialValue="boardStore.activeColumnIndex"
                 name="status"
                 renderValueProp="name"
                 realValueProp="index"
