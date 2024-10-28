@@ -1038,11 +1038,11 @@ const dragMobile = (args, e) => {
             "
             :validation-schema="
               yup.object().shape({
-                title: yup.string().required('Required'),
+                title: yup.string().trim().required('Required'),
                 subtasks: yup.array().of(
                   yup.object().shape({
                     id: yup.string().required('Required'),
-                    text: yup.string().required('Required'),
+                    text: yup.string().trim().required('Required'),
                     isDone: yup.boolean().required('Required')
                   })
                 )
