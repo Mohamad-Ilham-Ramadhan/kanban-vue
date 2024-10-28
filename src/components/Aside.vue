@@ -101,6 +101,7 @@ const win = window
                 yup.object().shape({
                   name: yup
                     .string()
+                    .trim()
                     .required('Required')
                     .test('unique-name', 'Used', (value) => {
                       return boardStore.boardsNameSet.has(value.trim().toLocaleLowerCase())
@@ -110,6 +111,7 @@ const win = window
                   columns: yup.array().of(
                     yup
                       .string()
+                      .trim()
                       .required('Required')
                       .test('unique-name', 'Used', (value, context) => {
                         // @ts-ignore
