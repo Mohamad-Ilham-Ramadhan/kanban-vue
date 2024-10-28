@@ -1212,7 +1212,7 @@ const dragMobile = (args, e) => {
                 yup.object().shape({
                   columns: yup.array().of(
                     yup.object().shape({
-                      name: yup.string().required('Required').test('unique-name', 'Used', (value, context) => {
+                      name: yup.string().trim().required('Required').test('unique-name', 'Used', (value, context) => {
                         // @ts-ignore
                         const columns = context.from[1].value.columns;
                         const match = context?.path?.match(/\d+/)
