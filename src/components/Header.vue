@@ -356,23 +356,21 @@ const doc = document;
         >
           <div class="font-bold text-lg mb-4">Edit Board</div>
           <Form
-            @submit="
-              (values) => {
-                boardStore.addNewcolumn(values.columns.map((c) => ({ ...c, name: c.name.trim() })))
-                boardStore.setName(values.name.trim())
-                openModalEdit = false
-              }
-            "
+            @submit="(values) => {
+              boardStore.addNewcolumn(values.columns.map((c) => ({ ...c, name: c.name.trim() })))
+              boardStore.setName(values.name.trim())
+              openModalEdit = false;
+            }"
             :validation-schema="
               yup.object().shape({
-                name: yup.string().required('Required').test('unique-name', 'Used', (value) => {
+                name: yup.string().trim().required('Required').test('unique-name', 'Used', (value) => {
                   value = value.toLocaleLowerCase().trim();
                   if (value === boardStore.board.name.toLocaleLowerCase().trim()) return true;
                   return boardStore.boardsNameSet.has(value) ? false : true;
                 }),
                 columns: yup.array().of(
                   yup.object().shape({
-                    name: yup.string().required('Required').test('unique-name', 'Used', (value, context) => {
+                    name: yup.string().trim().required('Required').test('unique-name', 'Used', (value, context) => {
                       // @ts-ignore
                       const columns = context.from[1].value.columns;
                       const match = context?.path?.match(/\d+/)
