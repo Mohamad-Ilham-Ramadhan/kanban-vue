@@ -205,12 +205,12 @@ const doc = document;
           >
             <div class="text-lg font-bold mb-6">Add New Task</div>
             <div class="mb-4">
-              <label for="title" class="block text-xs  font-bold mb-2">Title</label>
+              <label for="title" class="font-semibold text-xs text-slate-400 dark:text-white block mb-2">Title</label>
               <Input type="text" name="title" id="title" />
             </div>
 
             <div class="mb-4">
-              <label for="title" class="block text-xs  font-bold mb-2">Description</label>
+              <label for="title" class="font-semibold text-xs text-slate-400 dark:text-white block mb-2">Description</label>
               <Textarea name="description" id="description" rows="4"/>
             </div>
 
