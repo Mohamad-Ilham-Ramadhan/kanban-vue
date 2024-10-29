@@ -1057,12 +1057,12 @@ const dragMobile = (args, e) => {
           >
             <div class="text-lg font-bold mb-6">Edit Task</div>
             <div class="mb-4">
-              <label for="title" class="block text-xs font-bold mb-2">Title</label>
+              <label for="title" class="font-bold text-xs text-slate-400 dark:text-white block mb-2">Title</label>
               <Input type="text" name="title" id="title" />
             </div>
 
             <div class="mb-4">
-              <label for="title" class="block text-xs font-bold mb-2">Description</label>
+              <label for="title" class="font-bold text-xs text-slate-400 dark:text-white block mb-2">Description</label>
               <Textarea name="description" id="description" />
             </div>
 
@@ -1071,7 +1071,7 @@ const dragMobile = (args, e) => {
                 <div class="mb-2">
                   <label
                     for="name"
-                    class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
+                    class="font-bold text-xs text-slate-400 dark:text-white block mb-2"
                     >Subtasks</label
                   >
                 </div>
@@ -1102,7 +1102,7 @@ const dragMobile = (args, e) => {
             <div class="mb-4">
               <label
                 for="status"
-                class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
+                class="font-bold text-xs text-slate-400 dark:text-white block mb-2"
                 >Status</label
               >
               <SelectVee
@@ -1242,7 +1242,7 @@ const dragMobile = (args, e) => {
               <div class="mb-4">
                 <label
                   for="name"
-                  class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
+                  class="font-bold text-xs text-slate-400 dark:text-white block mb-2"
                   >Name</label
                 >
                 <Input name="name" type="text" :disabled="true" />
@@ -1254,7 +1254,7 @@ const dragMobile = (args, e) => {
                     <div class="mb-2">
                       <label
                         for="name"
-                        class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
+                        class="font-bold text-xs text-slate-400 dark:text-white block mb-2"
                         >Columns</label
                       >
                     </div>
