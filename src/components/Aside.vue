@@ -139,7 +139,7 @@ const win = window
               <div class="mb-4">
                 <label
                   for="name"
-                  class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
+                  class="font-bold text-xs text-slate-400 dark:text-white block mb-2"
                   >Name</label
                 >
                 <Input name="name" type="text" />
@@ -150,7 +150,7 @@ const win = window
                     <div class="mb-2">
                       <label
                         for="name"
-                        class="font-semibold text-xs text-slate-400 dark:text-white block mb-2"
+                        class="font-bold text-xs text-slate-400 dark:text-white block mb-2"
                         >Columns</label
                       >
                     </div>
