@@ -1,12 +1,8 @@
 @import './base.css';
-html {
-  overflow: hidden;
-}
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
   color: #000;
   background-color: theme('colors.light-theme-bg');
-  overflow: auto;
 }
 /* dark theme */
 html.dark body {
